@@ -29,8 +29,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var top = this.scope.Top;
             var newScope = variableDeclaration.Kind == FastVariableKind.Const
                 || variableDeclaration.Kind == FastVariableKind.Let;
-            var ed = variableDeclaration.Declarators.GetFastEnumerator();
-            while(ed.MoveNext(out var d)) {
+            foreach(var d in variableDeclaration.Declarators) {
 
                 switch(d.Identifier.Type) {
                     case FastNodeType.Identifier:

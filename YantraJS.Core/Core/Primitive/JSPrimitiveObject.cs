@@ -49,40 +49,50 @@ namespace YantraJS.Core.Core.Primitive
 
         protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
-            if (key == KeyString.length)
+            if (value is JSString @string)
             {
-                if (value is JSString @string)
+                if (key == KeyString.length)
                 {
                     return new JSNumber(@string.Length);
                 }
+                return value.GetValue(key, receiver, throwError);
             }
             return base.GetValue(key, receiver, throwError);
         }
 
-        public override JSValue this[uint name] {
-            get {
-                ref var elements = ref GetElements();
-                if (elements.TryGetValue(name, out var p))
-                    return this.GetValue(p);
-                return value[name];
+        protected internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        {
+            if (value is JSString @string)
+            {
+                return value.GetValue(key, receiver, throwError);
             }
-            set {
-                if (value is JSString @string) {
-                    if (name < @string.Length) {
-                        return;
-                    }
-                }
-                base[name] = value;
-            }
+            return base.GetValue(key, receiver, throwError);
         }
+
+        //public override JSValue this[uint name] {
+        //    get {
+        //        ref var elements = ref GetElements();
+        //        if (elements.TryGetValue(name, out var p))
+        //            return this.GetValue(p);
+        //        return value[name];
+        //    }
+        //    set {
+        //        if (value is JSString @string) {
+        //            if (name < @string.Length) {
+        //                return;
+        //            }
+        //        }
+        //        base[name] = value;
+        //    }
+        //}
 
         /// <summary> Added for below TCs in ExpressionTests.cs
         /// Assert.AreEqual(false, Evaluate("var x = new Number(10); x == new Number(10)"));
         // Assert.AreEqual(true, Evaluate("var x = new Number(10); x == x"));
-       /// </summary>
-       /// <param name="value"></param>
-       /// <returns></returns>
-    
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+
         public override bool Equals(JSValue value)
         {
             if (object.ReferenceEquals(this, value))

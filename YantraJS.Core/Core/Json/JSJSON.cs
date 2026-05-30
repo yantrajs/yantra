@@ -174,7 +174,7 @@ namespace YantraJS.Core
             bool first = true;
             // the only left type is JSObject...
             var obj = target as JSObject;
-            var pen = obj.GetOwnProperties().GetEnumerator();
+            var pen = obj.GetOwnProperties().GetPropertyEnumerator();
             while(pen.MoveNext(out var key, out var value))
             {
                 if (value.IsEmpty || !value.IsEnumerable)

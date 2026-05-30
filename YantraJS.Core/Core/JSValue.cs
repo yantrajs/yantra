@@ -10,8 +10,10 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core;
+using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
 using YantraJS.Utils;
 
@@ -215,7 +217,36 @@ namespace YantraJS.Core {
             }
         }
 
-        
+
+        public virtual IEnumerable<(string Key, JSValue value)> EntriesInherited
+        {
+            get
+            {
+                this.prototypeChain.Build();
+                foreach(var (key,v) in this.prototypeChain.propertySet.properties.AllValues())
+                {
+                    yield return (((KeyString)key).ToStringSpan().Value, this.GetValue(v.property));
+                }
+                //var en = new PropertySequence.ValueEnumerator(this.prototypeChain.propertySet.key, false);
+                //while (en.MoveNext(out var value, out var key))
+                //{
+                //    yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
+                //}
+                //for(int i = 0; i< ownProperties.properties.Length; i++)
+                //{
+                //    var p = ownProperties.properties[i];
+                //    JSValue v = null;
+                //    try {
+                //        v = this.GetValue(p);
+                //    } catch (Exception ex)
+                //    {
+                //        System.Diagnostics.Debug.WriteLine(ex);
+                //    }
+                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
+                //}
+            }
+        }
+
         /// <summary>
         /// Unless overriden, it returns self
         /// </summary>
@@ -416,7 +447,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(in KeyString name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -424,7 +455,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, in KeyString name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = prototypeChain;
             if (pc == null)
@@ -434,7 +465,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(uint name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -442,7 +473,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, uint name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = this.prototypeChain;
             if (pc == null)
@@ -452,7 +483,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(JSSymbol name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             return GetValue(name, this);
         }
@@ -460,7 +491,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, JSSymbol name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             var pc = prototypeChain;
             if (pc == null)
@@ -470,7 +501,7 @@ namespace YantraJS.Core {
 
         public JSValue PropertyOrUndefined(JSValue name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             if (name is JSSymbol s)
                 return PropertyOrUndefined(s);
@@ -483,7 +514,7 @@ namespace YantraJS.Core {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public JSValue PropertyOrUndefined(JSObject super, JSValue name)
         {
-            if (this == JSNull.Value || this == JSUndefined.Value)
+            if (this.IsNullOrUndefined)
                 return JSUndefined.Value;
             if (name is JSSymbol s)
                 return PropertyOrUndefined(super, s);
@@ -493,7 +524,7 @@ namespace YantraJS.Core {
             return PropertyOrUndefined(k.KeyString);
         }
 
-        public virtual JSValue this[KeyString name]
+        public JSValue this[KeyString name]
         {
             get
             {
@@ -501,17 +532,19 @@ namespace YantraJS.Core {
             }
             set
             {
-                // throw new NotSupportedException();
+                SetValue(name, value, this, true);
             }
         }
 
-        public virtual JSValue this[uint key]
+        public JSValue this[uint key]
         {
             get
             {
                 return this.GetValue(key, this);
             }
-            set { }
+            set {
+                SetValue(key, value, this, true);
+            }
         }
 
         public virtual JSValue this[JSSymbol symbol]
@@ -535,16 +568,16 @@ namespace YantraJS.Core {
             }
         }
 
-        internal virtual JSValue this[KeyString name, JSValue @this]
-        {
-            get
-            {
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                return GetValue(name, this);
-            }
-            set { }
-        }
+        //internal JSValue this[KeyString name, JSValue @this]
+        //{
+        //    get
+        //    {
+        //        if (prototypeChain == null)
+        //            return JSUndefined.Value;
+        //        return GetValue(name, this);
+        //    }
+        //    set { }
+        //}
 
         internal protected virtual JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
@@ -761,6 +794,47 @@ namespace YantraJS.Core {
         //{
         //    yield break;
         //}
+
+        //public virtual IKeyEnumerator GetForInUIntEnumerator()
+        //{
+        //    return EmptyKeyEnumerator.Instance;
+        //}
+
+        //public virtual IKeyEnumerator GetForInStringEnumerator()
+        //{
+        //    return EmptyKeyEnumerator.Instance;
+        //}
+
+        //public IKeyEnumerator GetPrototypeUIntEnumerator()
+        //{
+        //    if ()
+        //}
+
+        public virtual IEnumerable<JSValue> GetForInKeys()
+        {
+            if (prototypeChain == null)
+            {
+                yield break;
+            }
+
+            prototypeChain.Build();
+
+            foreach (var item in prototypeChain.propertySet.elements.AllValues())
+            {
+                if (item.Value.property.IsEnumerable)
+                {
+                    yield return new JSNumber(item.Key);
+                }
+            }
+
+            foreach (var item in prototypeChain.propertySet.properties.AllValues())
+            {
+                if (item.Value.property.IsEnumerable)
+                {
+                    yield return new JSString(((KeyString)item.Key).ToStringSpan());
+                }
+            }
+        }
 
         public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
             return new ElementEnumerator();

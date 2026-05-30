@@ -72,14 +72,15 @@ namespace YantraJS.Core
                 ? $"function {type.name}() {{ [clr-native] }}"
                 : source;
             prototype = type.prototype;
-            prototype.FastAddValue(KeyString.constructor, type, JSPropertyAttributes.EnumerableConfigurableValue);
+            prototype.FastAddValue(KeyString.constructor, type, JSPropertyAttributes.ConfigurableValue);
             ownProperties.Put((uint)KeyString.prototype) = JSProperty.Property(KeyString.prototype, prototype);
 
             this.FastAddValue(KeyString.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name), JSPropertyAttributes.EnumerableConfigurableValue);
-            this.FastAddValue(KeyString.length, new JSNumber(0), JSPropertyAttributes.EnumerableConfigurableValue);
+                : new JSString(name), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.length, new JSNumber(0), JSPropertyAttributes.ConfigurableValue);
             constructor = this;
+            prototype.Dirty();
         }
 
         internal void Seal()
@@ -102,21 +103,21 @@ namespace YantraJS.Core
         protected JSFunction(StringSpan name, StringSpan source, JSObject _prototype)
             : this()
         {
-            ref var ownProperties = ref this.GetOwnProperties();
             this.f = empty;
             this.name = name.IsEmpty ? "native" : name;
             this.source = source.IsEmpty 
                 ? $"function {this.name}() {{ [native] }}"
                 : source;
             prototype = _prototype;
-            prototype.GetOwnProperties(true).Put(KeyString.constructor, this);
-            ownProperties.Put(KeyString.prototype, prototype);
+            prototype.ownProperties.Put(KeyString.constructor, this, JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(KeyString.prototype, prototype, JSPropertyAttributes.ConfigurableValue);
 
             ownProperties.Put(KeyString.name, name.IsEmpty 
                 ? new JSString("native")
-                : new JSString(name));
+                : new JSString(name), JSPropertyAttributes.ConfigurableValue);
             ownProperties.Put(KeyString.length, JSNumber.Zero);
             constructor = this;
+            prototype.Dirty();
         }
 
         public JSFunction(JSFunctionDelegate f)
@@ -139,6 +140,14 @@ namespace YantraJS.Core
             JSFunctionDelegate f,
             in StringSpan name,
             int length = 0): this(f, name, StringSpan.Empty, length)
+        {
+
+        }
+
+        public JSFunction(JSContext context,
+            JSFunctionDelegate f,
+            in StringSpan name,
+            int length = 0) : this(context, f, name, StringSpan.Empty, length)
         {
 
         }
@@ -173,19 +182,33 @@ namespace YantraJS.Core
             // this[KeyString.length] = new JSNumber(length);
             ownProperties.Put(KeyString.name, name.IsEmpty
                 ? new JSString("native")
-                : new JSString(name));
-            ownProperties.Put(KeyString.length, new JSNumber(length));
+                : new JSString(name), JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(KeyString.length, new JSNumber(length), JSPropertyAttributes.ConfigurableValue);
             constructor = this;
+            if (createPrototype)
+            {
+                prototype.Dirty();
+            }
+        }
+
+        public JSFunction(JSFunctionDelegate f,
+            in StringSpan name,
+            in StringSpan source,
+            int length = 0,
+            bool createPrototype = true):
+            this(JSContext.CurrentContext, f, in name, in source, length, createPrototype)
+        {
+
         }
 
         public JSFunction(
+            JSContext context,
             JSFunctionDelegate f,
             in StringSpan name,
             in StringSpan source,
             int length = 0,
-            bool createPrototype = true): base(JSValueType.Function, JSContext.CurrentContext.Function_Prototype)
+            bool createPrototype = true): base(JSValueType.Function, context.Function_Prototype)
         {
-            ref var ownProperties = ref this.GetOwnProperties();
             this.f = f;
             this.name = name.IsEmpty ? "native" : name;
             this.source = source.IsEmpty
@@ -212,18 +235,31 @@ namespace YantraJS.Core
             ownProperties.Put(KeyString.length, new JSNumber(length),
                 JSPropertyAttributes.ConfigurableValue);
             constructor = this;
-        }
-
-        public override JSValue this[KeyString name] { 
-            get => base[name]; 
-            set {
-                if (name == KeyString.prototype)
-                {
-                    this.prototype = value as JSObject;
-                }
-                base[name] = value;
+            if (createPrototype)
+            {
+                prototype.Dirty();
             }
         }
+
+        protected internal override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
+        {
+            if (name == KeyString.prototype)
+            {
+                this.prototype = value as JSObject;
+            }
+            return base.SetValue(name, value, receiver, throwError);
+        }
+
+        //public override JSValue this[KeyString name] { 
+        //    get => base[name]; 
+        //    set {
+        //        if (name == KeyString.prototype)
+        //        {
+        //            this.prototype = value as JSObject;
+        //        }
+        //        base[name] = value;
+        //    }
+        //}
 
         //public override string ToString()
         //{

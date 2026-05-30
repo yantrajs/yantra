@@ -1,9 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using YantraJS.Extensions;
 
 namespace YantraJS.Core.Enumerators
 {
+    public interface IKeyEnumerator
+    {
+        bool MoveNext(out JSValue value);
+    }
+
+    public class ForInUIntEnumerator: IElementEnumerator
+    {
+        private readonly JSObject target;
+        private uint start;
+        private readonly uint length;
+
+        public ForInUIntEnumerator(JSObject target) {
+            this.target = target;
+            this.start = 0;
+        }
+
+        public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool MoveNext(out JSValue value)
+        {
+            if(!this.target.elements.TryGetValue(this.start, out var p))
+            {
+                value = default;
+                return false;
+            }
+            if (p.IsEnumerable)
+            {
+                value = target.GetValue(p);
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+        public bool MoveNextOrDefault(out JSValue value, JSValue @default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public JSValue NextOrDefault(JSValue @default)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class PropertyEnumerator
     {
         readonly JSObject target;
@@ -92,18 +141,19 @@ namespace YantraJS.Core.Enumerators
     public class KeyEnumerator : IElementEnumerator
     {
         readonly JSObject target;
-        readonly bool showEnumerableOnly;
         readonly bool inherited;
+        readonly bool showEnumerableOnly;
         private KeyEnumerator parent;
         IElementEnumerator elements;
         PropertySequence.ValueEnumerator properties;
+        private int mask;
 
         public KeyEnumerator(JSObject jSObject, bool showEnumerableOnly, bool inherited)
         {
             this.target = jSObject;
             this.elements = jSObject.GetElementEnumerator();
             this.properties = new PropertySequence.ValueEnumerator(jSObject, showEnumerableOnly);
-            this.showEnumerableOnly = showEnumerableOnly;
+            this.mask = showEnumerableOnly ? (-1 & (int)JSPropertyAttributes.Enumerable) : -1;
             this.inherited = inherited;
             parent = null;
         }

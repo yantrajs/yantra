@@ -11,16 +11,16 @@ public class Program
     private static readonly Dictionary<string, string> _files = new()
     {
         { "array-stress", null },
-        { "evaluation", null },
-        { "linq-js", null },
-        { "minimal", null },
-        { "stopwatch", null },
-        { "dromaeo-3d-cube", null },
-        { "dromaeo-core-eval", null },
-        { "dromaeo-object-array", null },
-        { "dromaeo-object-regexp", null },
-        { "dromaeo-object-string", null },
-        { "dromaeo-string-base64", null },
+        //{ "evaluation", null },
+        //{ "linq-js", null },
+        //{ "minimal", null },
+        //{ "stopwatch", null },
+        //{ "dromaeo-3d-cube", null },
+        //{ "dromaeo-core-eval", null },
+        //{ "dromaeo-object-array", null },
+        //{ "dromaeo-object-regexp", null },
+        //{ "dromaeo-object-string", null },
+        //{ "dromaeo-string-base64", null },
     };
 
     private static readonly string _dromaeoHelpers = @"
@@ -53,7 +53,7 @@ public class Program
             // unless you pass `this`, `this` in a global context is undefined.
             var start = DateTime.Now;
             engine.Eval(content, item + ".js", engine);
-            Console.WriteLine($"{item} time {(DateTime.Now - start).TotalSeconds:N}");
+            Console.WriteLine($"{item} time {(DateTime.Now - start).TotalMilliseconds:N}");
         }
     }
 }

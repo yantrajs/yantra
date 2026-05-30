@@ -127,7 +127,7 @@ namespace YantraJS.Core
                     case 4:
                         return new Arguments(@this, 4, arguments[(uint)0], arguments[1], arguments[2], arguments[3], null);
                     default:
-                        var argList = new JSValue[arguments.Length];
+                        var argList = new JSValue[length];
                         var ee = arguments.GetElementEnumerator();
                         while (ee.MoveNext(out var hasValue, out var value, out var index))
                         {
@@ -719,12 +719,11 @@ namespace YantraJS.Core
         public JSValue RestFrom(uint index)
         {
             var a = new JSArray();
-            ref var ae = ref a.GetElements(true);
             uint i;
             uint ai;
             for (ai = 0,i = index; i < Length; i++, ai++)
             {
-                ae.Put(ai, GetAt((int)i));
+                a.elements.Put(ai, GetAt((int)i));
             }
             a._length = ai;
             return a;

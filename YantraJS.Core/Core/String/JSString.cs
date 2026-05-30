@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
+using YantraJS.Core.FastParser;
 using YantraJS.Core.Typed;
 using YantraJS.Extensions;
 using YantraJS.Utils;
@@ -160,6 +161,10 @@ namespace YantraJS.Core
 
         public JSString(in StringSpan value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype, value.Length > 0)
         {
+            //if(value.Source == null)
+            //{
+            //    throw new ArgumentNullException(nameof(value));
+            //}
             this.value = value.Value;
         }
 
@@ -208,7 +213,7 @@ namespace YantraJS.Core
           
         }
 
-        internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
+        internal protected sealed override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
             if (key >= this.value.Length)
             {
@@ -238,6 +243,17 @@ namespace YantraJS.Core
         //    set { }
         //}
 
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            for (int i = 0; i< this.value.Length;i++)
+            {
+                yield return new JSNumber(i);
+            }
+            foreach(var item in base.GetForInKeys())
+            {
+                yield return item;
+            }
+        }
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this.Length);

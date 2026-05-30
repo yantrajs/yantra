@@ -31,6 +31,33 @@ namespace YantraJS.Core.Tests.Parser
         }
 
         [TestMethod]
+        public void Conditional()
+        {
+            //var program = Parse("a()");
+            //var fx = (program.Statements[0] as AstExpressionStatement)?.Expression;
+            //Assert.AreEqual(fx.Type, FastParser.FastNodeType.CallExpression);
+
+            //Parse("a.b()");
+            //Parse("a.b(a)");
+            //Parse("a.b(a.b)");
+            //Parse("a.b(a.b())");
+
+            //Parse("a.b.c()");
+
+            //Parse("a + c()");
+            //Parse("a() + c()");
+            var x = Parse("a !== b || c !== d || e !== n ? 1 : 2");
+            var ex = (x.Statements[0] as AstExpressionStatement).Expression;
+            Assert.IsExactInstanceOfType<AstConditionalExpression>(ex);
+
+
+            x = Parse("a !== b || c !== d || e !== n || c !== n ? 1 : 2");
+            ex = (x.Statements[0] as AstExpressionStatement).Expression;
+            Assert.IsExactInstanceOfType<AstConditionalExpression>(ex);
+
+        }
+
+        [TestMethod]
         public void Computed()
         {
             // var x = Expression("a[1]");

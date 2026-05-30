@@ -106,7 +106,7 @@ namespace YantraJS.Core.Core.Storage
     public class ConcurrentUInt32Map<T>
     {
 
-        private SAUint32Map<T> Map;
+        private Uint32Map<T> Map;
 
         private ReaderWriterLockSlim lockSlim;
 
@@ -125,7 +125,8 @@ namespace YantraJS.Core.Core.Storage
             {
 
                 lockSlim.EnterReadLock();
-                var value = Map[key];
+                // var value = Map[key];
+                Map.TryGetValue(key, out var value);
                 lockSlim.ExitReadLock();
                 return value;
             }

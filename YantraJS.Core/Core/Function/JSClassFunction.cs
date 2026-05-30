@@ -4,10 +4,20 @@
     {
 
         public JSClassFunction(
+            JSContext context,
             JSFunctionDelegate @delegate,
             in StringSpan name,
             in StringSpan source,
-            int length = 0) : base(@delegate, name, source, length)
+            int length = 0) : base(context, @delegate, name, source, length)
+        {
+
+        }
+
+        public JSClassFunction(
+            JSFunctionDelegate @delegate,
+            in StringSpan name,
+            in StringSpan source,
+            int length = 0) : base(JSContext.CurrentContext, @delegate, name, source, length)
         {
 
         }

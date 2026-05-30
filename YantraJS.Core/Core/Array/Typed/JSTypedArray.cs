@@ -100,7 +100,7 @@ namespace YantraJS.Core.Typed
             switch (source)
             {
                 case JSArray array:
-                    length = array.Length;
+                    length = (int)array._length;
                     break;
                 case JSString @string:
                     length = @string.Length;
@@ -231,6 +231,42 @@ namespace YantraJS.Core.Typed
         internal IElementEnumerator GetEntries()
         {
             return new EntryEnumerator(this);
+        }
+
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            for (int i = 0; i < length; ++i)
+            {
+                yield return new JSNumber(i);
+            }
+
+            prototypeChain.Build();
+
+            foreach (var item in prototypeChain.propertySet.elements.AllValues())
+            {
+                if (!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                if (item.Key < this.length)
+                {
+                    continue;
+                }
+                yield return new JSNumber(item.Key);
+            }
+
+            foreach (var item in prototypeChain.propertySet.properties.AllValues())
+            {
+                if (!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                if (ownProperties.TryGetValue(item.Key, out var none))
+                {
+                    continue;
+                }
+                yield return new JSString(((KeyString)item.Key).ToStringSpan());
+            }
         }
 
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)

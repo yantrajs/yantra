@@ -68,13 +68,23 @@ internal static class NewLambdaExpression
         return Expression.Call(null, m, args);
     }
 
-
     public static Expression CallExpression<TIn, TOut>(
         this Expression @this,
         Func<Expression<Func<TIn, TOut>>> fx,
         params Expression[] args)
     {
         var m = TypeQuery.QueryInstanceMethod(fx);
+        if (m.IsStatic)
+        {
+            if (args.Length == 0)
+            {
+                return Expression.Call(null, m, @this);
+            }
+            var newArgs = new Expression[args.Length + 1];
+            newArgs[0] = @this;
+            Array.Copy(args, 0, newArgs, 1, args.Length);
+            return Expression.Call(null, m, newArgs);
+        }
         return Expression.Call(@this, m, args);
     }
 
@@ -104,6 +114,32 @@ internal static class NewLambdaExpression
     {
         var m = TypeQuery.QueryInstanceMethod(fx);
         return Expression.Call(@this, m, p1, p2);
+    }
+
+    public static Expression MakeIndexExpression<TIn, TIndex1, TIndex2, TOut>(
+        this Expression @this,
+        Func<Expression<Func<TIn, TIndex1, TIndex2, TOut>>> fx,
+        Expression p1,
+        Expression p2
+    )
+    {
+        var m = TypeQuery.QueryInstanceIndex(fx);
+        return Expression.MakeIndex(@this, m, p1, p2);
+    }
+
+    public static Expression MakeIndexExpression<TIn, TIndex1, TOut>(
+        this Expression @this,
+        Func<Expression<Func<TIn, TIndex1, TOut>>> fx,
+        Expression p1
+    )
+    {
+        var m = TypeQuery.QueryInstanceIndex(fx);
+        return Expression.MakeIndex(@this, m, p1);
+    }
+
+    public static Expression As<T>(this Expression @this)
+    {
+        return Expression.Convert(@this, typeof(T));
     }
 
 }

@@ -37,8 +37,7 @@ namespace YantraJS.Generator
 
         protected override CodeInfo VisitCall(YCallExpression yCallExpression)
         {
-            using (tempVariables.Push())
-            {
+            var scope = tempVariables.Push();
                 if(yCallExpression.Target != null)
                 {
                     Visit(yCallExpression.Target);
@@ -47,7 +46,7 @@ namespace YantraJS.Generator
                 var a = EmitParameters(yCallExpression.Method, yCallExpression.Arguments, yCallExpression.Type);
                 il.EmitCall(yCallExpression.Method);
                 a();
-            }
+            scope.Dispose();
             return true;
         }
     }

@@ -35,15 +35,16 @@ namespace YantraJS.Core
                 return new JSArray((uint)arg.DoubleValue);
             }
             // If elements are specified
-            for (int i = 0; i < a.Length; i++)
-            {
-                var ele = a.GetAt(i);
-                //if (ele == null)
-                //    ele = JSUndefined.Value;
-                result.Add(ele);
+            return new JSArray(a.ToArray());
+            //for (int i = 0; i < a.Length; i++)
+            //{
+            //    var ele = a.GetAt(i);
+            //    //if (ele == null)
+            //    //    ele = JSUndefined.Value;
+            //    result.Add(ele);
                 
-            }
-            return result;
+            //}
+            //return result;
 
             
         }
@@ -156,13 +157,14 @@ namespace YantraJS.Core
             var start = s.IntValue;
             var end = a.TryGetAt(2, out var e) ? e.IntValue : int.MaxValue;
             var @this = a.This as JSArray;
+            var thisLength = (int)@this._length;
             // Negative values represent offsets from the end of the array.
-            target = target < 0 ? Math.Max(@this.Length + target, 0) : Math.Min(target, @this.Length);
-            start = start < 0 ? Math.Max(@this.Length + start, 0) : Math.Min(start, @this.Length);
-            end = end < 0 ? Math.Max(@this.Length + end, 0) : Math.Min(end, @this.Length);
+            target = target < 0 ? Math.Max(thisLength + target, 0) : Math.Min(target, thisLength);
+            start = start < 0 ? Math.Max(thisLength + start, 0) : Math.Min(start, thisLength);
+            end = end < 0 ? Math.Max(thisLength + end, 0) : Math.Min(end, thisLength);
 
             // Calculate the number of values to copy.
-            int count = Math.Min(end - start, @this.Length - target);
+            int count = Math.Min(end - start, thisLength - target);
 
             // Check if we need to copy in reverse due to an overlap.
             int direction = 1;
@@ -173,23 +175,23 @@ namespace YantraJS.Core
                 target += count - 1;
             }
 
-            ref var elements = ref @this.GetElements(true);
+            // ref var elements = ref @this.elements;
 
             while (count > 0)
             {
                 // Get the value of the array element.
-                var elementValue = elements[(uint)start];
+                var elementValue = @this.elements[(uint)start];
 
                 if (!elementValue.IsEmpty)
                 {
                     // Copy the value to the new position.
-                    elements.Put((uint)target) = elementValue;
+                    @this.elements.Put((uint)target,in elementValue);
                 }
                 else
                 {
                     // Delete the element at the new position.
                     // Delete((uint)target);
-                    elements.RemoveAt((uint)target);
+                    @this.elements.RemoveAt((uint)target);
                 }
 
                 // Progress to the next element.
@@ -513,23 +515,23 @@ namespace YantraJS.Core
         {
             if (!(a.This is JSObject @this))
                 throw JSContext.Current.NewTypeError($"{a.This} is not an object or an array");
-            var callback = a.Get1();
-            if (!(callback is JSFunction fn))
+            var callback = a[0];
+            if (!(a[0] is JSFunction fn))
                 throw JSContext.Current.NewTypeError($"{callback} is not a function in Array.prototype.find");
-            ref var te = ref @this.GetElements();
+            // ref var te = ref @this.GetElements();
             var r = new JSArray();
-            ref var relements = ref r.GetElements();
+            // ref var relements = ref r.GetElements();
             var length = (uint)@this.Length;
             for (uint i = 0; i < length; i++)
             {
-                ref var e = ref te.Get(i);
+                var e = @this.elements.Get(i);
                 if (e.IsEmpty)
                 {
                     continue;
                 }
-                var item = @this.GetValue(e);
+                var item = @this.GetValue(in e);
                 var itemArgs = new Arguments(@this, item, new JSNumber(i), @this);
-                relements.Put(i, fn.f(itemArgs));
+                r.elements.Put(i, fn.f(in itemArgs));
             }
             r._length = length;
             return r;
@@ -553,13 +555,13 @@ namespace YantraJS.Core
                 var l = (long)i;
                 var max = (long)uint.MaxValue;
                 al = a.Length;
-                ref var taElements = ref ta.GetElements();
+                // ref var taElements = ref ta.GetElements();
                 for(ai = 0; ai < al; ai++)
                 {
                     var item = a.GetAt(ai);
                     if (l < max)
                     {
-                        taElements.Put(i++, item);
+                        ta.elements.Put(i++, item);
                         ta._length = i;
                     } else {
                         ta[ KeyStrings.Instance.GetOrCreate(l.ToString())] = item;
@@ -666,11 +668,11 @@ namespace YantraJS.Core
             //return r;
             var i = 0;
             var j = @this.Length - 1;
-            ref var elements = ref @this.GetElements();
+            // ref var elements = ref @this.GetElements();
             while (i < j) {
-                var swap = elements[(uint)i];
-                elements.Put((uint)i++) = elements[(uint)j];
-                elements.Put((uint)j--) = swap;
+                var swap = @this.elements[(uint)i];
+                @this.elements.Put((uint)i++, @this.elements[(uint)j]);
+                @this.elements.Put((uint)j--, swap);
 
             }
             // Assert.AreEqual(false, Evaluate("x.hasOwnProperty('0')")); This TC fails
@@ -716,16 +718,16 @@ namespace YantraJS.Core
             var n = (uint)@this.Length;
             if (n == 0)
                 return first;
-            ref var oe = ref @object.GetElements();
-            if (oe.IsNull)
+            // ref var oe = ref @object.GetElements();
+            if (@object.elements.IsNull)
                 return first;
             first = @this[(uint)0];
             var last = n - 1;
             for(uint i = 1; i < n; i++)
             {
-                oe.Put(i - 1) = oe[i];
+                @object.elements.Put(i - 1, @object.elements[i]);
             }
-            oe.RemoveAt(last);
+            @object.elements.RemoveAt(last);
             @this.Length = (int)last;
             return first;
 
@@ -738,45 +740,48 @@ namespace YantraJS.Core
             var end = a.TryGetAt(1, out var a2) 
                 ? (a2.IsUndefined ? int.MaxValue : a2.IntegerValue)  
                 : int.MaxValue;
-            
+
             var @this = a.This;
+            var thisLength = @this.Length;
+            
 
             // Fix the arguments so they are positive and within the bounds of the array.
             if (start < 0)
-                start += @this.Length;
+                start += thisLength;
 
             if (end < 0)
-                end += @this.Length;
+                end += thisLength;
 
             // return empty array
             if (end <= start)
                 return new JSArray();
 
-            start = Math.Min(Math.Max(start, 0), @this.Length);
-            end = Math.Min(Math.Max(end, 0), @this.Length);
+            start = Math.Min(Math.Max(start, 0), thisLength);
+            end = Math.Min(Math.Max(end, 0), thisLength);
 
             var resultLength = end - start;
             JSArray r = new JSArray((uint)resultLength);
-            ref var rElements = ref r.CreateElements();
+            // ref var rElements = ref r.CreateElements();
             uint ni;
          
                 ni = 0;
-                //r.length is int
-                for (uint i = 0; i < r.Length; i++)
-                {
-                    var index = (uint)start + i;
+            //r.length is int
+            var rLength = r._length;
+            for (uint i = 0; i < rLength; i++)
+            {
+                var index = (uint)start + i;
 
-                    if (@this.TryGetValue(index, out var val))
-                    {
-                        rElements.Put(ni++) = val;
-                    }
-                    else {
-                        ni++;
-                    }
+                if (@this.TryGetValue(index, out var val))
+                {
+                    r.elements.Put(ni++, val);
                 }
-                //_length is uint for internal calculation
-                r._length = ni;
-                return r;
+                else {
+                    ni++;
+                }
+            }
+            //_length is uint for internal calculation
+            r._length = ni;
+            return r;
         }
 
         [JSPrototypeMethod][JSExport("some", Length = 1)]
@@ -835,7 +840,7 @@ namespace YantraJS.Core
                     if (right == JSUndefined.Value)
                         return -1;
                     var arg = new Arguments(JSUndefined.Value, left, right);
-                    var r = fn.f(arg).DoubleValue;
+                    var r = fn.f(in arg).DoubleValue;
                     if (double.IsNaN(r))
                         return 0;
                     return Math.Sign(r);
@@ -877,9 +882,9 @@ namespace YantraJS.Core
                 };
             }
 
-            ref var elements = ref @this.GetElements();
+            // ref var elements = ref @this.GetElements();
 
-            elements.QuickSort(cx, 0, (uint)(length - 1));
+            @this.elements.QuickSort(cx, 0, (uint)(length - 1));
 
             return @this;
         }
@@ -911,7 +916,7 @@ namespace YantraJS.Core
             int arrayLength = @this.Length;
 
             // This method only supports arrays of length up to 2^31 - 1.
-            if (@this.Length > int.MaxValue)
+            if (arrayLength > int.MaxValue)
                 throw JSContext.Current.NewRangeError("The array is too long");
 
 
@@ -922,20 +927,20 @@ namespace YantraJS.Core
                 start = Math.Min(start, (int)arrayLength);
             deleteCount = Math.Min(Math.Max(deleteCount, 0), (int)arrayLength - start);
 
-            ref var elements = ref @this.GetElements();
+            // ref var elements = ref @this.GetElements();
 
             // Get the deleted items.
             var deletedItems = new JSArray((uint)deleteCount);
-            ref var deletedItemsElements = ref deletedItems.GetElements();
+            // ref var deletedItemsElements = ref deletedItems.GetElements();
             for (uint i = 0; i < deleteCount; i++)
             {
-                ref var property = ref elements.Get((uint)(start + i));
+                var property = @this.elements.Get((uint)(start + i));
                 if (property.IsProperty)
                 {
-                    deletedItemsElements.Put(i) = JSProperty.Property(@this.GetValue(in property));
+                    deletedItems.elements.Put(i, JSProperty.Property(@this.GetValue(in property)));
                     continue;
                 }
-                deletedItemsElements.Put(i) = property;
+                deletedItems.elements.Put(i, property);
             }
 
             var itemsLength = a.Length > 1 ? a.Length - 2 : 0;
@@ -947,21 +952,21 @@ namespace YantraJS.Core
             {
                 for (int i = start + itemsLength; i < newLength; i++)
                 {
-                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    @this.elements.Put((uint)i, @this.elements.Get((uint)(i - offset)));
                     // @this[(uint)i] = @this[(uint)(i - offset)];
                 }
 
                 // Delete the trailing elements.
                 for (int i = newLength; i < arrayLength; i++)
                 {
-                    elements.RemoveAt((uint)i);
+                    @this.elements.RemoveAt((uint)i);
                 }
             }
             else
             {
                 for (int i = newLength - 1; i >= start + itemsLength; i--)
                 {
-                    elements.Put((uint)i) = elements.Get((uint)(i - offset));
+                    @this.elements.Put((uint)i, @this.elements.Get((uint)(i - offset)));
                     // @this[(uint)i] = @this[(uint)(i - offset)];
                 }
             }
@@ -972,7 +977,7 @@ namespace YantraJS.Core
             for (int i = 0; i < itemsLength; i++)
             {
                 // @this[(uint)(start + i)] = a[i + 2];
-                elements.Put((uint)(start + i)) = JSProperty.Property(a[i + 2]);
+                @this.elements.Put((uint)(start + i), JSProperty.Property(a[i + 2]));
             }
 
             // Return the deleted items.
@@ -1051,11 +1056,11 @@ namespace YantraJS.Core
             {
                 // move.. 
                 @this.MoveElements(0, a.Length);
-                ref var elements = ref @this.GetElements();
+                // ref var elements = ref @this.GetElements();
 
                 for (uint i = 0; i < a.Length; i++)
                 {
-                    elements.Put(i) = JSProperty.Property(a.GetAt((int)i));
+                    @this.elements.Put(i, JSProperty.Property(a.GetAt((int)i)));
                 }
             }
             return new JSNumber(a.This.Length);

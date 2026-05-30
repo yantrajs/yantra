@@ -33,4 +33,10 @@ assert.strictEqual(k, "c1");
 assert.strictEqual(v, "3");
 assert.strictEqual(a.next().value, undefined);
 
+m.set(null, 0);
+
+var results = [];
+m.forEach((v, n) => results.push(v,n));
+assert.strictEqual("a1,1,b1,2,c1,3,,0", results.toString());
+
 

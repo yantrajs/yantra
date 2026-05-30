@@ -134,7 +134,7 @@ namespace YantraJS.JSClassGenerator
 
                         sb.AppendLine($@"
                         JSObject prototype = null;
-                        var @class = new {clrFunctionType}((in Arguments a) => new {type.Name}(in a)
+                        var @class = new {clrFunctionType}(context, (in Arguments a) => new {type.Name}(in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
@@ -148,7 +148,7 @@ namespace YantraJS.JSClassGenerator
                     {
                         sb.AppendLine($@"
                         JSObject prototype = null;
-                        var @class = new {clrFunctionType}((in Arguments a) => {type.Name}.{type.ConstructorMethod}(in a)
+                        var @class = new {clrFunctionType}(context, (in Arguments a) => {type.Name}.{type.ConstructorMethod}(in a)
                             , ""{className}""
                             , ""{fxToString}""
                             {l});
@@ -283,14 +283,14 @@ namespace YantraJS.JSClassGenerator
 
             if (!method.IsStatic)
             {
-                getter = @$"new JSFunction((in Arguments a) =>
+                getter = @$"new JSFunction(context, (in Arguments a) =>
                     a.This is {type.Name} @this
                         ? {clrProxyMarshal}
                         : {t} ,
                 ""get {name}"")";
                 if (!method.IsReadOnly)
                 {
-                    setter = @$"new JSFunction((in Arguments a) => {{
+                    setter = @$"new JSFunction(context, (in Arguments a) => {{
                     if(a.This is {type.Name} @this) {{
                          {access} = {toClr};
                     }}
@@ -302,12 +302,12 @@ namespace YantraJS.JSClassGenerator
             }
             else
             {
-                getter = @$"new JSFunction((in Arguments a) =>
+                getter = @$"new JSFunction(context, (in Arguments a) =>
                     {clrProxyMarshal},
                 ""get {name}"")";
                 if (!method.IsReadOnly)
                 {
-                    setter = @$"new JSFunction((in Arguments a) => {{
+                    setter = @$"new JSFunction(context, (in Arguments a) => {{
                     {access} = {toClr};
                     return JSUndefined.Value;
                 }},
@@ -345,14 +345,14 @@ namespace YantraJS.JSClassGenerator
 
             if (!method.IsStatic)
             {
-                getter = @$"new JSFunction((in Arguments a) =>
+                getter = @$"new JSFunction(context, (in Arguments a) =>
                     a.This is {type.Name} @this
                         ? {clrProxyMarshal}
                         : {t} ,
                 ""get {name}"")";
                 if (!method.IsReadOnly)
                 {
-                    setter = @$"new JSFunction((in Arguments a) => {{
+                    setter = @$"new JSFunction(context, (in Arguments a) => {{
                     if(a.This is {type.Name} @this) {{
                          {access} = {toClr};
                     }}
@@ -364,12 +364,12 @@ namespace YantraJS.JSClassGenerator
             }
             else
             {
-                getter = @$"new JSFunction((in Arguments a) =>
+                getter = @$"new JSFunction(context, (in Arguments a) =>
                     {clrProxyMarshal},
                 ""get {name}"")";
                 if (!method.IsReadOnly)
                 {
-                    setter = @$"new JSFunction((in Arguments a) => {{
+                    setter = @$"new JSFunction(context, (in Arguments a) => {{
                     {access} = {toClr};
                     return JSUndefined.Value;
                 }},
@@ -430,10 +430,10 @@ namespace YantraJS.JSClassGenerator
             var t = $"throw JSContext.Current.NewTypeError(\"Failed to convert this to {type.Name}\")";
             if (method.IsJSFunction())
             {
-                var fx = $"new JSFunction({type.Name}.{method.Name}, \"{name}\" {l})";
+                var fx = $"new JSFunction(context, {type.Name}.{method.Name}, \"{name}\" {l})";
                 if (!method.IsStatic)
                 {
-                    fx = @$"new JSFunction((in Arguments a) =>
+                    fx = @$"new JSFunction(context, (in Arguments a) =>
                     a.This is {type.Name} @this
                         ? @this.{method.Name}(in a)
                         : {t}
@@ -481,7 +481,7 @@ namespace YantraJS.JSClassGenerator
             }
             fb.AppendLine("}");
 
-            var body = @$"new JSFunction({fb.ToString().Replace("\n", "\n\t\t\t")},
+            var body = @$"new JSFunction(context, {fb.ToString().Replace("\n", "\n\t\t\t")},
                 ""{method.Name}""
                 {l}
             )";

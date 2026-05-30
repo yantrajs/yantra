@@ -73,8 +73,8 @@ namespace YantraJS.Core.Objects
             }
             if (key.IsUInt)
             {
-                ref var elements = ref @object.GetElements();
-                return elements.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
+                //ref var elements = ref @object.GetElements();
+                return @object.elements.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
             }
             ref var properties = ref @object.GetOwnProperties();
             return properties.RemoveAt(key.Index) ? JSBoolean.True : JSBoolean.False;
@@ -181,7 +181,7 @@ namespace YantraJS.Core.Objects
                 if (hasValue)
                     r.Add(new JSNumber(index));
             }
-            var en = @object.GetOwnProperties(false).GetEnumerator();
+            var en = @object.GetOwnProperties(false).GetPropertyEnumerator();
             while (en.MoveNext(out var property))
             {
                 r.Add(property.ToJSValue());
@@ -235,8 +235,8 @@ namespace YantraJS.Core.Objects
                         p.set.InvokeFunction(new Arguments(receiver, value));
                         return JSBoolean.True;
                     }
-                    ref var elements = ref @object.GetElements(true);
-                    elements.Put(key.Index, value);
+                    // ref var elements = ref @object.GetElements(true);
+                    @object.elements.Put(key.Index, value);
                     return JSBoolean.True;
                 }
                 else

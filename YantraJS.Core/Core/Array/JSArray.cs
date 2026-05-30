@@ -32,21 +32,45 @@ namespace YantraJS.Core
 
         }
 
-        public JSArray(params JSValue[] items): this((IEnumerable<JSValue>)items)
+        public JSArray(params JSValue[] items): this()
         {
+            this._length = (uint)items.Length;
+            // ref var elements = ref GetElements(true);
+            elements.Initialize(items);
+        }
 
+        public JSArray(JSPrototypeObject p, params JSValue[] items) : base(JSValueType.Array, p)
+        {
+            this._length = (uint)items.Length;
+            // ref var elements = ref GetElements(true);
+            elements.Initialize(items);
+
+        }
+
+        public JSArray(List<JSValue> items) : this()
+        {
+            // ref var elements = ref GetElements(true);
+            this._length = (uint)items.Count;
+            elements.Initialize(items);
+        }
+
+        public JSArray(IList<JSValue> items) : this()
+        {
+            // ref var elements = ref GetElements(true);
+            this._length = (uint)items.Count;
+            elements.Initialize(items);
         }
 
         public JSArray(IElementEnumerator en): this()
         {
-            ref var elements = ref GetElements(true);
+            // ref var elements = ref GetElements(true);
             while (en.MoveNextOrDefault(out var v, JSUndefined.Value))
                 elements.Put(_length++, v);
         }
 
         public JSArray(IEnumerable<JSValue> items): this()
         {
-            ref var elements = ref GetElements(true);
+            // ref var elements = ref GetElements(true);
             foreach (var item in items)
                 elements.Put(_length++, item);
         }
@@ -60,7 +84,7 @@ namespace YantraJS.Core
         public JSArray(uint count): this()
         {
             AllocateElements(count);
-            CreateElements(count);
+            // CreateElements(count);
             _length = count;
         }
 
@@ -88,7 +112,7 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<(uint index, JSValue value)> GetArrayElements(bool withHoles = true)
         {
-            var elements = GetElements();
+            // var elements = GetElements();
             uint l = this._length;
             for (uint i = 0; i < l; i++)
             {
@@ -111,7 +135,7 @@ namespace YantraJS.Core
                 if (this.IsSealedOrFrozen())
                     throw JSContext.Current.NewTypeError("Cannot modify property length");
                 var prev = this._length;
-                ref var elements = ref this.GetElements();
+                // ref var elements = ref this.GetElements();
                 double n = value;
                 if (n < 0 || n > uint.MaxValue || double.IsNaN(n))
                     throw JSContext.Current.NewRangeError("Invalid length");
@@ -144,7 +168,6 @@ namespace YantraJS.Core
             }
             else
             {
-                ref var elements = ref CreateElements();
                 elements.Put(this._length++, item);
             }
             // return this;
@@ -192,11 +215,11 @@ namespace YantraJS.Core
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                ref var elements = ref array.GetElements();
+                // ref var elements = ref array.GetElements();
                 if((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
                     index = this.index;
-                    if(elements.TryGetValue(index, out var property))
+                    if(array.elements.TryGetValue(index, out var property))
                     {
                         value = property.IsEmpty 
                             ? null 
@@ -219,10 +242,10 @@ namespace YantraJS.Core
 
             public bool MoveNextOrDefault(out JSValue value, JSValue @default)
             {
-                ref var elements = ref array.GetElements();
+                // ref var elements = ref array.GetElements();
                 if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
-                    if (elements.TryGetValue(index, out var property))
+                    if (array.elements.TryGetValue(index, out var property))
                     {
                         value = property.IsEmpty
                             ? null
@@ -242,10 +265,10 @@ namespace YantraJS.Core
 
             public JSValue NextOrDefault(JSValue @default)
             {
-                ref var elements = ref array.GetElements();
+                // ref var elements = ref array.GetElements();
                 if ((this.index = (this.index == uint.MaxValue) ? 0 : (this.index + 1)) < length)
                 {
-                    if (elements.TryGetValue(index, out var property))
+                    if (array.elements.TryGetValue(index, out var property))
                     {
                         return property.IsEmpty
                             ? null
@@ -263,16 +286,16 @@ namespace YantraJS.Core
 
         public void AddRange(JSValue iterator)
         {
-            ref var et = ref CreateElements();
+            // ref var et = ref CreateElements();
             // var et = this.elements;
             var el = this._length;
             if (iterator is JSArray ary)
             {
                 var l = ary._length;
-                ref var e = ref ary.GetElements();
+                // ref var e = ref ary.GetElements();
                 for (uint i = 0; i < l; i++)
                 {
-                    et.Put(el++, ary[i]);
+                    elements.Put(el++, ary[i]);
                 }
                 this._length = el;
                 return;
@@ -283,7 +306,7 @@ namespace YantraJS.Core
             {
                 if (hasValue)
                 {
-                    et.Put(el++, item);
+                    elements.Put(el++, item);
                 } else
                 {
                     el++;
@@ -293,7 +316,7 @@ namespace YantraJS.Core
             // return this;
         }
 
-        internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
+        internal protected override sealed bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
             if(base.SetValue(name, value, receiver, throwError))
             {
@@ -326,11 +349,11 @@ namespace YantraJS.Core
 
         public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
                 hasValue = true;
                 index = (uint)this.index;
-                value = new JSArray(new JSNumber(index), array[index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[index]);
                 return true;
             }
 
@@ -342,9 +365,9 @@ namespace YantraJS.Core
 
         public bool MoveNext(out JSValue value)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
-                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
             }
 
@@ -354,9 +377,9 @@ namespace YantraJS.Core
 
         public bool MoveNextOrDefault(out JSValue value, JSValue @default)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
-                value = new JSArray(new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
                 return true;
             }
 
@@ -366,9 +389,9 @@ namespace YantraJS.Core
 
         public JSValue NextOrDefault(JSValue @default)
         {
-            if (++this.index < array.Length)
+            if (++this.index < array._length)
             {
-                return new JSArray(new JSNumber(index), array[(uint)index]);
+                return new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
             }
             return @default;
         }

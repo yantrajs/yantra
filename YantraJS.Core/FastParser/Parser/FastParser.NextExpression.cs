@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace YantraJS.Core.FastParser
@@ -105,7 +107,7 @@ namespace YantraJS.Core.FastParser
             PreventStackoverFlow(ref lastNextExpressionPosition);
 
             AstExpression right;
-            TokenTypes rightType;
+            TokenTypes rightType = TokenTypes.Empty;
 
             //if (previous.End.LineTerminator)
             //{
@@ -296,20 +298,40 @@ namespace YantraJS.Core.FastParser
                     {
                         if (Precedes(type, previousType))
                         {
-                            if (!NextExpression(ref node, ref type, out right, out rightType, depth + 1))
-                                break;
-                            if (type == TokenTypes.SemiColon)
-                                return true;
-                            node = Combine(node, type, right);
-                            type = rightType;
-                            if (type == TokenTypes.SemiColon)
-                                break;
-                            continue;
+                            // this is right most precedence...
+                            if (NextExpression(ref node, ref type, out right, out rightType, depth + 1))
+                            {
+                                if (type == TokenTypes.SemiColon)
+                                    return true;
+
+                                node = Combine(node, type, right);
+                                type = rightType;
+                                if (type == TokenTypes.SemiColon)
+                                    break;
+                                continue;
+                            }
                         }
                         previous = Combine(previous, previousType, node);
                         previousType = type;
+                        if (depth > 0)
+                        {
+                            if (type == TokenTypes.QuestionMark)
+                            {
+                                return false;
+                            }
+                        }
                         if (!NextExpression(ref previous, ref previousType, out node, out type, depth + 1))
+                        {
+                            if (previousType == type && type == TokenTypes.QuestionMark)
+                            {
+                                if (depth > 0)
+                                {
+                                    return false;
+                                }
+                                return NextExpression(ref previous, ref previousType, out node, out type);
+                            }
                             break;
+                        }
                         if (type == TokenTypes.SemiColon)
                             return true;
                     } while (true);

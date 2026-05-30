@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using YantraJS.Core.Core.Storage;
+using YantraJS.Core.Enumerators;
 using YantraJS.Extensions;
 
 namespace YantraJS.Core
@@ -11,14 +12,19 @@ namespace YantraJS.Core
     public class JSPrototype
     {
 
-        internal class JSPropertySet
+        internal struct JSPropertySet
         {
-            internal SAUint32Map<(JSProperty property, JSPrototype owner)> properties;
-            internal SAUint32Map<(JSProperty property, JSPrototype owner)> elements;
-            internal SAUint32Map<(JSProperty property, JSPrototype owner)> symbols;
+            internal CompactUint32Map<(JSProperty property, JSPrototype owner)> properties;
+            internal CompactUint32Map<(JSProperty property, JSPrototype owner)> elements;
+            internal CompactUint32Map<(JSProperty property, JSPrototype owner)> symbols;
 
-            internal Sequence<KeyString> stringKeys = new Sequence<KeyString>();
-            internal Sequence<uint> uintKeys = new Sequence<uint>();
+            //internal Sequence<KeyString> stringKeys = new Sequence<KeyString>();
+            //internal Sequence<uint> uintKeys = new Sequence<uint>();
+
+            public JSPropertySet()
+            {
+                
+            }
         }
         internal JSPropertySet propertySet;
         public readonly JSObject @object;
@@ -32,7 +38,7 @@ namespace YantraJS.Core
             this.Build();
         }
 
-        private void Build()
+        internal void Build()
         {
             
             if (!this.dirty)
@@ -42,17 +48,17 @@ namespace YantraJS.Core
             {
                 if (!this.dirty)
                     return;
-                ps.properties = new SAUint32Map<(JSProperty, JSPrototype)>();
-                ps.elements = new SAUint32Map<(JSProperty, JSPrototype)>();
-                ps.symbols = new SAUint32Map<(JSProperty, JSPrototype)>();
+                ps.properties = new CompactUint32Map<(JSProperty, JSPrototype)>();
+                ps.elements = new CompactUint32Map<(JSProperty, JSPrototype)>();
+                ps.symbols = new CompactUint32Map<(JSProperty, JSPrototype)>();
 
-                Build(ps, this);
+                Build(ref ps, this);
                 dirty = false;
                 this.propertySet = ps;
             }
         }
 
-        private void Build(JSPropertySet ps, JSPrototype target)
+        private void Build(ref JSPropertySet ps, JSPrototype target)
         {
             // first build the base class for correct inheritance...
 
@@ -61,7 +67,7 @@ namespace YantraJS.Core
             var @base = @object.prototypeChain;
             if (@base != null && @base != this)
             {
-                this.Build(ps, @base);
+                this.Build(ref ps, @base);
             }
 
             // if it is registered, remove it first
@@ -69,33 +75,29 @@ namespace YantraJS.Core
 
             @object.PropertyChanged += @object_PropertyChanged;
             ref var objectProperties = ref @object.GetOwnProperties(false);
-            var ve = objectProperties.GetEnumerator(false);
+            var ve = objectProperties.GetPropertyEnumerator(false);
             while(ve.MoveNext(out var key, out var value)){
                 ps.properties.Put((uint)key) = (value.ToNotReadOnly(),target);
             }
 
-            ref var objectElements = ref @object.GetElements(false);
-            if (!objectElements.IsNull)
+            // ref var objectElements = ref @object.GetElements(false);
+            foreach(var e in @object.elements.AllValues())
             {
-                foreach(var e in objectElements.AllValues())
+                if (e.Value.IsEmpty)
                 {
-                    if (!e.Value.IsEmpty)
-                    {
-                        ps.elements.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
-                    }
+                    continue;
                 }
+                ps.elements.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
             }
 
             ref var objectSymbols = ref @object.GetSymbols();
-            if(!objectSymbols.IsNull)
+            foreach(var e in objectSymbols.AllValues())
             {
-                foreach(var e in objectSymbols.AllValues())
+                if (e.Value.IsEmpty)
                 {
-                    if (!e.Value.IsEmpty)
-                    {
-                        ps.symbols.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
-                    }
+                    continue;
                 }
+                ps.symbols.Put(e.Key) = (e.Value.ToNotReadOnly(), target);
             }
         }
 
@@ -149,8 +151,8 @@ namespace YantraJS.Core
             if(propertySet.elements.TryGetValue(i, out var ee))
             {
                 var @object = ee.owner.@object;
-                ref var elements = ref @object.GetElements(false);
-                return elements.TryRemove(i, out p);
+                // ref var elements = ref @object.GetElements(false);
+                return @object.elements.TryRemove(i, out p);
             }
             p = JSProperty.Empty;
             return false;

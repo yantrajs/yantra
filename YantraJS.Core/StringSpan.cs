@@ -82,6 +82,19 @@ namespace YantraJS.Core
             }
         }
 
+        public unsafe char AtOrDefault(int index, char def)
+        {
+            if (Source == null || index >= Length)
+            {
+                return def;
+            }
+            fixed (char* src = Source)
+            {
+                char* charAt = src + Offset + index;
+                return *charAt;
+            }
+        }
+
         public static string Concat(in StringSpan a, in StringSpan b)
         {
             var alen = a.Length;

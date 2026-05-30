@@ -21,24 +21,41 @@ namespace YantraJS.Core
     public struct PropertySequence
     {
 
-        public PropertyEnumerator GetEnumerator(bool showEnumerableOnly = true)
+        public IEnumerable<JSProperty> GetEnumerator()
+        {
+            var map = this.map;
+            uint start = this.head;
+            uint tail = this.tail;
+            while(start > 0)
+            {
+                ref var jp = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
+                start = jp.Next;
+                if (jp.Property.IsEmpty)
+                {
+                    continue;
+                }
+                yield return jp.Property;
+            }
+        }
+
+        public PropertyEnumerator GetPropertyEnumerator(bool showEnumerableOnly = true)
         {
             return new PropertyEnumerator(this, showEnumerableOnly);
         }
 
         public struct PropertyEnumerator
         {
-            private SAUint32Map<JSObjectProperty> map;
-            private readonly uint tail;
-            private readonly bool showEnumerableOnly;
+            private CompactUint32Map<JSObjectProperty> map;
             private uint start;
+            private int mask;
 
             public PropertyEnumerator(PropertySequence sequence, bool showEnumerableOnly)
             {
                 this.map = sequence.map;
                 this.start = sequence.head;
-                this.tail = sequence.tail;
-                this.showEnumerableOnly = showEnumerableOnly;
+                this.mask = showEnumerableOnly
+                    ? (int)JSPropertyAttributes.Enumerable
+                    : -1;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -48,18 +65,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     property = p;
                     start = objP.Next;
@@ -76,18 +85,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     property = p;
                     key = KeyStrings.Instance.GetName(start);
@@ -106,18 +107,10 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
-                    }
-                    if (showEnumerableOnly)
-                    {
-                        if (!p.IsEnumerable)
-                        {
-                            start = objP.Next;
-                            continue;
-                        }
                     }
                     key = KeyStrings.Instance.GetName(start);
                     start = objP.Next;
@@ -132,9 +125,10 @@ namespace YantraJS.Core
         public struct ValueEnumerator
         {
             public JSObject target;
-            private SAUint32Map<JSObjectProperty> map;
+            private CompactUint32Map<JSObjectProperty> map;
             private uint start;
             readonly bool showEnumerableOnly;
+            private int mask;
             public ValueEnumerator(JSObject target, bool showEnumerableOnly)
             {
                 this.showEnumerableOnly = showEnumerableOnly;
@@ -142,6 +136,9 @@ namespace YantraJS.Core
                 ref var properties = ref target.GetOwnProperties();
                 this.map = properties.map;
                 this.start = properties.head;
+                this.mask = showEnumerableOnly
+                    ? (int)JSPropertyAttributes.Enumerable
+                    : -1;
             }
 
             public bool MoveNext(out KeyString key)
@@ -150,12 +147,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
@@ -177,12 +169,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
@@ -203,12 +190,7 @@ namespace YantraJS.Core
                 {
                     ref var objP = ref map.GetRefOrDefault(start, ref JSObjectProperty.Empty);
                     ref var p = ref objP.Property;
-                    if (p.IsEmpty)
-                    {
-                        start = objP.Next;
-                        continue;
-                    }
-                    if (showEnumerableOnly && !p.IsEnumerable)
+                    if (((int)p.Attributes & this.mask) == 0)
                     {
                         start = objP.Next;
                         continue;
@@ -227,7 +209,7 @@ namespace YantraJS.Core
         #endregion
 
 
-        private SAUint32Map<JSObjectProperty> map;
+        private CompactUint32Map<JSObjectProperty> map;
         private uint head;
         private uint tail;
 
@@ -454,7 +436,7 @@ namespace YantraJS.Core
             //uint pkey;
             //if (map.IsNull)
             //{
-            //    map = new UInt32Map<uint>();
+            //    map = new CompactUint32Map<uint>();
             //    // copy..
             //    for (uint i = 0; i < length; i++)
             //    {
@@ -510,7 +492,7 @@ namespace YantraJS.Core
                 //uint pkey;
                 //if (map.IsNull)
                 //{
-                //    map = new UInt32Map<uint>();
+                //    map = new CompactUint32Map<uint>();
                 //    // copy..
                 //    for (uint i = 0; i < length; i++)
                 //    {

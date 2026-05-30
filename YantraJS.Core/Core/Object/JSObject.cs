@@ -55,9 +55,12 @@ namespace YantraJS.Core
 
         // internal long version = 0;
         internal event PropertyChangedEventHandler PropertyChanged;
-        private ElementArray elements;
-        private PropertySequence ownProperties;
-        private SAUint32Map<JSProperty> symbols;
+        internal protected ElementArray elements;
+
+        //internal ref ElementArray Elements { get { return ref elements; } }
+
+        internal PropertySequence ownProperties;
+        private CompactUint32Map<JSProperty> symbols;
         private long? uid;
 
         private static long NextID = 0;
@@ -126,26 +129,26 @@ namespace YantraJS.Core
 
         public override JSValue GetOwnProperty(uint name)
         {
-            ref var p = ref elements.Get(name);
+            var p = elements.Get(name);
             return this.GetValue(p);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref ElementArray GetElements(bool create = true)
-        {
-            //if (elements.IsNull && create)
-            //    elements = new UInt32Map<JSProperty>();
-            return ref elements;
-        }
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public ref ElementArray GetElements(bool create = true)
+        //{
+        //    //if (elements.IsNull && create)
+        //    //    elements = new UInt32Map<JSProperty>();
+        //    return ref elements;
+        //}
 
-        public ref SAUint32Map<JSProperty> GetSymbols()
+        public ref CompactUint32Map<JSProperty> GetSymbols()
         {
             return ref symbols;
         }
 
         internal void AllocateElements(uint size)
         {
-            size = size > 1024 ? 1024 : size;
+            // size = size > 1024 ? 1024 : size;
             elements.Resize(size);
         }
 
@@ -190,35 +193,13 @@ namespace YantraJS.Core
                         yield return (index.ToString(), value);
                 }
 
-                var ownProperties = GetOwnProperties();
                 var en = new PropertySequence.ValueEnumerator(this, false);
                 while(en.MoveNext(out var value, out var key))
                 {
                     yield return (KeyStrings.Instance.GetNameString((uint)key).Value, value);
                 }
-                //for(int i = 0; i< ownProperties.properties.Length; i++)
-                //{
-                //    var p = ownProperties.properties[i];
-                //    JSValue v = null;
-                //    try {
-                //        v = this.GetValue(p);
-                //    } catch (Exception ex)
-                //    {
-                //        System.Diagnostics.Debug.WriteLine(ex);
-                //    }
-                //    yield return ( KeyStrings.Instance.GetNameString(p.key).Value , v);
-                //}
             }
         }
-
-        //public JSObject(params JSProperty[] entries) : this(JSContext.Current?.ObjectPrototype)
-        //{
-        //    ownProperties = new PropertySequence(4);
-        //    foreach (var p in entries)
-        //    {
-        //        ownProperties.Put(p.key.Key) = p;
-        //    }
-        //}
 
         public JSObject(IEnumerable<JSProperty> entries) : this(JSContext.CurrentContext.Object_Prototype)
         {
@@ -271,39 +252,35 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(uint index, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            elements.Put(index) = new JSProperty(index, getter, setter, getter, attributes);
+            elements.Put(index, new JSProperty(index, getter, setter, getter, attributes));
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddValue(KeyString key, JSValue value, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetOwnProperties(true);
-            pr.Put((uint)key) = new JSProperty((uint)key, value, attributes);
+            ownProperties.Put((uint)key) = new JSProperty((uint)key, value, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(KeyString key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetOwnProperties(true);
-            pr.Put((uint)key) = new JSProperty(key,getter, setter, attributes);
+            ownProperties.Put((uint)key) = new JSProperty(key,getter, setter, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddValue(JSSymbol key, JSValue value, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetSymbols();
-            pr.Put(key.Key) = new JSProperty(key.Key, value, attributes);
+            symbols.Put(key.Key) = new JSProperty(key.Key, value, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastAddProperty(JSSymbol key, JSFunction getter, JSFunction setter, JSPropertyAttributes attributes)
         {
-            ref var pr = ref GetSymbols();
-            pr.Put(key.Key) = new JSProperty(key.Key, getter, setter, getter, attributes);
+            symbols.Put(key.Key) = new JSProperty(key.Key, getter, setter, getter, attributes);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -350,7 +327,7 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject target))
                 return;
-            var pe = target.ownProperties.GetEnumerator();
+            var pe = target.ownProperties.GetPropertyEnumerator();
             while (pe.MoveNext(out var key, out var val) && !val.IsEmpty)
             {
                 this.ownProperties.Put((uint)key) = val.IsValue
@@ -362,9 +339,9 @@ namespace YantraJS.Core
             {
                 if (target.elements.TryGetValue(i, out var p) && !p.IsEmpty)
                 {
-                    this.elements.Put(i) = p.IsValue
+                    this.elements.Put(i, p.IsValue
                         ? JSProperty.Property(p.value)
-                        : JSProperty.Property(target.GetValue(p));
+                        : JSProperty.Property(target.GetValue(p)));
                 }
             }
             foreach(var symbol in target.symbols.All)
@@ -493,15 +470,32 @@ namespace YantraJS.Core
                         return g.f;
                 }
                 if(p.IsProperty)
-                    return p.get.f;
+                    return p.get.f(new Arguments(this)) is JSFunction fx
+                        ? fx.f
+                        : null;
             }
-            return prototypeChain?.GetMethod(key);
+            if(prototypeChain == null)
+            {
+                return null;
+            }
+            var px = prototypeChain.GetInternalProperty(key);
+            if (px.IsValue)
+            {
+                return px.get?.f;
+            }
+            if(px.IsProperty)
+            {
+                return px.get.f(new Arguments(this)) is JSFunction fx
+                    ? fx.f
+                    : null;
+            }
+            return null;
         }
 
-        public override JSValue this[KeyString name] { 
-            get => this.GetValue(name, this);
-            set => SetValue(name, value, null, true);
-        }
+        //public override JSValue this[KeyString name] { 
+        //    get => this.GetValue(name, this);
+        //    set => SetValue(name, value, null, true);
+        //}
 
         internal protected override bool SetValue(KeyString name, JSValue value, JSValue receiver, bool throwError = true)
         {
@@ -542,17 +536,16 @@ namespace YantraJS.Core
                 }
                 return false;
             }
-            ref var ownProperties = ref this.GetOwnProperties();
             ownProperties.Put(name, value, !p.IsEmpty ? p.Attributes : JSPropertyAttributes.EnumerableConfigurableValue);
             PropertyChanged?.Invoke(this, ((uint)name, uint.MaxValue, null));
             return true;
         }
 
-        public override JSValue this[uint name]
-        {
-            get => GetValue(name, this);
-            set => SetValue(name, value, this, true);
-        }
+        //public override JSValue this[uint name]
+        //{
+        //    get => GetValue(name, this);
+        //    set => SetValue(name, value, this, true);
+        //}
 
         internal protected override bool SetValue(uint name, JSValue value, JSValue receiver, bool throwError = true)
         {
@@ -633,7 +626,7 @@ namespace YantraJS.Core
 
         internal protected override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            ref var p = ref elements.Get(key);
+            var p = elements.Get(key);
             if (!p.IsEmpty)
             {
                 if (p.IsValue)
@@ -678,7 +671,7 @@ namespace YantraJS.Core
 
         public JSValue DefineProperty(uint key, JSObject pd)
         {
-            ref var elements = ref GetElements(true);
+            // ref var elements = ref GetElements(true);
             var old = elements[key];
             if (!old.IsEmpty)
             {
@@ -688,7 +681,7 @@ namespace YantraJS.Core
                 }
             }
             // p.key = name;
-            elements.Put(key) = pd.ToProperty(key);
+            elements.Put(key, pd.ToProperty(key));
             if (this is JSArray array)
             {
                 if (array._length <= key)
@@ -834,6 +827,53 @@ namespace YantraJS.Core
             }
         }
 
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            var en = this.elements.AllValues();
+            foreach(var item in en)
+            {
+                yield return new JSNumber(item.Key);
+            }
+
+            var ep = this.ownProperties.GetPropertyEnumerator(true);
+            while(ep.MoveNextKey(out var key))
+            {
+                yield return new JSString(key.ToStringSpan());
+            }
+
+            if (prototypeChain == null)
+            {
+                yield break;
+            }
+
+            prototypeChain.Build();
+
+            foreach(var item in prototypeChain.propertySet.elements.AllValues())
+            {
+                if(!item.Value.property.IsEnumerable)
+                {
+                    continue;
+                }
+                if (elements.TryGetValue(item.Key, out var none))
+                {
+                    continue;
+                }
+                yield return new JSNumber(item.Key);
+            }
+
+            foreach (var item in prototypeChain.propertySet.properties.AllValues())
+            {
+                if (ownProperties.TryGetValue(item.Key, out var none))
+                {
+                    continue;
+                }
+                if (item.Value.property.IsEnumerable)
+                {
+                    yield return new JSString(((KeyString)item.Key).ToStringSpan());
+                }
+            }
+        }
+
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
         {
             return new KeyEnumerator(this, showEnumerableOnly, inherited);
@@ -950,7 +990,7 @@ namespace YantraJS.Core
         {
             if (this.IsSealedOrFrozen())
                 throw JSContext.Current.NewTypeError($"Cannot delete property {key} of {this}");
-            ref var element = ref elements.Get(key);
+            var element = elements.Get(key);
             //if (!element.IsEmpty)
             //{
             //    PropertyChanged?.Invoke(this, (uint.MaxValue, key, null));
@@ -1079,9 +1119,9 @@ namespace YantraJS.Core
         /// <param name="start"></param>
         /// <param name="count"></param>
         /// <param name="to"></param>
-        internal override void MoveElements(int start, int to)
+        internal sealed override void MoveElements(int start, int to)
         {
-            ref var elements = ref CreateElements();
+            // ref var elements = ref CreateElements();
 
             var end = this.Length - 1;
             var diff = to - start;
@@ -1092,7 +1132,7 @@ namespace YantraJS.Core
                 {
                     if (this.TryRemove(i, out var p))
                     {
-                        elements.Put(j) = p;
+                        elements.Put(j, p);
                     }
                 }
                 this.Length += diff;
@@ -1100,11 +1140,12 @@ namespace YantraJS.Core
             }
             else
             {
-                for (int i = end, j = (this.Length + diff - 1); i >= start; i--, j--)
+                var thisLength = this.Length;
+                for (int i = end, j = (thisLength + diff - 1); i >= start; i--, j--)
                 {
                     if (this.TryRemove((uint)i, out var p))
                     {
-                        elements.Put((uint)j) = p;
+                        elements.Put((uint)j, p);
                     }
                 }
                 this.Length += diff;
@@ -1119,7 +1160,7 @@ namespace YantraJS.Core
         /// <param name="i"></param>
         /// <param name="p"></param>
         /// <returns></returns>
-        internal override bool TryRemove(uint i, out JSProperty p)
+        internal sealed override bool TryRemove(uint i, out JSProperty p)
         {
             if (elements.TryRemove(i, out p))
             {
@@ -1159,26 +1200,34 @@ namespace YantraJS.Core
             return new ElementEnumerator(this);
         }
 
-        private readonly struct ElementEnumerator : IElementEnumerator
+        private struct ElementEnumerator : IElementEnumerator
         {
             private readonly JSObject @object;
-            readonly IEnumerator<(uint Key, JSProperty Value)> en;
+            private uint index = 0;
             public ElementEnumerator(JSObject @object)
             {
-                this.en = @object.elements.AllValues().GetEnumerator();
+                // this.en = @object.elements.AllValues().GetEnumerator();
                 this.@object = @object;
             }
 
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint index)
             {
-                if(en?.MoveNext() ?? false) {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
-                    index = Key;
+                if(@object.elements.TryGetValue(this.index, out var p))
+                {
+                    index = this.index++;
+                    value = @object.GetValue(p);
                     hasValue = true;
                     return true;
                 }
+                this.index++;
+                //if(en.MoveNext()) {
+                //    var (Key, Value) = en.Current;
+                //    value = @object.GetValue(Value);
+                //    index = Key;
+                //    hasValue = true;
+                //    return true;
+                //}
                 hasValue = false;
                 value = JSUndefined.Value;
                 index = 0;
@@ -1187,35 +1236,52 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                if (en?.MoveNext() ?? false)
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
+                    index = this.index++;
+                    value = @object.GetValue(p);
                     return true;
                 }
+                this.index++;
+                //if(en.MoveNext()) {
+                //    var (Key, Value) = en.Current;
+                //    value = @object.GetValue(Value);
+                //    index = Key;
+                //    hasValue = true;
+                //    return true;
+                //}
                 value = JSUndefined.Value;
+                index = 0;
                 return false;
             }
 
             public bool MoveNextOrDefault(out JSValue value, JSValue @default)
             {
-                if (en?.MoveNext() ?? false)
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    value = @object.GetValue(Value);
+                    this.index++;
+                    value = @object.GetValue(p);
                     return true;
                 }
+                this.index++;
                 value = @default;
                 return false;
             }
 
             public JSValue NextOrDefault(JSValue @default)
             {
-                if (en?.MoveNext() ?? false)
+                //if (en.MoveNext())
+                //{
+                //    var (Key, Value) = en.Current;
+                //    return @object.GetValue(Value);
+                //}
+                //return @default;
+                if (@object.elements.TryGetValue(this.index, out var p))
                 {
-                    var (Key, Value) = en.Current;
-                    return @object.GetValue(Value);
+                    this.index++;
+                    return @object.GetValue(p);
                 }
+                this.index++;
                 return @default;
             }
         }

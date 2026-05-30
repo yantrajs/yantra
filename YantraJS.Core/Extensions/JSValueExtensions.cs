@@ -209,14 +209,14 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue NullIfUndefinedOrNull(JSValue value)
         {
-            if (value == JSNull.Value || value == JSUndefined.Value)
+            if (value.IsNullOrUndefined)
                 return null;
             return value;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue NullIfTrue(JSValue value)
+        public static JSValue NullIfTrue(this JSValue value)
         {
             if (value.BooleanValue)
                 return null;
@@ -225,7 +225,7 @@ namespace YantraJS.Core
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static JSValue NullIfFalse(JSValue value)
+        public static JSValue NullIfFalse(this JSValue value)
         {
             if (!value.BooleanValue)
                 return null;
@@ -238,13 +238,13 @@ namespace YantraJS.Core
         {
             if (!(value is JSObject @object))
                 yield break;
-            var elements = @object.GetElements();
-            if (!elements.IsNull)
+            // var elements = @object.GetElements();
+            if (!@object.elements.IsNull)
             {
-                var len = elements.Length;
+                var len = @object.elements.Length;
                 for(uint Key = 0;Key<len;Key++)
                 {
-                    var Value = elements[Key];
+                    var Value = @object.elements[Key];
                     if (showEnumerableOnly)
                     {
                         if (!Value.IsEnumerable)
@@ -254,7 +254,7 @@ namespace YantraJS.Core
                 }
             }
 
-            var en = @object.GetOwnProperties(false).GetEnumerator();
+            var en = @object.GetOwnProperties(false).GetPropertyEnumerator();
             while(en.MoveNext(out var p))
             {
                 if (showEnumerableOnly)

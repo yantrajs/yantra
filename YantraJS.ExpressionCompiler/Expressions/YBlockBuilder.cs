@@ -108,8 +108,9 @@ namespace YantraJS.Expressions
                     var block = (exp as YBlockExpression)!;
                     variables.AddRange(block.Variables);
                     {
-                        var en = block.Expressions.GetFastEnumerator();
-                        while(en.MoveNext(out var e))
+                        //var en = block.Expressions.GetFastEnumerator();
+                        //while(en.MoveNext(out var e))
+                        foreach(var e in block.Expressions)
                         {
                             this.AddExpression(e);
                         }
@@ -120,9 +121,12 @@ namespace YantraJS.Expressions
                     if(@return.Default?.NodeType == YExpressionType.Block)
                     {
                         block = (@return.Default as YBlockExpression)!;
-                        var en = block.Enumerate();
-                        while(en.MoveNext(out var e, out var isLast))
+                        //var en = block.Enumerate();
+                        //while(en.MoveNext(out var e, out var isLast))
+                        for(var i=0;i<block.Expressions.Length;i++)
                         {
+                            var e = block.Expressions[i];
+                            var isLast = i == block.Expressions.Length - 1;
                             if (isLast)
                             {
                                 return this.AddExpression(@return.Update(@return.Target, e));
@@ -141,7 +145,7 @@ namespace YantraJS.Expressions
         {
             if (variables.Count == 0 && expressions.Count == 1)
                 return expressions.First();
-            return new YBlockExpression(variables, expressions);
+            return new YBlockExpression(variables.ToArray(), expressions.ToArray());
         }
 
     }

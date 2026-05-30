@@ -49,25 +49,50 @@ namespace YantraJS.Core
             set => base[symbol] = value;
         }
 
-        public override JSValue this[KeyString name]
+        protected internal sealed override bool SetValue(KeyString key, JSValue value, JSValue receiver, bool throwError = true)
         {
-            get
+            return false;
+        }
+
+        protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            ResolvePrototype();
+            if (prototypeChain == null)
+                return JSUndefined.Value;
+            var px = prototypeChain.GetInternalProperty(key);
+            if (px.IsEmpty)
             {
-                ResolvePrototype();
-                if (prototypeChain == null)
-                    return JSUndefined.Value;
-                var px = prototypeChain.GetInternalProperty(name);
-                if (px.IsEmpty)
-                {
-                    // throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
-                    return JSUndefined.Value;
-                }
-                return this.GetValue(px);
+                // throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
+                return JSUndefined.Value;
             }
-            set
-            {
-                // throw new NotSupportedException();
-            }
+            return this.GetValue(px);
+        }
+
+        //public override JSValue this[KeyString name]
+        //{
+        //    get
+        //    {
+        //        ResolvePrototype();
+        //        if (prototypeChain == null)
+        //            return JSUndefined.Value;
+        //        var px = prototypeChain.GetInternalProperty(name);
+        //        if (px.IsEmpty)
+        //        {
+        //            // throw JSContext.Current.NewTypeError($"{name} property not found on {this.GetType().Name}:{this}");
+        //            return JSUndefined.Value;
+        //        }
+        //        return this.GetValue(px);
+        //    }
+        //    set
+        //    {
+        //        // throw new NotSupportedException();
+        //    }
+        //}
+
+        public override IEnumerable<JSValue> GetForInKeys()
+        {
+            ResolvePrototype();
+            return base.GetForInKeys();
         }
 
         public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)

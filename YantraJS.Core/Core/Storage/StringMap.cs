@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.Core.Storage
 {
@@ -10,7 +11,7 @@ namespace YantraJS.Core.Core.Storage
     /// </summary>
     public struct StringMap<T>
     {
-        private const int Bits = 2;
+        private const int Bits = 4;
         private const int Size = 1 << Bits;
         private const int Mask = ~(-1 << Bits);
 
@@ -49,27 +50,37 @@ namespace YantraJS.Core.Core.Storage
             /// All children must be allocated
             /// in advance.
             /// </summary>
-            public uint Children;
+            public Node[] Children;
         }
 
-        private Node[] storage;
+        private Node[] nodes;
         private uint last;
 
-        public bool IsNull => storage == null;
+        public bool IsNull => nodes == null;
 
         public IEnumerable<(StringSpan Key, T Value)> AllValues()
         {
-            if (storage != null)
+            if (nodes == null)
             {
-                for (int i = 0; i < storage.Length; i++)
+                yield break;
+            }
+            var stack = new Stack<Node[]>();
+            stack.Push(nodes);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                foreach(var node in current)
                 {
-                    var node = storage[i];
                     if (node.HasValue)
                     {
                         yield return (node.Key.Value, node.Value);
                     }
+                    if (node.Children != null)
+                    {
+                        stack.Push(node.Children);
+                    }
                 }
-            } 
+            }
         }
 
 
@@ -184,7 +195,7 @@ namespace YantraJS.Core.Core.Storage
         private ref Node GetNode(in HashedString originalKey, bool create = false)
         {
             ref var node = ref Empty;
-
+            ref var storage = ref nodes;
             if (storage == null)
             {
                 if (!create)
@@ -192,7 +203,7 @@ namespace YantraJS.Core.Core.Storage
                     return ref node;
                 }
                 // extend...
-                storage = new Node[16];
+                storage = new Node[Size];
                 ref var first = ref storage[0];
                 first.State = NodeState.Filled;
                 first.Key = "";
@@ -250,22 +261,17 @@ namespace YantraJS.Core.Core.Storage
                         return ref node;
                     }
                     node.State |= NodeState.Filled;
-                    if (node.Children == 0)
+                    if (node.Children == null)
                     {
-                        node.Children = last;
-                        last += Size;
-                        if (last >= storage.Length)
-                        {
-                            global::System.Array.Resize(ref storage, storage.Length * 2);
-                        }
+                        node.Children = new Node[Size];
                     }
                 }
                 var next = node.Children;
-                if (next == 0)
+                if (node.Children == null)
                 {
                     return ref Empty;
                 }
-                offset = next;
+                storage = ref node.Children;
             }
             if (node.Key == originalKey)
             {
@@ -310,22 +316,16 @@ namespace YantraJS.Core.Core.Storage
                             return ref node;
                         }
                         node.State |= NodeState.Filled;
-                        if (node.Children == 0)
+                        if (node.Children == null)
                         {
-                            node.Children = last;
-                            last += Size;
-                            if (last >= storage.Length)
-                            {
-                                global::System.Array.Resize(ref storage, storage.Length + 16);
-                            }
+                            node.Children = new Node[Size];
                         }
                     }
-                    var next = node.Children;
-                    if (next == 0)
+                    if (node.Children == null)
                     {
                         return ref Empty;
                     }
-                    offset = next;
+                    storage = ref node.Children;
                 }
             }
             return ref Empty;
