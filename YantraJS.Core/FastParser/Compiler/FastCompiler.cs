@@ -23,7 +23,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
-        private StringArray _keyStrings = new StringArray();
+        // private StringArray _keyStrings = new StringArray();
 
         // private FastList<object> _innerFunctions;
 
@@ -127,7 +127,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                 JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
 
-                sList.Add(ScriptInfoBuilder.Build(scriptInfo, _keyStrings));
+                // sList.Add(ScriptInfoBuilder.Build(scriptInfo));
 
                 // ref var keyStrings = ref _keyStrings;
                 //foreach (var ks in KeyString.AllValues())
