@@ -26,7 +26,7 @@ namespace YantraJS.Tests.Generator
         {
             // DictionaryCodeCache.Current = AssemblyCodeCache.Instance;
             ILCodeGenerator.GenerateLogs = true;
-            this.root = root;
+            this.root = root.Replace("\\" ,"/");
             this.saveLambda = saveLambda;
         }
 

@@ -106,12 +106,20 @@ namespace YantraJS.ExpHelper
 
         public static Expression DoubleValue(Expression exp)
         {
+            if (exp.TryReduceToDouble(out var d))
+            {
+                return d;
+            }
             return exp.PropertyExpression<JSValue, double>(() => (x) => x.DoubleValue);
         }
 
         public static Expression IntValue(Expression exp)
         {
             // return Expression.Property(exp, _IntValue);
+            if (exp.TryReduceToDouble(out var d))
+            {
+                return d.ToIntValue();
+            }
             return exp.PropertyExpression<JSValue, int>(() => (x) => x.IntValue);
         }
 
@@ -149,21 +157,11 @@ namespace YantraJS.ExpHelper
         //    type.Property(nameof(JSValue.BooleanValue));
         public static Expression BooleanValue(Expression exp)
         {
-            if(exp.NodeType == Expressions.YExpressionType.Conditional && exp is YConditionalExpression ce)
+            if (exp.TryReduceToBoolean(out var b))
             {
-                if (ce.@true == JSBooleanBuilder.True && ce.@false == JSBooleanBuilder.False)
-                    return ce.test;
-                if (ce.@true == JSBooleanBuilder.False && ce.@false == JSBooleanBuilder.True)
-                    return Expression.Not( ce.test);
+                return b;
             }
-            if (exp == JSBooleanBuilder.True)
-            {
-                return YExpression.Constant(true);
-            }
-            if (exp == JSBooleanBuilder.False)
-            {
-                return YExpression.Constant(false);
-            }
+
             // return Expression.Property(exp, _BooleanValue);
             return exp.PropertyExpression<JSValue, bool>(() => (x) => x.BooleanValue);
         }
@@ -178,12 +176,13 @@ namespace YantraJS.ExpHelper
             return target.CallExpression<JSValue, JSValue, JSValue>(() => (x, a) => x.AddValue(a), value);
         }
 
-        private static MethodInfo _TypeOf =
-            type.GetMethod(nameof(JSValue.TypeOf));
+        // private static MethodInfo _TypeOf =
+        //     type.GetMethod(nameof(JSValue.TypeOf));
 
         public static Expression TypeOf(Expression target)
         {
-            return Expression.Call(target, _TypeOf);
+            // return Expression.Call(target, _TypeOf);
+            return target.CallExpression<JSValue,JSValue>(() => (x) => x.TypeOf());
         }
 
         //private static PropertyInfo _IndexKeyString =

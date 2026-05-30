@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Diagnostics.Contracts;
 using YantraJS.Core.Types;
 using YantraJS.Expressions;
+using YantraJS.ExpHelper;
 
 namespace YantraJS.Core.LambdaGen;
 
@@ -140,6 +141,89 @@ internal static class NewLambdaExpression
     public static Expression As<T>(this Expression @this)
     {
         return Expression.Convert(@this, typeof(T));
+    }
+
+    public static bool TryReduceToDouble(this Expression exp, out Expression output)
+    {
+        if (exp is YTypeAsExpression typeAs)
+        {
+            exp = typeAs.Target;
+        }
+        if (exp is YNewExpression newExp)
+        {
+            if (newExp.Type == typeof(JSNumber))
+            {
+                var arg0 = newExp.args[0];
+                if (arg0?.Type == typeof(double))
+                {
+                    output = arg0;
+                    return true;
+                }
+            }
+        }
+        output = default;
+        return false;
+    }
+
+    public static bool TryReduceToString(this Expression exp, out Expression output)
+    {
+        if (exp is YTypeAsExpression typeAs)
+        {
+            exp = typeAs.Target;
+        }
+        if (exp is YNewExpression newExp)
+        {
+            if (newExp.Type == typeof(JSString))
+            {
+                var arg0 = newExp.args[0];
+                if (arg0?.Type == typeof(string))
+                {
+                    output = arg0;
+                    return true;
+                }
+            }
+        }
+        output = default;
+        return false;
+    }
+
+    public static bool TryReduceToBoolean(this Expression exp, out Expression output)
+    {
+        if (exp is YTypeAsExpression typeAs)
+        {
+            exp = typeAs.Target;
+        }
+        if (exp is YConditionalExpression ce)
+        {
+            if (ce.@true == JSBooleanBuilder.True && ce.@false == JSBooleanBuilder.False) {
+                output = ce.test;
+                return true;
+            }
+            if (ce.@true == JSBooleanBuilder.False && ce.@false == JSBooleanBuilder.True) {
+                output = Expression.Not( ce.test);
+                return true;
+            }
+        }
+        if (exp == JSBooleanBuilder.True)
+        {
+            output = YExpression.Constant(true);
+            return true;
+        }
+        if (exp == JSBooleanBuilder.False)
+        {
+            output = YExpression.Constant(false);
+            return true;
+        }
+        output = default;
+        return false;
+    }
+
+    public static Expression ToIntValue(this Expression exp)
+    {
+        var toLong = Expression.Convert(exp, typeof(long), true);
+        var toLeft = Expression.LeftShift(toLong, Expression.Constant(32));
+        var toRight = Expression.RightShift(toLeft, Expression.Constant(32));
+        return Expression.Convert(toRight, typeof(int), true);
     }
 
 }
