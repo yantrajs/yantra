@@ -455,17 +455,15 @@ namespace YantraJS.ExpHelper
                 ));
         }
 
-
-        private static MethodInfo _StrictEquals
-            = type.InternalMethod(nameof(Core.JSValue.StrictEquals), typeof(JSValue));
-
         public static Expression StrictEquals(Expression target, Expression value)
         {
             if (value.Type == typeof(string))
                 return JSBooleanBuilder.NewFromCLRBoolean( target.CallExpression<JSValue, string, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value));
-            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(target, _StrictEquals, value));
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.StrictEquals(y), value));
         }
 
         public static Expression NotStrictEquals(Expression target, Expression value)
@@ -476,42 +474,51 @@ namespace YantraJS.ExpHelper
             if (value.Type == typeof(double))
                 return JSBooleanBuilder.NewFromCLRBoolean(
                     Expression.Not(target.CallExpression<JSValue, double, bool>(() => (x, a) => x.StrictEqualsLiteral(a), value)));
-            return
-                ExpHelper.JSBooleanBuilder.NewFromCLRBoolean(
-                Expression.Not(Expression.Call(target, _StrictEquals, value)));
-        }
 
-        private static MethodInfo _Less
-            = type.PublicMethod(nameof(Core.JSValue.Less), typeof(JSValue));
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                Expression.Not(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.StrictEquals(y), value)));
+
+        }
 
         public static Expression Less(Expression target, Expression value)
         {
-            return JSBooleanBuilder.NewFromCLRBoolean( Expression.Call(ValueOf(target), _Less, ValueOf(value)));
+            target = ValueOf(target);
+            value = ValueOf(value);
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.Less(y), value));
         }
 
-        private static MethodInfo _LessOrEqual
-            = type.PublicMethod(nameof(Core.JSValue.LessOrEqual), typeof(JSValue));
 
         public static Expression LessOrEqual(Expression target, Expression value)
         {
-            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value)));
+            // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _LessOrEqual, ValueOf(value)));
+            target = ValueOf(target);
+            value = ValueOf(value);
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.LessOrEqual(y), value));
+
         }
 
-        private static MethodInfo _Greater
-            = type.PublicMethod(nameof(Core.JSValue.Greater), typeof(JSValue));
         public static Expression Greater(Expression target, Expression value)
         {
-            // return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _Greater, ValueOf(value)));
+            target = ValueOf(target);
+            value = ValueOf(value);
             return JSBooleanBuilder.NewFromCLRBoolean(
                 target.CallExpression<JSValue, JSValue, bool>(() => (x, y) => x.Greater(y), value)
             );
         }
 
-        private static MethodInfo _GreaterOrEqual
-            = type.PublicMethod(nameof(Core.JSValue.GreaterOrEqual), typeof(JSValue));
         public static Expression GreaterOrEqual(Expression target, Expression value)
         {
-            return JSBooleanBuilder.NewFromCLRBoolean(Expression.Call(ValueOf(target), _GreaterOrEqual, ValueOf(value)));
+            target = ValueOf(target);
+            value = ValueOf(value);
+            return JSBooleanBuilder.NewFromCLRBoolean(
+                target.CallExpression<JSValue,JSValue, bool>(() =>
+                (x,y) => x.GreaterOrEqual(y), value));
         }
 
         public static Expression ValueOf(Expression target) {
