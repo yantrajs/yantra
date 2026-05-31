@@ -152,6 +152,11 @@ namespace YantraJS.Core
 
         public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
         {
+#if DEBUG
+            if(value == null) {
+               throw new ArgumentNullException(nameof(value));
+            }
+#endif
             this.value = value;
         }
         //public JSString(JSObject prototype, string value): base(prototype)
@@ -161,10 +166,11 @@ namespace YantraJS.Core
 
         public JSString(in StringSpan value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
         {
-            //if(value.Source == null)
-            //{
-            //    throw new ArgumentNullException(nameof(value));
-            //}
+#if DEBUG
+            if(value == null) {
+               throw new ArgumentNullException(nameof(value));
+            }
+#endif
             this.value = value.Value;
         }
 
