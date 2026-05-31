@@ -310,104 +310,104 @@ namespace YantraJS.Core
             return this.value.Equals(value);
         }
 
-        public override bool Less(JSValue value)
+        public override bool Less(JSValue right)
         {
-            if (value.IsNullOrUndefined) {
-                return false;
+            // if (right.IsNullOrUndefined) {
+            //     return true;
+            // }
+            if (right.IsObject) {
+                right = right.ValueOf();
             }
-            if (value.IsObject) {
-                value = value.ValueOf();
+            return right.CanBeNumber
+                ? DoubleValue < right.DoubleValue
+                : value.Less(right.ToString());
+        }
+
+        public override bool LessLiteral(double right)
+        {
+            return DoubleValue < right;
+        }
+
+        public override bool LessLiteral(string right)
+        {
+            return value.Less(right);
+        }
+
+        public override bool LessOrEqual(JSValue right)
+        {
+            // if (right.IsNullOrUndefined) {
+            //     return true;
+            // }
+            if (right.IsObject) {
+                right = right.ValueOf();
             }
-            return value.IsNumberOrBoolean
-                ? this.DoubleValue < value.DoubleValue
-                : this.ToString().Less(value.ToString());
+            return right.CanBeNumber
+                ? DoubleValue <= right.DoubleValue
+                : value.LessOrEqual(right.ToString());
         }
 
-        public override bool LessLiteral(double value)
+        public override bool LessOrEqualLiteral(double right)
         {
-            return this.DoubleValue < value;
+            return this.DoubleValue <= right;
         }
 
-        public override bool LessLiteral(string value)
+        public override bool LessOrEqualLiteral(string right)
         {
-            return this.value.Less(value);
+            return value.LessOrEqual(right);
         }
 
-        public override bool LessOrEqual(JSValue value)
+        public override bool Greater(JSValue right)
         {
-            if (value.IsNullOrUndefined) {
-                return false;
+            // if (right.IsNullOrUndefined) {
+            //     return false;
+            // }
+            if (right.IsObject) {
+                right = right.ValueOf();
             }
-            if (value.IsObject) {
-                value = value.ValueOf();
+            return right.CanBeNumber
+                ? DoubleValue > right.DoubleValue
+                : value.Greater(right.ToString());
+        }
+
+        public override bool GreaterLiteral(double right)
+        {
+            return DoubleValue > right;
+        }
+
+        public override bool GreaterLiteral(string right)
+        {
+            return value.Greater(right);
+        }
+
+
+        public override bool GreaterOrEqual(JSValue right)
+        {
+            // if (right.IsNullOrUndefined) {
+            //     return false;
+            // }
+            if (right.IsObject) {
+                right = right.ValueOf();
             }
-            return value.IsNumberOrBoolean
-                ? this.DoubleValue <= value.DoubleValue
-                : this.ToString().LessOrEqual(value.ToString());
+            return right.CanBeNumber
+                ? DoubleValue >= right.DoubleValue
+                : value.GreaterOrEqual(right.ToString());
         }
 
-        public override bool LessOrEqualLiteral(double value)
+        public override bool GreaterOrEqualLiteral(double right)
         {
-            return this.DoubleValue <= value;
+            return DoubleValue >= right;
         }
 
-        public override bool LessOrEqualLiteral(string value)
+        public override bool GreaterOrEqualLiteral(string right)
         {
-            return this.value.LessOrEqual(value);
+            return value.GreaterOrEqual(right);
         }
 
-        public override bool Greater(JSValue value)
+        public override bool StrictEquals(JSValue right)
         {
-            if (value.IsNullOrUndefined) {
-                return false;
-            }
-            if (value.IsObject) {
-                value = value.ValueOf();
-            }
-            return value.IsNumberOrBoolean
-                ? this.DoubleValue > value.DoubleValue
-                : this.ToString().Greater(value.ToString());
-        }
-
-        public override bool GreaterLiteral(double value)
-        {
-            return this.DoubleValue > value;
-        }
-
-        public override bool GreaterLiteral(string value)
-        {
-            return this.value.Greater(value);
-        }
-
-
-        public override bool GreaterOrEqual(JSValue value)
-        {
-            if (value.IsNullOrUndefined) {
-                return false;
-            }
-            if (value.IsObject) {
-                value = value.ValueOf();
-            }
-            return value.IsNumberOrBoolean
-                ? this.DoubleValue > value.DoubleValue
-                : this.ToString().GreaterOrEqual(value.ToString());
-        }
-
-        public override bool GreaterOrEqualLiteral(double value)
-        {
-            return this.DoubleValue > value;
-        }
-
-        public override bool GreaterOrEqualLiteral(string value)
-        {
-            return this.value.GreaterOrEqual(value);
-        }
-
-        public override bool StrictEquals(JSValue value)
-        {
-            if (object.ReferenceEquals(this, value))
+            if (object.ReferenceEquals(this, right))
                 return true;
-            if (value is JSString s)
+            if (right is JSString s)
                 if (s.value.Equals(this.value))
                     return true;
             return false;
