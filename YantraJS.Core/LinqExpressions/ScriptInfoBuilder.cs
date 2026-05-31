@@ -46,10 +46,22 @@ namespace YantraJS.Core.LinqExpressions
         //}
 
 
-        public static Expression New(string fileName, string code)
+        public static Expression New(string fileName, string code, int length)
         {
             var _code = TypeQuery.QueryInstanceField<ScriptInfo, string>(() => (x) => x.Code);
             var _fileName = TypeQuery.QueryInstanceField<ScriptInfo, string>(() => (x) => x.FileName);
+            if (length > 0)
+            {
+                var _indices = TypeQuery.QueryInstanceField<ScriptInfo, KeyString[]>(() => (x) => x.Indices);
+                return 
+                    Expression.MemberInit(
+                        NewLambdaExpression.NewExpression<ScriptInfo>(() => () => new ScriptInfo()),
+                        Expression.Bind(_code, Expression.Constant(code)),
+                        Expression.Bind(_fileName, Expression.Constant(fileName)),
+                        Expression.Bind(_indices, Expression.NewArrayBounds(typeof(KeyString), Expression.Constant(length)))
+                    );
+                
+            }
             return 
                 Expression.MemberInit(
                     NewLambdaExpression.NewExpression<ScriptInfo>(() => () => new ScriptInfo()),

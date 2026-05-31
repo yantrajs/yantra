@@ -25,9 +25,11 @@ namespace YantraJS.Tests.Core
             //");
             this.context.Execute(@"
 
+            function m11() {
+            }
             
             for(var i=0;i<100;i+=2) {
-                console.log(i);
+                console.log(m11(i));
             }
 
 ");

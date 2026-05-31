@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using YantraJS.Core.CodeGen;
+using YantraJS.Core.LambdaGen;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
 using YantraJS.Emit;
@@ -23,7 +24,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
         public LoopScope LoopScope => this.scope.Top.Loop.Top;
 
-        // private StringArray _keyStrings = new StringArray();
+        private StringArray _keyStrings = new StringArray();
 
         // private FastList<object> _innerFunctions;
 
@@ -118,24 +119,21 @@ namespace YantraJS.Core.FastParser.Compiler
                 var script = Visit(jScript);
 
                 var sList = new Sequence<Exp>() {
-                    Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value)),
+                    Exp.Assign(scriptInfo, ScriptInfoBuilder.New(location,code.Value, _keyStrings.List.Count)),
                     Exp.Assign(lScope, JSContextBuilder.Current)
                 };
 
-                //sList.Add(Exp.Assign(ScriptInfoBuilder.Functions(scriptInfo),
-                //    Exp.Constant(_innerFunctions.ToArray())));
-
                 JSContextStackBuilder.Push(sList, lScope, stackItem, Exp.Constant(location), StringSpanBuilder.Empty, 0, 0);
 
-                // sList.Add(ScriptInfoBuilder.Build(scriptInfo));
-
-                // ref var keyStrings = ref _keyStrings;
-                //foreach (var ks in KeyString.AllValues())
-                //{
-                //    var v = ks.Value;
-                //    vList.Add(v);
-                //    sList.Add(Exp.Assign(v, ExpHelper.KeyStringsBuilder.GetOrCreate(Exp.Constant(ks.Key))));
-                //}
+                var keyStringIndex = 0;
+                foreach (var ks in _keyStrings.List)
+                {
+                    sList.Add(scriptInfo.CallExpression<ScriptInfo, int, string>(() =>
+                        (x, index, span) => x.Set(index, span),
+                        Expression.Constant(keyStringIndex++),
+                        Expression.Constant(ks.Value)
+                   ));
+                }
 
                 vList.AddRange(fx.VariableParameters);
                 sList.AddRange(fx.InitList);
