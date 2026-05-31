@@ -315,6 +315,10 @@ namespace YantraJS.Core
             // if (right.IsNullOrUndefined) {
             //     return true;
             // }
+            if (right.IsUndefined)
+            {
+                return false;
+            }
             if (right.IsObject) {
                 right = right.ValueOf();
             }
@@ -338,6 +342,9 @@ namespace YantraJS.Core
             // if (right.IsNullOrUndefined) {
             //     return true;
             // }
+            if (right.IsUndefined) {
+                return false;
+            }
             if (right.IsObject) {
                 right = right.ValueOf();
             }
@@ -361,6 +368,9 @@ namespace YantraJS.Core
             // if (right.IsNullOrUndefined) {
             //     return false;
             // }
+            if (right.IsUndefined) {
+                return false;
+            }
             if (right.IsObject) {
                 right = right.ValueOf();
             }
@@ -382,6 +392,9 @@ namespace YantraJS.Core
 
         public override bool GreaterOrEqual(JSValue right)
         {
+            if (right.IsUndefined) {
+                return false;
+            }
             // if (right.IsNullOrUndefined) {
             //     return false;
             // }
