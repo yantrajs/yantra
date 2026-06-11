@@ -272,10 +272,18 @@ namespace YantraJS.Core.Core.Storage
                 {
                     return;
                 }
-                //var length2 = (int)this.array.Length * 2;
-                //newLength = size > length2 ? (int)size : length2;
-                //newLength = newLength < MaxArraySize ? newLength : MaxArraySize;
-                newLength = (((int)this.length >> 4) + 1) << 4;
+                newLength = this.array.Length * 2;
+                if (newLength < this.length)
+                {
+                    newLength = (int)this.length;
+                }
+                else
+                {
+                    if (newLength > MaxArraySize)
+                    {
+                        newLength = MaxArraySize;
+                    }
+                }
                 System.Array.Resize(ref this.array, newLength);
                 return;
             }
@@ -449,6 +457,7 @@ namespace YantraJS.Core.Core.Storage
             }
             return Storage.RemoveAt(key);
         }
+
         public IEnumerable<(uint Key, JSProperty Value)> AllValues()
         {
             if (this.array != null)
@@ -603,6 +612,14 @@ namespace YantraJS.Core.Core.Storage
             foreach(var item in items) {
                 this.array[i++] = item;
             }
+            this.isDictionary = false;
+        }
+
+        internal void Initialize(Sequence<JSValue> items)
+        {
+            this.array = new JSValue[items.Count];
+            this.length = (uint)items.Count;
+            items.CopyTo(this.array);
             this.isDictionary = false;
         }
 

@@ -122,8 +122,8 @@ namespace YantraJS.Core
             // Find the first match.
             Match match = this.value.Match(input, 0);
 
-            
-            var results = new JSArray();
+
+            var results = new Sequence<JSValue>();
             int startIndex = 0;
             Match lastMatch = null;
             while (match.Success == true)
@@ -141,8 +141,8 @@ namespace YantraJS.Core
                 var element = input.Substring(startIndex, match.Index - startIndex);
                 results.Add(new JSString(element));
                 //if (results.Count >= limit)
-                if (results._length >= limit)
-                  return  results;
+                if (results.Count >= limit)
+                  return  new JSArray(results);
                 startIndex = match.Index + match.Length;
                 for (int i = 1; i < match.Groups.Count; i++)
                 {
@@ -151,8 +151,8 @@ namespace YantraJS.Core
                         results.Add(JSUndefined.Value);       // Non-capturing groups return "undefined".
                     else
                         results.Add(new JSString(match.Groups[i].Value));
-                    if (results._length >= limit)
-                        return results;
+                    if (results.Count >= limit)
+                        return new JSArray(results);
                 }
 
                 // Record the last match.
@@ -163,7 +163,7 @@ namespace YantraJS.Core
             }
             var ele = input.Substring(startIndex, input.Length - startIndex);
             results.Add(new JSString(ele));
-            return results;
+            return new JSArray(results);
             // Set the deprecated RegExp properties.
            // if (lastMatch != null)
            //     this.Engine.RegExp.SetDeprecatedProperties(input, lastMatch);

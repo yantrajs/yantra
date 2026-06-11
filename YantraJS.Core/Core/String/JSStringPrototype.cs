@@ -506,15 +506,16 @@ namespace YantraJS.Core
             }
 
             var separator = _separator.ToString();
-            var result = new JSArray();
+            var result = new Sequence<JSValue>();
             if (string.IsNullOrEmpty(separator))
 
             {
                 // If the separator is empty, split the string into individual characters.
-                
-                for (int i = 0; i < @this.Length; i++)
-                    result[(uint)i] = new JSString(@this[i]);
-                return result;
+                var length = @this.Length;
+                result = new Sequence<JSValue>(length);
+                for (int i = 0; i < length; i++)
+                    result.Add(new JSString(@this[i]));
+                return new JSArray(result);
             }
 
             // .NET Split is buggy, it should not remove empty string entries
@@ -531,7 +532,7 @@ namespace YantraJS.Core
             {
                 result.Add(new JSString(item));    
             }
-            return result;
+            return new JSArray(result);
 
 
             //var @this = a.This.AsString();

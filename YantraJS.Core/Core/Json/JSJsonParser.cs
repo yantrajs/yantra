@@ -138,13 +138,13 @@ namespace YantraJS.Core
 
         private JSValue ReadArray(ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var j = new JSArray();
+            var j = new Sequence<JSValue>();
             // read properties...
             while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
             {
                 j.Add(Read(ref reader, typeof(JSValue), options));
             }
-            return j;
+            return new JSArray(j);
         }
 
         private JSValue ReadObject(ref Utf8JsonReader reader, JsonSerializerOptions options)

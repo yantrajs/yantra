@@ -61,6 +61,13 @@ namespace YantraJS.Core
             elements.Initialize(items);
         }
 
+        public JSArray(Sequence<JSValue> items): this()
+        {
+            this._length = (uint)items.Count;
+            elements.Initialize(items);
+            
+        }
+
         public JSArray(IElementEnumerator en): this()
         {
             // ref var elements = ref GetElements(true);

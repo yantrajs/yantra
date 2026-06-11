@@ -23,10 +23,22 @@ namespace YantraJS.Core
             internal Node Next;
         }
         private int count;
+        private int capacity = DefaultCapacity;
         private Node head;
         private Node tail;
         private T[] tailArray = Array.Empty<T>();
         private int tailCount;
+
+        public int Capacity {
+            get { return capacity; }
+            set {
+                if (value < DefaultCapacity)
+                {
+                    return;
+                }
+                capacity = value;
+            }
+        }
 
         public T this[int index]
         {
@@ -165,7 +177,7 @@ namespace YantraJS.Core
 
             if (head == null)
             {
-                tailArray = new T[DefaultCapacity];
+                tailArray = new T[capacity];
                 tailCount = 1;
                 var t = new Node
                 {
@@ -176,7 +188,7 @@ namespace YantraJS.Core
             }
             else
             {
-                tailArray = new T[count];
+                tailArray = new T[count > capacity ? count : capacity];
                 tailCount = 1;
                 var t = new Node
                 {
@@ -210,7 +222,7 @@ namespace YantraJS.Core
 
             if (head == null)
             {
-                tailArray = new T[DefaultCapacity];
+                tailArray = new T[capacity];
                 tailArray[0] = item;
                 tailCount = 1;
                 var t = new Node
@@ -222,7 +234,7 @@ namespace YantraJS.Core
             }
             else
             {
-                tailArray = new T[count];
+                tailArray = new T[count > capacity ? count : capacity];
                 tailArray[0] = item;
                 tailCount = 1;
                 var t = new Node
@@ -243,8 +255,24 @@ namespace YantraJS.Core
             }
         }
 
+        public void AddRange(T[] range)
+        {
+            if (this.capacity < range.Length)
+            {
+                this.capacity = range.Length;
+            }
+            foreach (var item in range)
+            {
+                Add(item);
+            }
+        }
+
         public void AddRange(Sequence<T> range)
         {
+            if (this.capacity < range.count)
+            {
+                this.capacity = range.count;
+            }
             var en = range.GetFastEnumerator();
             while (en.MoveNext(out var item))
                 Add(item);
@@ -313,16 +341,11 @@ namespace YantraJS.Core
             return default;
         }
 
-        public T[] ToArray()
+        public void CopyTo(T[] items, int startIndex = 0)
         {
-            if (count == 0)
-            {
-                return Array.Empty<T>();
-            }
-            var items = new T[count];
             var start = this.head;
             var last = this.tail;
-            int index = 0;
+            int index = startIndex;
             while (start != last)
             {
                 Array.Copy(start.Items, 0, items, index, start.Items.Length);
@@ -330,6 +353,16 @@ namespace YantraJS.Core
                 start = start.Next;
             }
             Array.Copy(tailArray, 0, items, index, tailCount);
+        }
+
+        public T[] ToArray()
+        {
+            if (count == 0)
+            {
+                return Array.Empty<T>();
+            }
+            var items = new T[count];
+            this.CopyTo(items);
             return items;
         }
 
