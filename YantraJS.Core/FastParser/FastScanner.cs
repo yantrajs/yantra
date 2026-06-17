@@ -604,9 +604,9 @@ namespace YantraJS.Core.FastParser
                     char ch = Consume();
                     if (ch != char.MaxValue)
                     {
-                        if (ch.IsHexDigitPart())
+                        if (ch.IsHexDigitPart(out var v))
                         {
-                            code = code * 16 + ch.HexValue();
+                            code = code * 16 + v;
                         }
                         else
                         {
@@ -1060,32 +1060,46 @@ namespace YantraJS.Core.FastParser
             void ConsumeDigitsHex()
             {
                 char peek = Peek();
-                if (!peek.IsHexDigitPart())
-                    return;
-                do
+                while(peek.IsHexDigitPart())
                 {
                     peek = Consume();
-                } while (peek.IsHexDigitPart());
+                }
+                //if (!peek.IsHexDigitPart())
+                //    return;
+                //do
+                //{
+                //    peek = Consume();
+                //} while (peek.IsHexDigitPart());
             }
             void ConsumeBinaryDigits()
             {
                 char peek = Peek();
-                if (!peek.IsBinaryDigitPart())
-                    return;
-                do
+                while (peek.IsBinaryDigitPart())
                 {
                     peek = Consume();
-                } while (peek.IsBinaryDigitPart());
+                }
+                //char peek = Peek();
+                //if (!peek.IsBinaryDigitPart())
+                //    return;
+                //do
+                //{
+                //    peek = Consume();
+                //} while (peek.IsBinaryDigitPart());
             }
             void ConsumeDigits() {
                 char peek = Peek();
-                if (!peek.IsDigitPart())
-                    return;
-                do {
+                while (peek.IsDigitPart())
+                {
                     peek = Consume();
-                } while (peek.IsDigitPart());
+                }
+                //char peek = Peek();
+                //if (!peek.IsDigitPart())
+                //    return;
+                //do {
+                //    peek = Consume();
+                //} while (peek.IsDigitPart());
             }
-            if(Peek() == '0') {
+            if (Peek() == '0') {
                 switch (Consume())
                 {
                     case 'x':
