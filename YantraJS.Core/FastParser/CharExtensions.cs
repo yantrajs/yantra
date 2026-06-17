@@ -39,14 +39,13 @@ namespace YantraJS.Core.FastParser
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDigitPart(
-            this char ch, bool hex, bool binary)
+            this char ch)
         {
             switch (ch)
             {
                 case '_':
                 case '0':
                 case '1':
-                    return true;
                 case '2':
                 case '3':
                 case '4':
@@ -55,11 +54,29 @@ namespace YantraJS.Core.FastParser
                 case '7':
                 case '8':
                 case '9':
-                    if (binary)
-                    {
-                        return false;
-                    }
                     return true;
+            }
+            return false;
+
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsHexDigitPart(
+            this char ch)
+        {
+            switch (ch)
+            {
+                case '_':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
                 case 'a':
                 case 'b':
                 case 'c':
@@ -72,10 +89,23 @@ namespace YantraJS.Core.FastParser
                 case 'D':
                 case 'E':
                 case 'F':
-                    return hex;
+                    return true;
             }
             return false;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsBinaryDigitPart(
+            this char ch)
+        {
+            switch (ch)
+            {
+                case '_':
+                case '0':
+                case '1':
+                    return true;
+            }
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

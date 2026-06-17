@@ -604,7 +604,7 @@ namespace YantraJS.Core.FastParser
                     char ch = Consume();
                     if (ch != char.MaxValue)
                     {
-                        if (ch.IsDigitPart(true, false))
+                        if (ch.IsHexDigitPart())
                         {
                             code = code * 16 + ch.HexValue();
                         }
@@ -644,7 +644,7 @@ namespace YantraJS.Core.FastParser
             text[1] = 'U';
             while (ch != char.MaxValue)
             {
-                if (!ch.IsDigitPart(true, false))
+                if (!ch.IsHexDigitPart())
                 {
                     break;
                 }
@@ -1056,13 +1056,34 @@ namespace YantraJS.Core.FastParser
 
         private FastToken ReadNumber(State state, char first)
         {
-            void ConsumeDigits(bool hex = false, bool binary = false) {
+
+            void ConsumeDigitsHex()
+            {
                 char peek = Peek();
-                if (!peek.IsDigitPart(hex, binary))
+                if (!peek.IsHexDigitPart())
+                    return;
+                do
+                {
+                    peek = Consume();
+                } while (peek.IsHexDigitPart());
+            }
+            void ConsumeBinaryDigits()
+            {
+                char peek = Peek();
+                if (!peek.IsBinaryDigitPart())
+                    return;
+                do
+                {
+                    peek = Consume();
+                } while (peek.IsBinaryDigitPart());
+            }
+            void ConsumeDigits() {
+                char peek = Peek();
+                if (!peek.IsDigitPart())
                     return;
                 do {
                     peek = Consume();
-                } while (peek.IsDigitPart(hex, binary));
+                } while (peek.IsDigitPart());
             }
             if(Peek() == '0') {
                 switch (Consume())
@@ -1070,22 +1091,14 @@ namespace YantraJS.Core.FastParser
                     case 'x':
                     case 'X':
                         Consume();
-                        ConsumeDigits(hex: true);
+                        ConsumeDigitsHex();
                         return state.Commit(TokenTypes.Number, true);
                     case 'b':
                     case 'B':
                         Consume();
-                        ConsumeDigits(binary: true);
+                        ConsumeBinaryDigits();
                         return state.Commit(TokenTypes.Number, true);
                 }
-                //if(CanConsume('x', 'X')) {
-                //    ConsumeDigits(hex: true);
-                //    return state.Commit(TokenTypes.Number, true);
-                //}
-                //if (CanConsume('b','B')) {
-                //    ConsumeDigits(binary: true);
-                //    return state.Commit(TokenTypes.Number, true);
-                //}
             }
             ConsumeDigits();
             if (CanConsume('n'))
