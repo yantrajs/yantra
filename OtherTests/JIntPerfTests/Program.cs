@@ -10,13 +10,13 @@ public class Program
 
     private static readonly Dictionary<string, string> _files = new()
     {
-        { "array-stress", null },
+        // { "array-stress", null },
         //{ "evaluation", null },
         //{ "linq-js", null },
         //{ "minimal", null },
         //{ "stopwatch", null },
         //{ "dromaeo-3d-cube", null },
-        //{ "dromaeo-core-eval", null },
+        { "dromaeo-core-eval", null },
         //{ "dromaeo-object-array", null },
         // { "dromaeo-object-regexp", null },
         //{ "dromaeo-object-string", null },
