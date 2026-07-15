@@ -470,6 +470,25 @@ namespace YantraJS.Core.FastParser.Compiler
             return temp;
         }
 
+        public Expression GetNewLiteral(Expression init)
+        {
+            var type = init.Type;
+            var name = "#Literal" + type.Name + id++;
+            var tp = Exp.Variable(type, name);
+            var temp = new VariableScope
+            {
+                Create = true,
+                Name = tp.Name,
+                IsTemp = true,
+                InUse = true,
+                Expression = tp,
+                Variable = tp,
+            };
+            temp.SetInit(init);
+            TopScope.variableScopeList[temp.Name] = temp;
+            return temp.Expression;
+        }
+
         public bool IsFunctionScope => this.Parent?.Function != this.Function;
 
         public VariableScope CreateVariable(
