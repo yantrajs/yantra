@@ -28,6 +28,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 case TokenTypes.False:
                     return ExpHelper.JSBooleanBuilder.False;
                 case TokenTypes.String:
+                case TokenTypes.TemplatePart:
                     return this.scope.Top.GetNewLiteral(ExpHelper.JSStringBuilder.New(Exp.Constant(literal.StringValue)));
                 case TokenTypes.BigInt:
                     return this.scope.Top.GetNewLiteral(ExpHelper.JSBigIntBuilder.New(literal.StringValue));

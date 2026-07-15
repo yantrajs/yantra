@@ -485,7 +485,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 Variable = tp,
             };
             temp.SetInit(init);
-            TopScope.variableScopeList[temp.Name] = temp;
+            TopScope.variableScopeList[name] = temp;
             return temp.Expression;
         }
 
