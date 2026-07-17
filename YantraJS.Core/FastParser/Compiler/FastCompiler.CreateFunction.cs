@@ -158,20 +158,27 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     Exp lambdaBody = VisitStatement(functionDeclaration.Body);
 
-                    vList.AddRange(s.VariableParameters);
-                    sList.AddRange(s.InitList);
 
-                    sList.AddRange(bodyInits);
+
+                if (s.MemberInits != null)
+                {
+                    InitMembers(sList, s);
+                }
+
+                sList.AddRange(s.InitLiterals);
+
+                sList.AddRange(s.InitList);
+
+                sList.AddRange(bodyInits);
+
+                vList.AddRange(s.VariableParameters);
+
 
                 //if (invokeSuper)
                 //{
                 //    sList.Add(JSFunctionBuilder.InvokeSuperConstructor( super, s.ThisExpression, s.ArgumentsExpression ));
                 //}
 
-                if (s.MemberInits != null)
-                {
-                    InitMembers(sList, s);
-                }
                 sList.Add(lambdaBody);
                     // sList.Add(JSContextStackBuilder.Pop(stackItem));
                     if (createClass)

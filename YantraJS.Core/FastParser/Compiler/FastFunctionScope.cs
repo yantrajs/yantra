@@ -200,6 +200,8 @@ namespace YantraJS.Core.FastParser.Compiler
 
         private SharedParserStringMap<VariableScope> variableScopeList = new SharedParserStringMap<VariableScope>();
 
+        private Sequence<VariableScope> literals = new Sequence<VariableScope>();
+
         public AstFunctionExpression Function { get; }
 
         private Expression _this;
@@ -251,13 +253,31 @@ namespace YantraJS.Core.FastParser.Compiler
         {
             get
             {
-                var en = variableScopeList.AllValues;
-                while (en.MoveNext(out var s))
+                var en = literals.GetFastEnumerator();
+                while(en.MoveNext(out var s))
+                {
+                    yield return s.Variable;
+                }
+
+                var en2 = variableScopeList.AllValues;
+                while (en2.MoveNext(out var s))
                 {
                     if (s.Value.Variable != null)
                     {
                         yield return s.Value.Variable;
                     }
+                }
+            }
+        }
+
+        public IEnumerable<Expression> InitLiterals
+        {
+            get
+            {
+                var el = literals.GetFastEnumerator();
+                while (el.MoveNext(out var l))
+                {
+                    yield return l.Init;
                 }
             }
         }
@@ -473,8 +493,7 @@ namespace YantraJS.Core.FastParser.Compiler
         public Expression GetNewLiteral(Expression init)
         {
             var type = init.Type;
-            var name = "#Literal" + type.Name + id++;
-            var tp = Exp.Variable(type, name);
+            var tp = Exp.Variable(type, "#Literal" + type.Name + id++);
             var temp = new VariableScope
             {
                 Create = true,
@@ -485,7 +504,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 Variable = tp,
             };
             temp.SetInit(init);
-            TopScope.variableScopeList[name] = temp;
+            TopScope.literals.Add(temp);
             return temp.Expression;
         }
 
