@@ -160,6 +160,10 @@ internal static class NewLambdaExpression
             output = exp;
             return true;
         }
+        if (exp is YParameterExpression p && p.Literal is YExpression pe)
+        {
+            exp = pe;
+        }
         if (exp is YTypeAsExpression typeAs)
         {
             exp = typeAs.Target;
@@ -187,6 +191,10 @@ internal static class NewLambdaExpression
             output = exp;
             return true;
         }
+        if (exp is YParameterExpression p && p.Literal is YExpression pe)
+        {
+            exp = pe;
+        }
         if (exp is YTypeAsExpression typeAs)
         {
             exp = typeAs.Target;
@@ -213,6 +221,10 @@ internal static class NewLambdaExpression
         {
             output = exp;
             return true;
+        }
+        if (exp is YParameterExpression p && p.Literal is YExpression pe)
+        {
+            exp = pe;
         }
         if (exp is YTypeAsExpression typeAs)
         {

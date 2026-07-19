@@ -542,9 +542,9 @@ namespace YantraJS.Expressions
             return new YInvokeExpression(target, args.AsSequence(), type);
         }
 
-        public static YParameterExpression Variable(Type type, string? name = null)
+        public static YParameterExpression Variable(Type type, string? name = null, object? literal = null)
         {
-            return new YParameterExpression(type, name);
+            return new YParameterExpression(type, name, literal);
         }
 
         public static YPropertyExpression Property(YExpression target, PropertyInfo field)

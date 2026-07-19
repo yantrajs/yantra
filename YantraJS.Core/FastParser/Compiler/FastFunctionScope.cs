@@ -493,7 +493,7 @@ namespace YantraJS.Core.FastParser.Compiler
         public Expression GetNewLiteral(Expression init)
         {
             var type = init.Type;
-            var tp = Exp.Variable(type, "#Literal" + type.Name + id++);
+            var tp = Exp.Variable(type, "#Literal" + type.Name + id++, init);
             var temp = new VariableScope
             {
                 Create = true,
