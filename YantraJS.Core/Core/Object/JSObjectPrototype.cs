@@ -23,7 +23,7 @@ namespace YantraJS.Core
                 return first;
             if (first.IsNullOrUndefined)
                 return new JSObject();
-            return new JSPrimitiveObject(first as JSPrimitive);
+            return new JSPrimitiveObject(first);
         }
 
         [JSPrototypeMethod][JSExport("propertyIsEnumerable")]

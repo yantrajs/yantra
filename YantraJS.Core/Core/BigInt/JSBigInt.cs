@@ -8,6 +8,7 @@ using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
+using YantraJS.Extensions;
 
 namespace YantraJS.Core.BigInt
 {
@@ -22,7 +23,7 @@ namespace YantraJS.Core.BigInt
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("BigInt")]
-    public partial class JSBigInt : JSPrimitive
+    public partial class JSBigInt : JSValue, IJSPrimitive
     {
 
 
@@ -75,6 +76,22 @@ namespace YantraJS.Core.BigInt
             if (!BigInteger.TryParse(v, out var n))
                 throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
             this.value = n;
+        }
+
+        private JSPrototype GetPrototype(JSContext context = null)
+        {
+            return (context ?? JSContext.Current).BigInt_Prototype;
+        }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return this.GetPrototype(null).GetMethod(in key);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            var p = GetPrototype(null).GetInternalProperty(key);
+            return (receiver ?? this).GetValue(p);
         }
 
         public override bool Equals(JSValue value)
@@ -139,10 +156,10 @@ namespace YantraJS.Core.BigInt
         //     return JSConstants.BigInt;
         // }
 
-        protected override JSObject GetPrototype()
-        {
-            return (JSContext.Current[KeyString.BigInt] as JSFunction).prototype;
-        }
+        //protected override JSObject GetPrototype()
+        //{
+        //    return (JSContext.Current[KeyString.BigInt] as JSFunction).prototype;
+        //}
 
         internal override PropertyKey ToKey(bool create = true)
         {

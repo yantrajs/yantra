@@ -11,9 +11,10 @@ namespace YantraJS.Core
     /// 
     /// Boolean, Number, Integer are derived from JSPrimitive
     /// </summary>
-    public abstract class JSPrimitive: JSValue
+    public abstract class JSPrimitive2 : JSValue
     {
-        internal protected void ResolvePrototype() { 
+        internal protected void ResolvePrototype()
+        {
             if (prototypeChain == null)
             {
                 BasePrototypeObject = GetPrototype();
@@ -22,17 +23,18 @@ namespace YantraJS.Core
 
         protected abstract JSObject GetPrototype();
 
-        protected JSPrimitive(JSValueType valueType) : base(valueType, null)
+        protected JSPrimitive2(JSValueType valueType) : base(valueType, null)
         {
 
         }
 
-        protected JSPrimitive(JSValueType valueType, JSPrototypeObject prototype): base(valueType, prototype)
+        protected JSPrimitive2(JSValueType valueType, JSPrototypeObject prototype) : base(valueType, prototype)
         {
 
         }
 
-        public override JSValue this[JSSymbol symbol] {
+        public override JSValue this[JSSymbol symbol]
+        {
             get
             {
                 ResolvePrototype();
@@ -103,7 +105,7 @@ namespace YantraJS.Core
 
         internal override JSFunctionDelegate GetMethod(in KeyString key)
         {
-            if(prototypeChain == null)
+            if (prototypeChain == null)
             {
                 BasePrototypeObject = GetPrototype();
             }

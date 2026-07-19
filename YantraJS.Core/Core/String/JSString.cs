@@ -20,7 +20,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSStringStatic), typeof(JSStringPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("String")]
-    public partial class JSString : JSPrimitive
+    public partial class JSString : JSValue, IJSPrimitive
     {
 
         internal static JSString Empty = new JSString(string.Empty);
@@ -145,10 +145,28 @@ namespace YantraJS.Core
                 : (_keyString = KeyStrings.Instance.GetOrCreate(this.value));
         }
 
-        protected override JSObject GetPrototype()
+        //protected override JSObject GetPrototype()
+        //{
+        //    return (JSContext.Current[KeyString.String] as JSFunction).prototype;
+        //}
+
+        private JSPrototype GetPrototype(JSContext context = null)
         {
-            return (JSContext.Current[KeyString.String] as JSFunction).prototype;
+            return (context ?? JSContext.Current).String_Prototype;
         }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return this.GetPrototype(null).GetMethod(in key);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            var p = GetPrototype(null).GetInternalProperty(key);
+            return (receiver ?? this).GetValue(p);
+        }
+
+
 
         public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
         {

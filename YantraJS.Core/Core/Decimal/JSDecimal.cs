@@ -8,6 +8,7 @@ using System.Text;
 using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
+using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
@@ -22,7 +23,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSBigIntStatic), typeof(JSBigIntPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Decimal")]
-    public partial class JSDecimal : JSPrimitive
+    public partial class JSDecimal : JSValue, IJSPrimitive
     {
 
 
@@ -139,10 +140,27 @@ namespace YantraJS.Core
         //     return JSConstants.Decimal;
         // }
 
-        protected override JSObject GetPrototype()
+        //protected override JSObject GetPrototype()
+        //{
+        //    return (JSContext.Current[KeyString.Decimal] as JSFunction).prototype;
+        //}
+
+        private JSPrototype GetPrototype(JSContext context = null)
         {
-            return (JSContext.Current[KeyString.Decimal] as JSFunction).prototype;
+            return (context ?? JSContext.Current).Decimal_Prototype;
         }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return this.GetPrototype(null).GetMethod(in key);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            var p = GetPrototype(null).GetInternalProperty(key);
+            return (receiver ?? this).GetValue(p);
+        }
+
 
         internal override PropertyKey ToKey(bool create = true)
         {

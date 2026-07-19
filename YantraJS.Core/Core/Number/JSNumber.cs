@@ -17,7 +17,7 @@ namespace YantraJS.Core
     // [JSRuntime(typeof(JSNumberStatic), typeof(JSNumberPrototype))]
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Number")]
-    public sealed partial class JSNumber : JSPrimitive
+    public sealed partial class JSNumber : JSValue, IJSPrimitive
     {
 
         internal readonly double value;
@@ -77,7 +77,14 @@ namespace YantraJS.Core
         //Javascript considers double.Epsilon as MIN_VALUE and not .Net double.MinValue
         [JSExport("MIN_VALUE")]
         public static readonly double MinValue = double.Epsilon;
-        
+
+        private static JSNumber[][] numbers = new JSNumber[1024][];
+
+        public static JSNumber From(int value)
+        {
+            return new JSNumber(value);
+        }
+
 
         // public override bool IsNumber => true;
 
@@ -86,9 +93,25 @@ namespace YantraJS.Core
         //     return JSConstants.Number;
         // }
 
-        protected override JSObject GetPrototype()
+        //protected override JSObject GetPrototype()
+        //{
+        //    return (JSContext.Current[KeyString.Number] as JSFunction).prototype;
+        //}
+
+        private JSPrototype GetPrototype(JSContext context = null)
         {
-            return (JSContext.Current[KeyString.Number] as JSFunction).prototype;
+            return (context ?? JSContext.Current).Number_Prototype;
+        }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return this.GetPrototype(null).GetMethod(in key);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            var p = GetPrototype(null).GetInternalProperty(key);
+            return (receiver ?? this).GetValue(p);
         }
 
         internal override PropertyKey ToKey(bool create = false)
@@ -109,7 +132,7 @@ namespace YantraJS.Core
             return KeyStrings.Instance.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value) : base(JSValueType.Number, JSContext.CurrentContext.Number_Prototype)
+        public JSNumber(double value) : base(JSValueType.Number, null)
         {
             //if (value > 0 && value < double.Epsilon)
             //{

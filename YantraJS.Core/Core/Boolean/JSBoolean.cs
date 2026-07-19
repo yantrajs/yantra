@@ -8,6 +8,7 @@ using System.Xml.Schema;
 using Yantra.Core;
 using YantraJS.Core.Clr;
 using YantraJS.Core.Core.Primitive;
+using YantraJS.Extensions;
 
 namespace YantraJS.Core
 {
@@ -32,7 +33,7 @@ namespace YantraJS.Core
 
     [JSBaseClass("Object")]
     [JSFunctionGenerator("Boolean")]
-    public partial class JSBoolean : JSPrimitive
+    public partial class JSBoolean : JSValue, IJSPrimitive
     {
 
 
@@ -53,10 +54,27 @@ namespace YantraJS.Core
             return new JSPrimitiveObject( (a[0]?.BooleanValue ?? false) ? True : False);
         }
 
-        protected override JSObject GetPrototype()
+        private JSPrototype GetPrototype(JSContext context = null)
         {
-            return (JSContext.Current[KeyString.Boolean] as JSFunction).prototype; ;
+            return (context ?? JSContext.Current).Boolean_Prototype;
         }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            return this.GetPrototype(null).GetMethod(in key);
+        }
+
+        protected internal override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
+        {
+            var p = GetPrototype(null).GetInternalProperty(in key);
+            return (receiver ?? this).GetValue(p);
+        }
+
+
+        //protected override JSObject GetPrototype()
+        //{
+        //    return (JSContext.Current[KeyString.Boolean] as JSFunction).prototype; ;
+        //}
 
 
         //public static bool IsTrue(JSValue value)

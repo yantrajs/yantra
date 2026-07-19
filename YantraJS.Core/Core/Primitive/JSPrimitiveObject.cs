@@ -10,10 +10,10 @@ namespace YantraJS.Core.Core.Primitive
     {
         internal readonly JSValue value;
 
-        public JSPrimitiveObject(JSPrimitive value): base(JSContext.CurrentContext.Object_Prototype)
+        public JSPrimitiveObject(JSValue value): base(JSContext.CurrentContext.Object_Prototype)
         {
             this.value = value;
-            value.ResolvePrototype();
+            // value.ResolvePrototype();
             prototypeChain = value.prototypeChain;
             //this.DefineProperty(KeyString.constructor, 
             //    JSProperty.Property(value.prototypeChain[KeyString.constructor], JSPropertyAttributes.ReadonlyValue));
@@ -62,11 +62,26 @@ namespace YantraJS.Core.Core.Primitive
 
         protected internal override JSValue GetValue(uint key, JSValue receiver, bool throwError = true)
         {
-            if (value is JSString @string)
+            var p = ownProperties.GetValue(key);
+            if (!p.IsEmpty)
             {
-                return value.GetValue(key, receiver, throwError);
+                return this.GetValue(p);
             }
-            return base.GetValue(key, receiver, throwError);
+            return value.GetValue(key, receiver, throwError);
+        }
+
+        internal override JSFunctionDelegate GetMethod(in KeyString key)
+        {
+            var p = ownProperties.GetValue((uint)key);
+            if (p.IsProperty && p.get != null)
+            {
+                return p.get.f;
+            }
+            if (p.IsValue)
+            {
+                return (p.value as JSFunction).f;
+            }
+            return this.value.GetMethod(key);
         }
 
         //public override JSValue this[uint name] {
