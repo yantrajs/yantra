@@ -34,11 +34,11 @@ jobs:
       env:
          NUGET_TOKEN: ${{secrets.PUBLIC_NUGET_TOKEN}}
 
-    - name: Publish Eternity Proget
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} --no-symbols
-      env:
-         NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
-         NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
+    # - name: Publish Eternity Proget
+    #   run: dotnet nuget push **/*.nupkg -k ${NUGET_KEY} -s ${NUGET_SOURCE} --no-symbols
+    #   env:
+    #      NUGET_SOURCE: ${{secrets.PROGET_NUGET}}
+    #      NUGET_KEY: ${{secrets.PROGET_NUGET_TOKEN}}  
          
     - name: Create tag
       uses: actions/github-script@v6
