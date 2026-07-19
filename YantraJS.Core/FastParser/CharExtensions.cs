@@ -19,12 +19,12 @@ namespace YantraJS.Core.FastParser
             {
                 if (ch >= 'a')
                 {
-                    if (ch <= 'h')
+                    if (ch <= 'f')
                     {
                         return ch - 'a' + 10;
                     }
                 }
-                else if (ch <= 'H')
+                else if (ch <= 'F')
                 {
                     return ch - 'A' + 10;
                 }
@@ -39,14 +39,13 @@ namespace YantraJS.Core.FastParser
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDigitPart(
-            this char ch, bool hex, bool binary)
+            this char ch)
         {
             switch (ch)
             {
                 case '_':
                 case '0':
                 case '1':
-                    return true;
                 case '2':
                 case '3':
                 case '4':
@@ -55,11 +54,29 @@ namespace YantraJS.Core.FastParser
                 case '7':
                 case '8':
                 case '9':
-                    if (binary)
-                    {
-                        return false;
-                    }
                     return true;
+            }
+            return false;
+
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsHexDigitPart(
+            this char ch)
+        {
+            switch (ch)
+            {
+                case '_':
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
                 case 'a':
                 case 'b':
                 case 'c':
@@ -72,10 +89,65 @@ namespace YantraJS.Core.FastParser
                 case 'D':
                 case 'E':
                 case 'F':
-                    return hex;
+                    return true;
             }
             return false;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsHexDigitPart(
+            this char ch, out int v)
+        {
+            switch (ch)
+            {
+                case '_':
+                    v = 0;
+                    return true;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    v = (int)ch - '0';
+                    return true;
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                    v = 10 + (int)ch - 'a';
+                    return true;
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                    v = 10 + (int)ch - 'A';
+                    return true;
+            }
+            v = 0;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsBinaryDigitPart(
+            this char ch)
+        {
+            switch (ch)
+            {
+                case '_':
+                case '0':
+                case '1':
+                    return true;
+            }
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

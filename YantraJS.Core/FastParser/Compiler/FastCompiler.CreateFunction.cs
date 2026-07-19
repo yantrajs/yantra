@@ -158,10 +158,9 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     Exp lambdaBody = VisitStatement(functionDeclaration.Body);
 
-                    vList.AddRange(s.VariableParameters);
-                    sList.AddRange(s.InitList);
+                sList.AddRange(s.InitList);
 
-                    sList.AddRange(bodyInits);
+                sList.AddRange(bodyInits);
 
                 //if (invokeSuper)
                 //{
@@ -172,6 +171,13 @@ namespace YantraJS.Core.FastParser.Compiler
                 {
                     InitMembers(sList, s);
                 }
+
+                var nl = new Sequence<Exp>(s.InitLiterals);
+                nl.AddRange(sList);
+                sList = nl;
+
+                vList.AddRange(s.VariableParameters);
+
                 sList.Add(lambdaBody);
                     // sList.Add(JSContextStackBuilder.Pop(stackItem));
                     if (createClass)

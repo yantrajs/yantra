@@ -136,6 +136,7 @@ namespace YantraJS.Core.FastParser.Compiler
                 }
 
                 vList.AddRange(fx.VariableParameters);
+                sList.AddRange(fx.InitLiterals);
                 sList.AddRange(fx.InitList);
                 // register globals..
                 foreach (var v in fx.Variables) {
