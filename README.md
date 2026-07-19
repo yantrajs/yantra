@@ -1,7 +1,7 @@
 ﻿# YantraJS
 Yantra (Machine in Sanskrit) is a Managed JavaScript Engine for .NET (Core and Standard 2) written completely in C#.
 
-Node and V8's tight C++ intgration makes it difficult to write plugins, resulting in unresolved bugs and very complicated source code structure.
+Node and V8's tight C++ integration makes it difficult to write plugins, resulting in unresolved bugs and very complicated source code structure.
 
 C# offers platform independent near native performance, so YantraJS is designed to replace parts of Node that requires high performance.
 
