@@ -36,8 +36,10 @@ namespace YantraJS.Core.FastParser.Compiler
                     {
                         var breakTarget = Exp.Label();
                         var label = labeledStatement.Label.Span.Value;
-                        using var s = scope.Top.Loop.Push(new LoopScope(breakTarget, null, false, label));
-                        return Exp.Block(VisitStatement(labeledStatement.Body), Exp.Label(breakTarget));
+                        var s = scope.Top.Loop.Push(new LoopScope(breakTarget, null, false, label));
+                        var r = Exp.Block(VisitStatement(labeledStatement.Body), Exp.Label(breakTarget));
+                        s.Dispose();
+                        return r;
                     }
             }
             throw new NotImplementedException();

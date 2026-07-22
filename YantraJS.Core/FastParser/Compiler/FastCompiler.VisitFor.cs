@@ -87,27 +87,28 @@ namespace YantraJS.Core.FastParser.Compiler
                 default:
                     throw new FastParseException(forOfStatement.Start, $"Unexpcted");
             }
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
-            {
-                var en = Exp.Variable(typeof(IElementEnumerator));
+            var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label));
+            
+            var en = Exp.Variable(typeof(IElementEnumerator));
 
-                var pList = en.AsSequence();
+            var pList = en.AsSequence();
 
-                var body = VisitStatement(forOfStatement.Body);
+            var body = VisitStatement(forOfStatement.Body);
 
-                var bodyList = Exp.Block(Exp.IfThen(
-                        Exp.Not(IElementEnumeratorBuilder.MoveNext(en, identifier)),
-                        Exp.Goto(s.Break)),
-                    body);
+            var bodyList = Exp.Block(Exp.IfThen(
+                    Exp.Not(IElementEnumeratorBuilder.MoveNext(en, identifier)),
+                    Exp.Goto(s.Break)),
+                body);
 
-                var right = VisitExpression(forOfStatement.Target);
-                var r = Exp.Block(
-                    pList,
-                    Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
-                    Exp.Loop(bodyList, s.Break, s.Continue)
-                    );
-                return r;
-            }
+            var right = VisitExpression(forOfStatement.Target);
+            var r = Exp.Block(
+                pList,
+                Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
+                Exp.Loop(bodyList, s.Break, s.Continue)
+                );
+            s.Dispose();
+            return r;
+            
         }
 
         protected override Expression VisitForStatement(AstForStatement forStatement, string? label = null)
@@ -129,38 +130,40 @@ namespace YantraJS.Core.FastParser.Compiler
                 innerBody.Add(test);
             }
 
-            using (var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label)))
+            var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label));
+            
+            var body = VisitStatement(forStatement.Body);
+
+            innerBody.Add(body);
+            innerBody.Add(Exp.Label(continueTarget));
+            if (update != null)
             {
-                var body = VisitStatement(forStatement.Body);
-
-                innerBody.Add(body);
-                innerBody.Add(Exp.Label(continueTarget));
-                if (update != null)
-                {
-                    innerBody.Add(update);
-                }
-
-                if (init == null)
-                {
-                    var r1 = Exp.Loop(
-                        Exp.Block(innerBody),
-                        breakTarget);
-                        
-                    // innerBody.Clear();
-                    return r1;
-                }
-
-                // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
-
-                var r = Exp.Block(
-                    init,
-                    Exp.Loop(
-                        Exp.Block(innerBody),
-                        breakTarget)
-                    );
-                // innerBody.Clear(); ;
-                return r;
+                innerBody.Add(update);
             }
+
+            if (init == null)
+            {
+                var r1 = Exp.Loop(
+                    Exp.Block(innerBody),
+                    breakTarget);
+
+                // innerBody.Clear();
+                s.Dispose();
+                return r1;
+            }
+
+            // return Loop(null, breakTarget, continueTarget, init, innerBody, update);
+
+            var r = Exp.Block(
+                init,
+                Exp.Loop(
+                    Exp.Block(innerBody),
+                    breakTarget)
+                );
+            // innerBody.Clear(); ;
+            s.Dispose();
+            return r;
+            
 
         }
 
