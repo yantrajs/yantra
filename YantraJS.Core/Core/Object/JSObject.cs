@@ -822,7 +822,7 @@ namespace YantraJS.Core
                 if (this.IsSealedOrFrozenOrNonExtensible())
                     throw JSContext.Current.NewTypeError($"Cannot modify property length of {this}");
                 ref var ownp = ref GetOwnProperties();
-                ownp.Put(KeyString.length,new JSNumber(value));
+                ownp.Put(KeyString.length,JSNumber.From(value));
                 PropertyChanged?.Invoke(this, ((uint)KeyString.length, uint.MaxValue, null));
             }
         }
@@ -832,7 +832,7 @@ namespace YantraJS.Core
             var en = this.elements.AllValues();
             foreach(var item in en)
             {
-                yield return new JSNumber(item.Key);
+                yield return JSNumber.From(item.Key);
             }
 
             var ep = this.ownProperties.GetPropertyEnumerator(true);
@@ -858,7 +858,7 @@ namespace YantraJS.Core
                 {
                     continue;
                 }
-                yield return new JSNumber(item.Key);
+                yield return JSNumber.From(item.Key);
             }
 
             foreach (var item in prototypeChain.propertySet.properties.AllValues())

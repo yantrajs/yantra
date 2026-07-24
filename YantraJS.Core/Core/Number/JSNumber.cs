@@ -336,7 +336,7 @@ namespace YantraJS.Core
 
         public override JSValue Negate()
         {
-            return new JSNumber(-this.value);
+            return JSNumber.From(-this.value);
         }
 
         public override JSValue AddValue(JSValue value)
@@ -612,11 +612,11 @@ namespace YantraJS.Core
 
         public override JSValue Multiply(JSValue value)
         {
-            return new JSNumber(this.value * value.DoubleValue);
+            return JSNumber.From(this.value * value.DoubleValue);
         }
         public override JSValue Multiply(double value)
         {
-            return new JSNumber(this.value * value);
+            return JSNumber.From(this.value * value);
         }
 
     }

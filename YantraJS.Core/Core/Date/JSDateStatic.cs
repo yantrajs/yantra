@@ -64,7 +64,7 @@ namespace YantraJS.Core
         internal static JSValue Now(in Arguments a)
         {
             var result = DateTimeOffset.Now.ToJSDate();
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace YantraJS.Core
             //return new JSNumber(val);
 
             val = DateParser.Parse(text).ToJSDate();
-            return new JSNumber(val);
+            return JSNumber.From(val);
         }
 
         //[Prototype("getYear")]

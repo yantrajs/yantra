@@ -416,7 +416,7 @@ namespace YantraJS.Core
                 {
                     continue;
                 }
-                list.Add(new JSNumber((double)i));
+                list.Add(JSNumber.From((double)i));
             }
 
             var en = jobj.ownProperties.GetPropertyEnumerator(false);

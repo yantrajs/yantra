@@ -125,7 +125,7 @@ namespace YantraJS.Core
                 case JsonTokenType.String:
                     return new JSString(reader.GetString());
                 case JsonTokenType.Number:
-                    return new JSNumber(reader.GetDouble());
+                    return JSNumber.From(reader.GetDouble());
                 case JsonTokenType.True:
                     return JSBoolean.True;
                 case JsonTokenType.False:

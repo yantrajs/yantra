@@ -39,11 +39,11 @@ namespace YantraJS.Core
                 {
                     return JSNumber.Zero;
                 }
-                return new JSNumber(a[0].DoubleValue);
+                return JSNumber.From(a[0].DoubleValue);
             }
             if (a.Length == 0)
                 return new JSPrimitiveObject(JSNumber.Zero);
-            return new JSPrimitiveObject(new JSNumber(a.Get1().DoubleValue));
+            return new JSPrimitiveObject(JSNumber.From(a.Get1().DoubleValue));
         }
 
 
@@ -61,7 +61,7 @@ namespace YantraJS.Core
             x = x | (x >> 16);
 
             int i = sizeof(int) * 8 - CountOneBits((uint)x);
-            return new JSNumber(i);
+            return JSNumber.From(i);
         }
 
         /// <summary>

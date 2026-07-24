@@ -45,7 +45,7 @@ namespace YantraJS.Core.Objects
         [JSExport]
         public static JSValue Random(in Arguments a)
         {
-            return new JSNumber(randomGenertor.NextDouble());
+            return JSNumber.From(randomGenertor.NextDouble());
         }
 
         [JSExport]
@@ -62,15 +62,15 @@ namespace YantraJS.Core.Objects
             }
             var number = first.DoubleValue;
             if (number > 0.0)
-                return new JSNumber(Math.Floor(number + 0.5));
+                return JSNumber.From(Math.Floor(number + 0.5));
             if (number >= -0.5)
             {
                 // BitConverter is used to distinguish positive and negative zero.
                 if (BitConverter.DoubleToInt64Bits(number) == 0L)
                     return JSNumber.Zero;
-                return new JSNumber(-0.0D);
+                return JSNumber.From(-0.0D);
             }
-            return new JSNumber( Math.Floor(number + 0.5));
+            return JSNumber.From(Math.Floor(number + 0.5));
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace YantraJS.Core.Objects
             //    return JSNumber.PositiveInfinity;
             //if (double.IsNegativeInfinity(d))
             //    return JSNumber.NegativeInfinity;
-            var r = new JSNumber(Math.Floor(d));
+            var r = JSNumber.From(Math.Floor(d));
             return r;
         }
 
@@ -116,7 +116,7 @@ namespace YantraJS.Core.Objects
             //    return JSNumber.PositiveInfinity;
             //if (double.IsNegativeInfinity(d))
             //    return JSNumber.NegativeInfinity;
-            var r = new JSNumber(Math.Acos(d));
+            var r = JSNumber.From(Math.Acos(d));
             return r;
         }
 
@@ -135,7 +135,7 @@ namespace YantraJS.Core.Objects
             //    return JSNumber.PositiveInfinity;
             //if (double.IsNegativeInfinity(d))
             //    return JSNumber.NegativeInfinity;
-            var r = new JSNumber(Math.Abs(d));
+            var r = JSNumber.From(Math.Abs(d));
             return r;
         }
 
@@ -152,7 +152,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Log(d + Math.Sqrt((d * d) - 1.0)));
+            var r = JSNumber.From(Math.Log(d + Math.Sqrt((d * d) - 1.0)));
             return r;
         }
 
@@ -161,7 +161,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Asin(d));
+            var r = JSNumber.From(Math.Asin(d));
             return r;
         }
 

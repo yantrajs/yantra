@@ -78,7 +78,7 @@ namespace YantraJS.Core
             this.FastAddValue(KeyString.name, name.IsEmpty
                 ? new JSString("native")
                 : new JSString(name), JSPropertyAttributes.ConfigurableValue);
-            this.FastAddValue(KeyString.length, new JSNumber(0), JSPropertyAttributes.ConfigurableValue);
+            this.FastAddValue(KeyString.length, JSNumber.Zero, JSPropertyAttributes.ConfigurableValue);
             constructor = this;
             prototype.Dirty();
         }
@@ -183,7 +183,7 @@ namespace YantraJS.Core
             ownProperties.Put(KeyString.name, name.IsEmpty
                 ? new JSString("native")
                 : new JSString(name), JSPropertyAttributes.ConfigurableValue);
-            ownProperties.Put(KeyString.length, new JSNumber(length), JSPropertyAttributes.ConfigurableValue);
+            ownProperties.Put(KeyString.length, JSNumber.From(length), JSPropertyAttributes.ConfigurableValue);
             constructor = this;
             if (createPrototype)
             {
@@ -232,7 +232,7 @@ namespace YantraJS.Core
                 ? new JSString("native")
                 : new JSString(name),
                 JSPropertyAttributes.ConfigurableValue);
-            ownProperties.Put(KeyString.length, new JSNumber(length),
+            ownProperties.Put(KeyString.length, JSNumber.From(length),
                 JSPropertyAttributes.ConfigurableValue);
             constructor = this;
             if (createPrototype)

@@ -37,13 +37,13 @@ namespace YantraJS.Core
                 switch (p)
                 {
                     case double d:
-                        return new JSNumber(d);
+                        return JSNumber.From(d);
                     case int i:
-                        return new JSNumber(i);
+                        return JSNumber.From(i);
                     case float f:
-                        return new JSNumber(f);
+                        return JSNumber.From(f);
                     case decimal ds:
-                        return new JSNumber((double)ds);
+                        return JSNumber.From((double)ds);
                     case bool b:
                         return b ? JSBoolean.True : JSBoolean.False;
                     case string s:

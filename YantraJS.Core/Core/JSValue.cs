@@ -275,22 +275,22 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
 
     public virtual JSValue Negate()
     {
-        return new JSNumber(-DoubleValue);
+        return JSNumber.From(-DoubleValue);
     }
 
     public virtual JSValue Subtract(JSValue value)
     {
-        return new JSNumber(this.DoubleValue - value.DoubleValue);
+        return JSNumber.From(this.DoubleValue - value.DoubleValue);
     }
 
     public virtual JSValue Multiply(JSValue value)
     {
-        return new JSNumber(this.DoubleValue * value.DoubleValue);
+        return JSNumber.From(this.DoubleValue * value.DoubleValue);
     }
 
     public virtual JSValue Multiply(double value)
     {
-        return new JSNumber(this.DoubleValue * value);
+        return JSNumber.From(this.DoubleValue * value);
     }
 
 
@@ -299,42 +299,42 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
     {
         // if (value.DoubleValue == 0)
             // return JSNumber.PositiveInfinity;
-        return new JSNumber(this.DoubleValue / value.DoubleValue);
+        return JSNumber.From(this.DoubleValue / value.DoubleValue);
     }
 
     public virtual JSValue BitwiseAnd(JSValue value)
     {
-        return new JSNumber(this.IntValue & value.IntValue);
+        return JSNumber.From(this.IntValue & value.IntValue);
     }
 
     public virtual JSValue BitwiseOr(JSValue value)
     {
-        return new JSNumber(this.IntValue | value.IntValue);
+        return JSNumber.From(this.IntValue | value.IntValue);
     }
 
     public virtual JSValue BitwiseXor(JSValue value)
     {
-        return new JSNumber(this.IntValue ^ value.IntValue);
+        return JSNumber.From(this.IntValue ^ value.IntValue);
     }
 
     public virtual JSValue LeftShift(JSValue value)
     {
-        return new JSNumber(this.IntValue << value.IntValue);
+        return JSNumber.From(this.IntValue << value.IntValue);
     }
 
     public virtual JSValue RightShift(JSValue value)
     {
-        return new JSNumber(this.IntValue >> (value.IntValue & 0x1F));
+        return JSNumber.From(this.IntValue >> (value.IntValue & 0x1F));
     }
 
     public virtual JSValue UnsignedRightShift(JSValue value)
     {
-        return new JSNumber(this.UIntValue >> value.IntValue);
+        return JSNumber.From(this.UIntValue >> value.IntValue);
     }
 
     public virtual JSValue Modulo(JSValue value)
     {
-        return new JSNumber(this.DoubleValue % value.DoubleValue);
+        return JSNumber.From(this.DoubleValue % value.DoubleValue);
     }
 
     /// Speed improvements for string contact operations
@@ -348,7 +348,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
 
         if (self.CanBeNumber && value.CanBeNumber)
         {
-            return new JSNumber(self.DoubleValue + value.DoubleValue);
+            return JSNumber.From(self.DoubleValue + value.DoubleValue);
         }
         if (value.ToString().Length == 0)
             return self.IsString ? self : new JSString(self.StringValue);
@@ -364,7 +364,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         var self = this.ValueOf();
         if (self.CanBeNumber)
         {
-            return new JSNumber(self.DoubleValue + value);
+            return JSNumber.From(self.DoubleValue + value);
         }
         //if (value.ToString().Length == 0)
         //    return self.IsString ? self : new JSString(self.StringValue);
@@ -925,7 +925,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         {
             if (item.Value.property.IsEnumerable)
             {
-                yield return new JSNumber(item.Key);
+                yield return JSNumber.From(item.Key);
             }
         }
 
@@ -1063,7 +1063,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
                 return JSNumber.NaN;
         }
 
-        return new JSNumber(Math.Pow(this.DoubleValue, a1));
+        return JSNumber.From(Math.Pow(this.DoubleValue, a1));
     }
 
     internal virtual bool TryGetValue(uint i, out JSProperty value)
