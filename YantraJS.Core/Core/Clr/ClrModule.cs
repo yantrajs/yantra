@@ -22,7 +22,7 @@ namespace YantraJS.Core.Clr
         public static JSObject Default = JSObject.NewWithProperties()
             .AddProperty(KeyString.@default, ClrType.From(typeof(ClrModule)));
 
-        public static JSValue Temp1 { get; set; } = new JSNumber(1);
+        public static JSValue Temp1 { get; set; } = JSNumber.From(1);
 
         /// <summary>
         /// Returns JavaScript native class for C# Type Equivalent, which you can use

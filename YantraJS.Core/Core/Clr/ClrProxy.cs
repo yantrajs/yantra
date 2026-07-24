@@ -84,10 +84,10 @@ namespace YantraJS.Core.Clr
             return (input) => ClrProxy.Marshal((object)input);
         }
 
-        public static JSValue Marshal(int value) => new JSNumber(value);
-        public static JSValue Marshal(uint value) => new JSNumber(value);
-        public static JSValue Marshal(long value) => new JSNumber(value);
-        public static JSValue Marshal(ulong value) => new JSNumber(value);
+        public static JSValue Marshal(int value) => JSNumber.From(value);
+        public static JSValue Marshal(uint value) => JSNumber.From(value);
+        public static JSValue Marshal(long value) => JSNumber.From(value);
+        public static JSValue Marshal(ulong value) => JSNumber.From(value);
 
         public static JSValue Marshal(string value) => new JSString(value);
 

@@ -130,6 +130,24 @@ namespace YantraJS.Core
             return new JSNumber(value);
         }
 
+        public static JSNumber From(ulong value)
+        {
+            if (value <= 65535)
+            {
+                return AsCachedInteger((int)value);
+            }
+            return new JSNumber(value);
+        }
+
+        public static JSNumber From(long value)
+        {
+            if (value >= 0 && value <= 65535)
+            {
+                return AsCachedInteger((int)value);
+            }
+            return new JSNumber(value);
+        }
+
         private static JSNumber AsCachedInteger(int value)
         {
             int column = value & 0xFF;

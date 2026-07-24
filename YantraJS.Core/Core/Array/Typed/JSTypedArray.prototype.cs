@@ -343,7 +343,7 @@ namespace YantraJS.Core.Typed
                     r._length++;
                     continue;
                 }
-                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
+                var itemArgs = new Arguments(thisArg, item, JSNumber.From(index), this);
                 rElements.Put(r._length++, fn.f(itemArgs));
             }
             return r;
@@ -367,7 +367,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, JSNumber.From(index), this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -393,7 +393,7 @@ namespace YantraJS.Core.Typed
             for (int i = start; i >= 0; i--)
             {
                 var item = this[(uint)i];
-                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, JSNumber.From(i), this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -499,7 +499,7 @@ namespace YantraJS.Core.Typed
 
             var src = this.buffer.buffer;
             
-            var r = a.This[KeyString.constructor].CreateInstance(new JSNumber(newLength)) as JSTypedArray;
+            var r = a.This[KeyString.constructor].CreateInstance(JSNumber.From(newLength)) as JSTypedArray;
             var target = r.buffer.buffer;
             int bytesPerElement = this.bytesPerElement;
 
@@ -525,7 +525,7 @@ namespace YantraJS.Core.Typed
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
+                var itemArgs = new Arguments(thisArg, item, JSNumber.From(index), this);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -604,8 +604,8 @@ namespace YantraJS.Core.Typed
             begin = begin < 0 ? Math.Max(this.Length + begin, 0) : Math.Min(begin, this.Length);
             end = end < 0 ? Math.Max(this.Length + end, 0) : Math.Min(end, this.Length);
             newLength = Math.Max(end - begin, 0);
-            var r = a.This[KeyString.constructor].CreateInstance(this.buffer, new JSNumber(this.byteOffset + begin * this.bytesPerElement),
-                new JSNumber(newLength * this.bytesPerElement));
+            var r = a.This[KeyString.constructor].CreateInstance(this.buffer, JSNumber.From(this.byteOffset + begin * this.bytesPerElement),
+                JSNumber.From(newLength * this.bytesPerElement));
             //var r = new TypedArray(this.buffer,
             //    this.type,
             //    this.byteOffset + begin * this.bytesPerElement,
