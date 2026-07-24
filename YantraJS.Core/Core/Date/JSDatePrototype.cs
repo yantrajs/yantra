@@ -84,7 +84,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Day;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
         [JSExport("getDay", Length = 0)]
@@ -146,7 +146,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.DayOfWeek;
-            return new JSNumber((double)result);
+            return JSNumber.From((double)result);
         }
 
         [JSExport("getFullYear", Length = 0)]
@@ -156,7 +156,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Year;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getHours", Length = 0)]
@@ -166,7 +166,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Hour;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
 
@@ -178,7 +178,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Millisecond;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
 
@@ -190,7 +190,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Minute;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getMonth", Length = 0)]
@@ -200,7 +200,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Month - 1;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
 
@@ -211,7 +211,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.Second;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getTime", Length = 0)]
@@ -221,7 +221,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToJSDate();
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getTimezoneOffset", Length = 0)]
@@ -231,7 +231,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = -(int)TimeZoneInfo.Local.GetUtcOffset(this.Value).TotalMinutes;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCDate", Length = 0)]
@@ -241,7 +241,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Day;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCDay", Length = 0)]
@@ -251,7 +251,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().DayOfWeek;
-            return new JSNumber((double)result);
+            return JSNumber.From((double)result);
         }
 
         [JSExport("getUTCFullYear", Length = 0)]
@@ -261,7 +261,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Year;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCHours", Length = 0)]
@@ -271,7 +271,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Hour;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCMilliseconds", Length = 0)]
@@ -281,7 +281,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Millisecond;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCMinutes", Length = 0)]
@@ -291,7 +291,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Minute;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCMonth", Length = 0)]
@@ -301,7 +301,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Month - 1;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
         [JSExport("getUTCSeconds", Length = 0)]
@@ -311,7 +311,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToUniversalTime().Second;
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
 
@@ -357,7 +357,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate()); 
+            return JSNumber.From(this.value.ToJSDate()); 
         }
 
         [JSExport("setHours", Length = 4)]
@@ -389,7 +389,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -413,7 +413,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
         [JSExport("setMinutes", Length =3)]
@@ -441,7 +441,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
         [JSExport("setMonth", Length = 2)]
@@ -468,7 +468,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -495,7 +495,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -513,7 +513,7 @@ namespace YantraJS.Core
             catch (ArgumentOutOfRangeException) {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -536,7 +536,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
         [JSExport("setUTCFullYear", Length = 1)]
@@ -577,7 +577,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
 
         }
 
@@ -615,7 +615,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -644,7 +644,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -676,7 +676,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -707,7 +707,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -738,7 +738,7 @@ namespace YantraJS.Core
             {
                 this.value = DateTimeOffset.MinValue;
             }
-            return new JSNumber(this.value.ToJSDate());
+            return JSNumber.From(this.value.ToJSDate());
         }
 
 
@@ -950,7 +950,7 @@ namespace YantraJS.Core
             if (this.value == DateTimeOffset.MinValue)
                 return JSNumber.NaN;
             var result = this.value.ToJSDate();
-            return new JSNumber(result);
+            return JSNumber.From(result);
         }
 
 

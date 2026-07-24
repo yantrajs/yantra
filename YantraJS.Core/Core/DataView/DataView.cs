@@ -103,7 +103,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 1)]
         public JSValue GetBigInt64(in Arguments a)
         {
-            return new JSNumber(GetInt64(in a));
+            return JSNumber.From(GetInt64(in a));
         }
 
         //internal method
@@ -133,7 +133,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 1)]
         public JSValue GetBigUInt64(in Arguments a)
         {
-            return new JSNumber(GetInt64(in a));
+            return JSNumber.From(GetInt64(in a));
         }
 
         //internal method
@@ -173,7 +173,7 @@ namespace YantraJS.Core.Core.DataView
         public unsafe JSValue GetFloat32(in Arguments a)
         {
             int temp = GetInt32Int(in a);
-            return new JSNumber(*(float*)&temp);
+            return JSNumber.From(*(float*)&temp);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace YantraJS.Core.Core.DataView
         public unsafe JSValue GetFloat64(in Arguments a)
         {
             long temp = GetInt64(in a);
-            return new JSNumber(*(double*)&temp);
+            return JSNumber.From(*(double*)&temp);
         }
 
 
@@ -229,7 +229,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 2)]
         public JSValue GetInt16(in Arguments a)
         {
-            return new JSNumber(GetInt16Int(in a));
+            return JSNumber.From(GetInt16Int(in a));
         }
 
 
@@ -246,7 +246,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 2)]
         public JSValue GetInt32(in Arguments a)
         {
-            return new JSNumber(GetInt32Int(in a));
+            return JSNumber.From(GetInt32Int(in a));
         }
 
 
@@ -261,7 +261,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 1)]
         public JSValue GetInt8(in Arguments a)
         {
-            return new JSNumber(GetInt8Int(in a));
+            return JSNumber.From(GetInt8Int(in a));
         }
 
         public int GetInt8Int(in Arguments a)
@@ -288,7 +288,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 2)]
         public JSValue GetUint16(in Arguments a)
         {
-            return new JSNumber((ushort)GetInt16Int(in a));
+            return JSNumber.From((ushort)GetInt16Int(in a));
         }
 
 
@@ -305,7 +305,7 @@ namespace YantraJS.Core.Core.DataView
         [JSExport(Length = 2)]
         public JSValue GetUint32(in Arguments a)
         {
-            return new JSNumber((uint)GetInt32Int(in a));
+            return JSNumber.From((uint)GetInt32Int(in a));
         }
 
 
@@ -325,7 +325,7 @@ namespace YantraJS.Core.Core.DataView
             if (byteOffset < 0 || byteOffset > @this.byteLength - 1)
                 throw JSContext.Current.NewRangeError($"{byteOffset} offset is outside the bounds of DataView");
             var buffer = @this.buffer;
-            return new JSNumber(buffer.buffer[@this.byteOffset + byteOffset]);
+            return JSNumber.From(buffer.buffer[@this.byteOffset + byteOffset]);
         }
 
         /// <summary>

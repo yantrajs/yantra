@@ -56,7 +56,7 @@ namespace YantraJS.Core
         {
             var (year, month, day, hour, minute, second, millisecond) = a.Get7Int();
             var val =  ToDateTime(year, month, day, hour, minute, second, millisecond, TimeSpan.Zero).ToJSDate();
-            return new JSNumber(val);
+            return JSNumber.From(val);
 
         }
 
