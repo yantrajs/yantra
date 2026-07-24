@@ -95,21 +95,21 @@ namespace YantraJS.Core.Clr
 
         public static JSValue Marshal(bool value) => value ? JSBoolean.True : JSBoolean.False;
 
-        public static JSValue Marshal(short value) => new JSNumber(value);
+        public static JSValue Marshal(short value) => JSNumber.From(value);
 
-        public static JSValue Marshal(ushort value) => new JSNumber(value);
+        public static JSValue Marshal(ushort value) => JSNumber.From(value);
 
-        public static JSValue Marshal(byte value) => new JSNumber(value);
+        public static JSValue Marshal(byte value) => JSNumber.From(value);
 
-        public static JSValue Marshal(sbyte value) => new JSNumber(value);
+        public static JSValue Marshal(sbyte value) => JSNumber.From(value);
 
         public static JSValue Marshal(DateTime value) => new JSDate(value);
 
         public static JSValue Marshal(DateTimeOffset value) => new JSDate(value);
 
-        public static JSValue Marshal(double value) => new JSNumber(value);
+        public static JSValue Marshal(double value) => JSNumber.From(value);
 
-        public static JSValue Marshal(float value) => new JSNumber(value);
+        public static JSValue Marshal(float value) => JSNumber.From(value);
 
         public static JSValue Marshal(Task task) => task.ToPromise();
 
@@ -145,7 +145,7 @@ namespace YantraJS.Core.Clr
                 case TypeCode.Boolean:
                     return (bool)value ? JSBoolean.True : JSBoolean.False;
                 case TypeCode.Byte:
-                    return new JSNumber((byte)value);
+                    return JSNumber.From((byte)value);
                 case TypeCode.Char:
                     return new JSString((char)value);
                 case TypeCode.DateTime:
@@ -153,27 +153,27 @@ namespace YantraJS.Core.Clr
                 case TypeCode.DBNull:
                     return JSNull.Value;
                 case TypeCode.Decimal:
-                    return new JSNumber((double)(decimal)value);
+                    return JSNumber.From((double)(decimal)value);
                 case TypeCode.Double:
-                    return new JSNumber((double)value);
+                    return JSNumber.From((double)value);
                 case TypeCode.Int16:
-                    return new JSNumber((short)value);
+                    return JSNumber.From((short)value);
                 case TypeCode.Int32:
-                    return new JSNumber((int)value);
+                    return JSNumber.From((int)value);
                 case TypeCode.Int64:
-                    return new JSNumber((long)value);
+                    return JSNumber.From((long)value);
                 case TypeCode.SByte:
-                    return new JSNumber((sbyte)value);
+                    return JSNumber.From((sbyte)value);
                 case TypeCode.Single:
-                    return new JSNumber((float)value);
+                    return JSNumber.From((float)value);
                 case TypeCode.String:
                     return new JSString((string)value);
                 case TypeCode.UInt16:
-                    return new JSNumber((ushort)value);
+                    return JSNumber.From((ushort)value);
                 case TypeCode.UInt32:
-                    return new JSNumber((uint)value);
+                    return JSNumber.From((uint)value);
                 case TypeCode.UInt64:
-                    return new JSNumber((long)value);
+                    return JSNumber.From((ulong)value);
             }
 
             switch (value)
