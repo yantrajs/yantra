@@ -177,7 +177,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Log(d + Math.Sqrt(d * d + 1.0)));
+            var r = JSNumber.From(Math.Log(d + Math.Sqrt(d * d + 1.0)));
             return r;
         }
 
@@ -186,7 +186,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Atan(d));
+            var r = JSNumber.From(Math.Atan(d));
             return r;
         }
 
@@ -206,15 +206,15 @@ namespace YantraJS.Core.Objects
             if (double.IsInfinity(d1) || double.IsInfinity(d2))
             {
                 if (double.IsPositiveInfinity(d1) && double.IsPositiveInfinity(d2))
-                    return new JSNumber(Math.PI / 4.0);
+                    return JSNumber.From(Math.PI / 4.0);
                 if (double.IsPositiveInfinity(d1) && double.IsNegativeInfinity(d2))
-                    return new JSNumber(3.0 * Math.PI / 4.0);
+                    return JSNumber.From(3.0 * Math.PI / 4.0);
                 if (double.IsNegativeInfinity(d1) && double.IsPositiveInfinity(d2))
-                    return new JSNumber(-Math.PI / 4.0);
+                    return JSNumber.From(-Math.PI / 4.0);
                 if (double.IsNegativeInfinity(d1) && double.IsNegativeInfinity(d2))
-                    return new JSNumber(-3.0 * Math.PI / 4.0);
+                    return JSNumber.From(-3.0 * Math.PI / 4.0);
             }
-            var r = new JSNumber(Math.Atan2(d1,d2));
+            var r = JSNumber.From(Math.Atan2(d1, d2));
             return r;
         }
 
@@ -228,7 +228,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Log((1.0 + d) / (1.0 - d)) / 2.0);
+            var r = JSNumber.From(Math.Log((1.0 + d) / (1.0 - d)) / 2.0);
             return r;
         }
 
@@ -243,7 +243,7 @@ namespace YantraJS.Core.Objects
             var first = args.Get1();
             var d = first.DoubleValue;
             var r = Math.Pow(Math.Abs(d), 1.0 / 3.0);
-            return new JSNumber (d < 0 ? -r : r);
+            return JSNumber.From(d < 0 ? -r : r);
         }
 
         [JSExport]
@@ -255,7 +255,7 @@ namespace YantraJS.Core.Objects
                 return new JSDecimal(Math.Ceiling(@decimal.value));
             }
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Ceiling(d));
+            var r = JSNumber.From(Math.Ceiling(d));
             return r;
         }
 
@@ -287,7 +287,7 @@ namespace YantraJS.Core.Objects
             x = x | (x >> 16);
             x = x * 0x06EB14F9;     // Multiplier is 7*255**3.
             var r= clz32Table[x >> 26];
-            return new JSNumber(r);
+            return JSNumber.From(r);
         }
 
         [JSExport]
@@ -295,7 +295,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Cos(d));
+            var r = JSNumber.From(Math.Cos(d));
             return r;
         }
 
@@ -304,7 +304,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Cosh(d));
+            var r = JSNumber.From(Math.Cosh(d));
             return r;
         }
 
@@ -313,7 +313,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Exp(d));
+            var r = JSNumber.From(Math.Exp(d));
             return r;
         }
 
@@ -333,11 +333,11 @@ namespace YantraJS.Core.Objects
                 // For small numbers, use a taylor series approximation.
                 r = d * (1.0 + d * (1.0 / 2.0 + d * (1.0 / 6.0 + d *
                     (1.0 / 24.0 + d * (1.0 / 120.0 + d * (1.0 / 720.0 + d * (1.0 / 5040.0)))))));
-                return new JSNumber(r) ;
+                return JSNumber.From(r) ;
             }
             // Otherwise just use the normal exp function.
             r = Math.Exp(d) - 1.0;
-            return new JSNumber(r);
+            return JSNumber.From(r);
             
         }
 
@@ -352,7 +352,7 @@ namespace YantraJS.Core.Objects
             var first = args.Get1();
             var d = first.DoubleValue;
             var r = (double)(float)d;
-            return new JSNumber(r);
+            return JSNumber.From(r);
             
         }
 
@@ -368,14 +368,14 @@ namespace YantraJS.Core.Objects
             if (length == 0)
                 return JSNumber.Zero;
             if (length == 1) {
-                return new JSNumber(Math.Abs(args.Get1().DoubleValue));
+                return JSNumber.From(Math.Abs(args.Get1().DoubleValue));
             }
             var (first, second) = args.Get2();
             double d1 = first.DoubleValue;
             double d2 = second.DoubleValue;
             
             if (length == 2)
-                return new JSNumber(Hypot(d1, d2));
+                return JSNumber.From(Hypot(d1, d2));
 
             double result = Hypot(d1, d2);
             for (int i = 2; i < length; i++) {
@@ -383,7 +383,7 @@ namespace YantraJS.Core.Objects
 
                 result = Hypot(result, val);
             }
-            return new JSNumber(result);
+            return JSNumber.From(result);
 
         }
 
@@ -418,7 +418,7 @@ namespace YantraJS.Core.Objects
             var d1 = first.IntValue;
             var d2 = second.IntValue;
             var r = (int)(d1 * d2);
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
@@ -429,7 +429,7 @@ namespace YantraJS.Core.Objects
             var first = args.Get1();
             var d = first.DoubleValue;
             var r = Math.Log(d);
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
@@ -439,7 +439,7 @@ namespace YantraJS.Core.Objects
             var first = args.Get1();
             var d = first.DoubleValue;
             var r = Math.Log10(d);
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
