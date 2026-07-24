@@ -271,7 +271,7 @@ namespace YantraJS.Core
         {
             for (int i = 0; i< this.value.Length;i++)
             {
-                yield return new JSNumber(i);
+                yield return JSNumber.From(i);
             }
             foreach(var item in base.GetForInKeys())
             {

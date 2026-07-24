@@ -72,7 +72,7 @@ namespace YantraJS.Core
                     result[(uint)i] = new JSString(group.Value);
                 }
             }
-            result[KeyString.index] = new JSNumber(match.Index);
+            result[KeyString.index] = JSNumber.From(match.Index);
             result[KeyString.input] = a.Get1();
             return result;
         }

@@ -460,11 +460,11 @@ namespace YantraJS.Core.Objects
                 // For small numbers, use a taylor series approximation.
                 r =  d * (1.0 + d * (-1.0 / 2.0 + d * (1.0 / 3.0 + d *
                     (-1.0 / 4.0 + d * (1.0 / 5.0 + d * (-1.0 / 6.0 + d * (1.0 / 7.0)))))));
-                return new JSNumber(r);
+                return JSNumber.From(r);
             }
             // Otherwise just use the normal log function.
                 r = Math.Log(1.0 + d);
-                return new JSNumber(r);
+                return JSNumber.From(r);
 
         }
 
@@ -480,7 +480,7 @@ namespace YantraJS.Core.Objects
             var first = args.Get1();
             var d = first.DoubleValue;
             var r = Math.Log(d) / LN2; 
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
@@ -502,7 +502,7 @@ namespace YantraJS.Core.Objects
                 if (val > result || double.IsNaN(val))
                     result = val;
             }
-            return new JSNumber(result);
+            return JSNumber.From(result);
 
         }
 
@@ -524,7 +524,7 @@ namespace YantraJS.Core.Objects
                 if (val < result || double.IsNaN(val))
                     result = val;
             }
-            return new JSNumber(result);
+            return JSNumber.From(result);
 
         }
 
@@ -545,7 +545,7 @@ namespace YantraJS.Core.Objects
             if (double.IsNaN(@base) && exponent == 0.0)
                 return JSNumber.One;
             var r = Math.Pow(@base, exponent);
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
@@ -569,7 +569,7 @@ namespace YantraJS.Core.Objects
             if (d == -0.0)
                 return JSNumber.NegativeZero;
             var r = Math.Sign(d);
-            return new JSNumber(r);
+            return JSNumber.From(r);
 
         }
 
@@ -579,7 +579,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Sin(d));
+            var r = JSNumber.From(Math.Sin(d));
             return r;
         }
 
@@ -589,7 +589,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Sinh(d));
+            var r = JSNumber.From(Math.Sinh(d));
             return r;
         }
 
@@ -599,7 +599,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Sqrt(d));
+            var r = JSNumber.From(Math.Sqrt(d));
             return r;
         }
 
@@ -610,7 +610,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Tan(d));
+            var r = JSNumber.From(Math.Tan(d));
             return r;
         }
 
@@ -619,7 +619,7 @@ namespace YantraJS.Core.Objects
         {
             var first = args.Get1();
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Tanh(d));
+            var r = JSNumber.From(Math.Tanh(d));
             return r;
         }
 
@@ -632,7 +632,7 @@ namespace YantraJS.Core.Objects
                 return new JSDecimal(Math.Truncate(@decimal.value));
             }
             var d = first.DoubleValue;
-            var r = new JSNumber(Math.Truncate(d));
+            var r = JSNumber.From(Math.Truncate(d));
             return r;
         }
     }

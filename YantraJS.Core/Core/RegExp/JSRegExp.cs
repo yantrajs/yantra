@@ -196,7 +196,7 @@ namespace YantraJS.Core
                     else
                         parameters[i] = new JSString(match.Groups[i].Value);
                 }
-                parameters[match.Groups.Count] = new JSNumber(match.Index);
+                parameters[match.Groups.Count] = JSNumber.From(match.Index);
                 parameters[match.Groups.Count + 1] = new JSString(input);
                 var a = new Arguments(JSNull.Value, parameters);
                 return replaceFunction.InvokeFunction(a).ToString();

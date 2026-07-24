@@ -250,7 +250,7 @@ namespace YantraJS.Core
                         if (!Value.IsEnumerable)
                             continue;
                     }
-                    yield return ( new JSNumber(Key), value.GetValue(in Value));
+                    yield return ( JSNumber.From(Key), value.GetValue(in Value));
                 }
             }
 

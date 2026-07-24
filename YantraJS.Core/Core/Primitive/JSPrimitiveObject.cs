@@ -53,7 +53,7 @@ namespace YantraJS.Core.Core.Primitive
             {
                 if (key == KeyString.length)
                 {
-                    return new JSNumber(@string.Length);
+                    return JSNumber.From(@string.Length);
                 }
                 return value.GetValue(key, receiver, throwError);
             }

@@ -42,36 +42,36 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this int value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this uint value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this double value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this float value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this short value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSValue Marshal(this byte value)
         {
-            return new JSNumber(value);
+            return JSNumber.From(value);
         }
 
 

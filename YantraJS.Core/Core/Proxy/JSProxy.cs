@@ -100,7 +100,7 @@ namespace YantraJS.Core
             var fx = handler[KeyString.get];
             if (fx is JSFunction fxFunction)
             {
-                return fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(key), receiver));
+                return fxFunction.InvokeFunction(new Arguments(target, target, JSNumber.From(key), receiver));
             }
             return target.GetValue(key, receiver, throwError);
         }
@@ -132,7 +132,7 @@ namespace YantraJS.Core
             var fx = handler[KeyString.set];
             if (fx is JSFunction fxFunction)
             {
-                fxFunction.InvokeFunction(new Arguments(target, target, new JSNumber(name), receiver));
+                fxFunction.InvokeFunction(new Arguments(target, target, JSNumber.From(name), receiver));
                 return true;
             }
             return target.SetValue(name, value, receiver, false);

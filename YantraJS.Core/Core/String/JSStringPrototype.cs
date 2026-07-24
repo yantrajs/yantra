@@ -127,7 +127,7 @@ namespace YantraJS.Core
                 return JSNumber.NaN;
 
             //return new JSNumber(text[(int)(uint)at]);
-            return new JSNumber(text[pos]);
+            return JSNumber.From(text[pos]);
         }
 
         [JSPrototypeMethod][JSExport("codePointAt", Length =1)]
@@ -140,12 +140,12 @@ namespace YantraJS.Core
                 return JSNumber.NaN;
             int firstCodePoint = text[pos];
             if (firstCodePoint < 0xD800 || firstCodePoint > 0xDBFF || pos + 1 == text.Length)
-                return new JSNumber(firstCodePoint);
+                return JSNumber.From(firstCodePoint);
             int secondCodePoint = text[(pos + 1)];
             if (secondCodePoint < 0xDC00 || secondCodePoint > 0xDFFF)
-                return new JSNumber(firstCodePoint);
+                return JSNumber.From(firstCodePoint);
             var output = (double)((firstCodePoint - 0xD800) * 1024 + (secondCodePoint - 0xDC00) + 0x10000);
-            return new JSNumber(output);
+            return JSNumber.From(output);
 
         }
 
@@ -256,7 +256,7 @@ namespace YantraJS.Core
             //var startIndex = pos.IsUndefined ? 0 : pos.IntValue;
             pos = Math.Min(Math.Max(pos, 0), @this.Length);
             var index = @this.IndexOf(searchStr.ToString(), pos);
-            return new JSNumber(index);
+            return JSNumber.From(index);
         }
 
         [JSPrototypeMethod][JSExport("lastIndexOf", Length = 1)]
@@ -278,7 +278,7 @@ namespace YantraJS.Core
                     return JSNumber.Zero;
                 return JSNumber.MinusOne;
             }
-            return new JSNumber(@this.LastIndexOf(searchStr.ToString(), startIndex, StringComparison.Ordinal));
+            return JSNumber.From(@this.LastIndexOf(searchStr.ToString(), startIndex, StringComparison.Ordinal));
 
             //if (fromIndex.IsUndefined)
             //    return new JSNumber(@this.LastIndexOf(text.ToString()));
@@ -298,7 +298,7 @@ namespace YantraJS.Core
 
             CultureInfo culture = locale.IsNullOrUndefined ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(locale.ToString());
 
-            return new JSNumber(string.Compare(@this.ToString(), str,culture, 0));
+            return JSNumber.From(string.Compare(@this.ToString(), str, culture, 0));
         }
 
         [JSPrototypeMethod][JSExport("match", Length = 1)]
@@ -442,12 +442,12 @@ namespace YantraJS.Core
                
                 if (!reg.Success)
                     return JSNumber.MinusOne;
-                return new JSNumber(reg.Index);
+                return JSNumber.From(reg.Index);
             }
 
             //is String
             var index = @this.IndexOf(search.ToString()); 
-            return new JSNumber(index);
+            return JSNumber.From(index);
         }
 
         [JSPrototypeMethod][JSExport("slice", Length =2)]
