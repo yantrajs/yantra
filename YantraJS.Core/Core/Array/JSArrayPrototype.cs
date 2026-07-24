@@ -355,7 +355,7 @@ namespace YantraJS.Core
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var index = new JSNumber(n);
+                var index = JSNumber.From(n);
                 var itemParams = new Arguments(thisArg, item, index, @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
@@ -378,7 +378,7 @@ namespace YantraJS.Core
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var n = new JSNumber(index);
+                var n = JSNumber.From(index);
                 var itemParams = new Arguments(thisArg, item, n, @this);
                 fn.f(itemParams);
             }
@@ -433,7 +433,7 @@ namespace YantraJS.Core
                 if (!hasValue)
                     continue;
                 if (first.StrictEquals(item))
-                    return new JSNumber(index);
+                    return JSNumber.From(index);
             }
             return JSNumber.MinusOne;
         }
@@ -504,7 +504,7 @@ namespace YantraJS.Core
                 if (!@this.TryGetElement((uint)i, out var item))
                     continue;
                 if (item.StrictEquals(first))
-                    return new JSNumber(i);
+                    return JSNumber.From(i);
                 
             }
             return JSNumber.MinusOne;
@@ -530,7 +530,7 @@ namespace YantraJS.Core
                     continue;
                 }
                 var item = @this.GetValue(in e);
-                var itemArgs = new Arguments(@this, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(@this, item, JSNumber.From(i), @this);
                 r.elements.Put(i, fn.f(in itemArgs));
             }
             r._length = length;
@@ -571,7 +571,7 @@ namespace YantraJS.Core
                 if (l > max)
                     throw JSContext.Current.NewTypeError($"Invalid array length");
                 ta._length = i;
-                return new JSNumber(ta._length);
+                return JSNumber.From(ta._length);
             }
 
             var oldLength = t[KeyString.length];
@@ -581,7 +581,7 @@ namespace YantraJS.Core
             {
                 t[ln++] = a.GetAt(ai);
             }
-            var n = new JSNumber(ln);
+            var n = JSNumber.From(ln);
             t[KeyString.length] = n;
             return n;
         }
@@ -625,7 +625,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(index), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, JSNumber.From(index), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -650,7 +650,7 @@ namespace YantraJS.Core
             for (int i = start; i >= 0; i--)
             {
                 var item = @this[(uint)i];
-                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, new JSNumber(i), @this);
+                var itemArgs = new Arguments(JSUndefined.Value, initialValue, item, JSNumber.From(i), @this);
                 initialValue = fn.f(itemArgs);
             }
             return initialValue;
@@ -796,7 +796,7 @@ namespace YantraJS.Core
             {
                 if (!hasValue)
                     continue;
-                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, JSNumber.From(index), array);
                 if (fn.f(itemArgs).BooleanValue)
                     return JSBoolean.True;
             }
@@ -1063,7 +1063,7 @@ namespace YantraJS.Core
                     @this.elements.Put(i, JSProperty.Property(a.GetAt((int)i)));
                 }
             }
-            return new JSNumber(a.This.Length);
+            return JSNumber.From(a.This.Length);
         }
 
         //[GetProperty("length")]

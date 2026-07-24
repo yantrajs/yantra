@@ -85,7 +85,7 @@ namespace YantraJS.Core.Typed
             var en = GetElementEnumerator();
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), this);
+                var itemArgs = new Arguments(thisArg, item, JSNumber.From(index), this);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -124,7 +124,7 @@ namespace YantraJS.Core.Typed
             while (en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue) continue;
-                var itemParams = new Arguments(thisArg, item, new JSNumber(index), this);
+                var itemParams = new Arguments(thisArg, item, JSNumber.From(index), this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -149,7 +149,7 @@ namespace YantraJS.Core.Typed
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var itemParams = new Arguments(thisArg, item, new JSNumber(index), this);
+                var itemParams = new Arguments(thisArg, item, JSNumber.From(index), this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return item;
@@ -171,7 +171,7 @@ namespace YantraJS.Core.Typed
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var index = new JSNumber(n);
+                var index = JSNumber.From(n);
                 var itemParams = new Arguments(thisArg, item, index, this);
                 if (fn.f(itemParams).BooleanValue)
                 {
@@ -195,7 +195,7 @@ namespace YantraJS.Core.Typed
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var n = new JSNumber(index);
+                var n = JSNumber.From(index);
                 var itemParams = new Arguments(thisArg, item, n, this);
                 fn.f(itemParams);
             }
@@ -250,7 +250,7 @@ namespace YantraJS.Core.Typed
                 if (!hasValue)
                     continue;
                 if (searchElement.StrictEquals(item))
-                    return new JSNumber(index);
+                    return JSNumber.From(index);
             }
             return JSNumber.MinusOne;
         }
@@ -316,7 +316,7 @@ namespace YantraJS.Core.Typed
             {
                 var item = this[i];
                 if (item.StrictEquals(element))
-                    return new JSNumber(i);
+                    return JSNumber.From(i);
                 if (i == 0)
                     break;
                 i--;

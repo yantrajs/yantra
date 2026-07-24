@@ -27,7 +27,7 @@ namespace YantraJS.Core.Typed
         {
             if (index < 0 || index >= this.length)
                 return JSUndefined.Value;
-            return new JSNumber(BitConverter.ToInt32(this.buffer.buffer, this.byteOffset + (int)index * 4));
+            return JSNumber.From(BitConverter.ToInt32(this.buffer.buffer, this.byteOffset + (int)index * 4));
         }
 
         internal protected override bool SetValue(uint index, JSValue value, JSValue receiver, bool throwError = true)

@@ -30,7 +30,7 @@ namespace YantraJS.Core
                 var cb = fx.f;
                 while (en.MoveNext(out var hasValue, out var item, out var index))
                 {
-                    r.elements.Put(length++, cb(new Arguments(mapThis, item,new JSNumber(index))));
+                    r.elements.Put(length++, cb(new Arguments(mapThis, item,JSNumber.From(index))));
                 }
             }
             else

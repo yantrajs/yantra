@@ -144,7 +144,7 @@ namespace YantraJS.Core.Typed
                 uint i = 0;
                 while (en2.MoveNext(out var item))
                 {
-                    this[i] = p.map.Call(p.thisArg, item, new JSNumber(i));
+                    this[i] = p.map.Call(p.thisArg, item, JSNumber.From(i));
                     i++;
                 }
             }
@@ -159,7 +159,7 @@ namespace YantraJS.Core.Typed
                     if (key.KeyString == KeyString.length)
                     {
                         var l = new JSObject();
-                        l.FastAddValue(KeyString.value, new JSNumber(this.length), JSPropertyAttributes.ConfigurableValue);
+                        l.FastAddValue(KeyString.value, JSNumber.From(this.length), JSPropertyAttributes.ConfigurableValue);
                         l.FastAddValue(KeyString.writable, JSBoolean.False, JSPropertyAttributes.ConfigurableValue);
                         l.FastAddValue(KeyString.enumerable, JSBoolean.True, JSPropertyAttributes.ConfigurableValue);
                         return l;
@@ -237,7 +237,7 @@ namespace YantraJS.Core.Typed
         {
             for (int i = 0; i < length; ++i)
             {
-                yield return new JSNumber(i);
+                yield return JSNumber.From(i);
             }
 
             prototypeChain.Build();
@@ -252,7 +252,7 @@ namespace YantraJS.Core.Typed
                 {
                     continue;
                 }
-                yield return new JSNumber(item.Key);
+                yield return JSNumber.From(item.Key);
             }
 
             foreach (var item in prototypeChain.propertySet.properties.AllValues())
@@ -362,7 +362,7 @@ namespace YantraJS.Core.Typed
                 {
                     hasValue = true;
                     index = (uint)this.index;
-                    value = new JSArray(new JSNumber(index), typedArray[index]);
+                    value = new JSArray(JSNumber.From(index), typedArray[index]);
                     return true;
                 }
 
@@ -376,7 +376,7 @@ namespace YantraJS.Core.Typed
             {
                 if (++this.index < typedArray.length)
                 {
-                    value = new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                    value = new JSArray(JSNumber.From(index), typedArray[(uint)index]);
                     return true;
                 }
 
@@ -388,7 +388,7 @@ namespace YantraJS.Core.Typed
             {
                 if (++this.index < typedArray.length)
                 {
-                    value = new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                    value = new JSArray(JSNumber.From(index), typedArray[(uint)index]);
                     return true;
                 }
 
@@ -399,7 +399,7 @@ namespace YantraJS.Core.Typed
             {
                 if (++this.index < typedArray.length)
                 {
-                    return new JSArray(new JSNumber(index), typedArray[(uint)index]);
+                    return new JSArray(JSNumber.From(index), typedArray[(uint)index]);
                 }
 
                 return @default;
@@ -426,7 +426,7 @@ namespace YantraJS.Core.Typed
             {
                 hasValue = true;
                 index = (uint)this.index;
-                value = new JSNumber(index);
+                value = JSNumber.From(index);
                 return true;
             }
             hasValue = false;
@@ -439,7 +439,7 @@ namespace YantraJS.Core.Typed
         {
             if (++this.index < this.length)
             {
-                value = new JSNumber(index);
+                value = JSNumber.From(index);
                 return true;
             }
             value = JSUndefined.Value;
@@ -450,7 +450,7 @@ namespace YantraJS.Core.Typed
         {
             if (++this.index < this.length)
             {
-                value = new JSNumber(index);
+                value = JSNumber.From(index);
                 return true;
             }
             value = @default;
@@ -461,7 +461,7 @@ namespace YantraJS.Core.Typed
         {
             if (++this.index < this.length)
             {
-                return new JSNumber(index);
+                return JSNumber.From(index);
             }
             return @default;
         }
