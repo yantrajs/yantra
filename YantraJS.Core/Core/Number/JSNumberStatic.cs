@@ -74,7 +74,7 @@ namespace YantraJS.Core
         public static JSValue ParseFloat(in Arguments a)
         {
             var result = NumberParser.ParseFloat(a.Get1().ToString());
-            return new JSNumber(result);
+            return JSNumber.From(result);
             //var nan = JSNumber.NaN;
             //if (a.Length > 0)
             //{
@@ -182,7 +182,7 @@ namespace YantraJS.Core
                         }
                     }
                     var d = NumberParser.ParseInt(text.Trim(), radix, false);
-                    return new JSNumber(d);
+                    return JSNumber.From(d);
                 }
             }
             return nan;

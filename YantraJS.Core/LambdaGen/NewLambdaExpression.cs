@@ -168,6 +168,18 @@ internal static class NewLambdaExpression
         {
             exp = typeAs.Target;
         }
+        if (exp is YCallExpression callExp)
+        {
+            if (callExp.Method.DeclaringType == typeof(JSNumber) && callExp.Method.Name == "From")
+            {
+                var arg0 = callExp.Arguments.First();
+                if (arg0?.Type == typeof(double))
+                {
+                    output = arg0;
+                    return true;
+                }
+            }
+        }
         if (exp is YNewExpression newExp)
         {
             if (newExp.Type == typeof(JSNumber))

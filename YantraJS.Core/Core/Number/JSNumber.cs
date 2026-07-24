@@ -78,11 +78,79 @@ namespace YantraJS.Core
         [JSExport("MIN_VALUE")]
         public static readonly double MinValue = double.Epsilon;
 
-        private static JSNumber[][] numbers = new JSNumber[1024][];
+        private static JSNumber[][] numbers = new JSNumber[256][];
+
+        public static JSNumber From(double value)
+        {
+            if(double.IsNaN(value))
+            {
+                return NaN;
+            }
+            if(IsNegativeZero(value))
+            {
+                return NegativeZero;
+            }
+            if(double.IsNegativeInfinity(value))
+            {
+                return NegativeInfinity;
+            }
+            if(double.IsPositiveInfinity(value))
+            {
+                return PositiveInfinity;
+            }
+#if NET8_0_OR_GREATER
+            if(double.IsInteger(value))
+#else
+            if(value % 1 == 0)
+#endif
+            {
+                if(value >= 0 && value <= 65535)
+                {
+                    return AsCachedInteger((int)value);
+                }
+            }
+            return new JSNumber(value);
+        }
 
         public static JSNumber From(int value)
         {
+            if(value >=0 && value <= 65535 )
+            {
+                return AsCachedInteger(value);
+            }
             return new JSNumber(value);
+        }
+
+        public static JSNumber From(uint value)
+        {
+            if (value <= 65535)
+            {
+                return AsCachedInteger((int)value);
+            }
+            return new JSNumber(value);
+        }
+
+        private static JSNumber AsCachedInteger(int value)
+        {
+            int column = value & 0xFF;
+            int row = value >> 8;
+            var rowArray = numbers[row];
+            if (rowArray == null)
+            {
+                lock (numbers)
+                {
+                    rowArray = numbers[row] ??= new JSNumber[256];
+                }
+            }
+            var n = rowArray[column];
+            if (n == null)
+            {
+                lock (rowArray)
+                {
+                    return rowArray[column] ??= new JSNumber(value);
+                }
+            }
+            return n;
         }
 
 
@@ -262,12 +330,12 @@ namespace YantraJS.Core
                 return new JSString(this.value + @string.ToString());
             if(value is JSObject @object)
                 return new JSString(this.value + @object.StringValue);
-            return new JSNumber(this.value + value.DoubleValue);
+            return JSNumber.From(this.value + value.DoubleValue);
         }
 
         public override JSValue AddValue(double value)
         {
-            return new JSNumber(this.value + value);
+            return JSNumber.From(this.value + value);
         }
 
         public override JSValue AddValue(string value)

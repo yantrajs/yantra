@@ -58,7 +58,7 @@ namespace YantraJS.ExpHelper
                 exp = Expression.Convert(exp, typeof(double));
             }
             return Expression.TypeAs(
-                NewLambdaExpression.NewExpression<JSNumber>(() => () => new JSNumber((double)0), exp)
+                NewLambdaExpression.StaticCallExpression<JSNumber>(() => () => JSNumber.From((double)0), exp)
                 , typeof(JSValue));
             // return  Expression.TypeAs(Expression.New(_NewDouble, exp), typeof(JSValue));
         }

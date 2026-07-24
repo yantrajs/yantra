@@ -360,7 +360,7 @@ namespace YantraJS.Core
             {
                 hasValue = true;
                 index = (uint)this.index;
-                value = new JSArray(array.prototypeChain, new JSNumber(index), array[index]);
+                value = new JSArray(array.prototypeChain, JSNumber.From(index), array[index]);
                 return true;
             }
 
@@ -374,7 +374,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array._length)
             {
-                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, JSNumber.From(index), array[(uint)index]);
                 return true;
             }
 
@@ -386,7 +386,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array._length)
             {
-                value = new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
+                value = new JSArray(array.prototypeChain, JSNumber.From(index), array[(uint)index]);
                 return true;
             }
 
@@ -398,7 +398,7 @@ namespace YantraJS.Core
         {
             if (++this.index < array._length)
             {
-                return new JSArray(array.prototypeChain, new JSNumber(index), array[(uint)index]);
+                return new JSArray(array.prototypeChain, JSNumber.From(index), array[(uint)index]);
             }
             return @default;
         }

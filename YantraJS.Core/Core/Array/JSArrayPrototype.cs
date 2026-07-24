@@ -106,7 +106,7 @@ namespace YantraJS.Core
             var en = array.GetElementEnumerator();
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
-                var itemArgs = new Arguments(thisArg, item, new JSNumber(index), array);
+                var itemArgs = new Arguments(thisArg, item, JSNumber.From(index), array);
                 if (!fn.f(itemArgs).BooleanValue)
                     return JSBoolean.False;
             }
@@ -251,7 +251,7 @@ namespace YantraJS.Core
             while(en.MoveNext(out var hasValue, out var item, out var index))
             {
                 if (!hasValue) continue;
-                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, JSNumber.From(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     r.Add(item);
@@ -273,7 +273,7 @@ namespace YantraJS.Core
                 // ignore holes...
                 if (!hasValue)
                     continue;
-                var itemParams = new Arguments(thisArg, item, new JSNumber(index), @this);
+                var itemParams = new Arguments(thisArg, item, JSNumber.From(index), @this);
                 if (fn.f(itemParams).BooleanValue)
                 {
                     return item;
@@ -330,7 +330,7 @@ namespace YantraJS.Core
                 if (@this.TryGetElement((uint)i, out var elementValue)) {
                     // Transform the value using the mapping function.
                     if (callback != null) {
-                        elementValue = callback.InvokeFunction(new Arguments(thisArg, elementValue, new JSNumber(i), @this));
+                        elementValue = callback.InvokeFunction(new Arguments(thisArg, elementValue, JSNumber.From(i), @this));
                     }
                     // If the element is an array, flatten it.
                     if (depth > 0 && elementValue is JSArray childArray)
