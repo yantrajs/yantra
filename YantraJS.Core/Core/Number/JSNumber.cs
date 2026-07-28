@@ -78,7 +78,7 @@ namespace YantraJS.Core
         [JSExport("MIN_VALUE")]
         public static readonly double MinValue = double.Epsilon;
 
-        private static JSNumber[][] numbers = new JSNumber[256][];
+        private static JSNumber[] numbers = new JSNumber[65536];
 
         public static JSNumber From(double value)
         {
@@ -150,22 +150,12 @@ namespace YantraJS.Core
 
         private static JSNumber AsCachedInteger(int value)
         {
-            int column = value & 0xFF;
-            int row = value >> 8;
-            var rowArray = numbers[row];
-            if (rowArray == null)
+            var n = numbers[value];
+            if (n == null)
             {
                 lock (numbers)
                 {
-                    rowArray = numbers[row] ??= new JSNumber[256];
-                }
-            }
-            var n = rowArray[column];
-            if (n == null)
-            {
-                lock (rowArray)
-                {
-                    return rowArray[column] ??= new JSNumber(value);
+                    return numbers[value] ??= new JSNumber(value);
                 }
             }
             return n;
