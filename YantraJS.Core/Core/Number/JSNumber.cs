@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Transactions;
 using System.Xml.Schema;
@@ -41,9 +42,14 @@ namespace YantraJS.Core
         /// </summary>
         /// <param name="value"> The value to test. </param>
         /// <returns> <c>true</c> if the value is negative zero; <c>false</c> otherwise. </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNegativeZero(double value)
         {
+#if NET8_0_OR_GREATER
+            return value == 0 && double.IsNegative(value);
+#else            
             return BitConverter.DoubleToInt64Bits(value) == negativeZeroBits;
+#endif
         }
 
         [JSExport("NaN")]
@@ -80,47 +86,120 @@ namespace YantraJS.Core
 
         private static JSNumber[] numbers = new JSNumber[65536];
 
+        static JSNumber()
+        {
+            for(int i=0;i<=65535;i++)
+            {
+                numbers [i] = new JSNumber(i);
+            }
+        }
+
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(double value)
         {
-            if(double.IsNaN(value))
+            if (double.IsNaN(value))
             {
                 return NaN;
             }
-            if(IsNegativeZero(value))
+#if NET8_0_OR_GREATER
+            if (double.IsNegative(value))
             {
-                return NegativeZero;
+                if (value == -1)
+                {
+                    return MinusOne;
+                }
+                if (double.IsInfinity(value)) { 
+                    return NegativeInfinity;
+                }
+                if (value == 0)
+                {
+                    return NegativeZero;
+                }
+                return new JSNumber(value);
             }
-            if(double.IsNegativeInfinity(value))
+            if (double.IsInteger(value))
             {
-                return NegativeInfinity;
+                if(value <= 65535)
+                {
+                    return AsCachedInteger((int)value);
+                }
+                return new JSNumber(value);
             }
-            if(double.IsPositiveInfinity(value))
+            if (double.IsInfinity(value))
             {
                 return PositiveInfinity;
             }
-#if NET8_0_OR_GREATER
-            if(double.IsInteger(value))
 #else
-            if(value % 1 == 0)
-#endif
+            if (value < 0)
             {
-                if(value >= 0 && value <= 65535)
+                if (value == -1)
+                {
+                    return MinusOne;
+                }
+                return new JSNumber(value);
+            }
+            if (IsNegativeZero(value))
+            {
+                return NegativeZero;
+            }
+            if (value % 1 == 0)
+            {
+                if (value >= 0 && value <= 65535)
                 {
                     return AsCachedInteger((int)value);
                 }
             }
+            if (double.IsInfinity(value))
+            {
+                if (double.IsNegativeInfinity(value))
+                {
+                    return NegativeInfinity;
+                }
+                return PositiveInfinity;
+            }
+#endif
             return new JSNumber(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSNumber From(sbyte value)
+        {
+            if (value < 0)
+            {
+                if (value == -1)
+                {
+                    return MinusOne;
+                }
+                return new JSNumber(value);
+            }
+            return AsCachedInteger(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static JSNumber From(byte value)
+        {
+            return AsCachedInteger(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(int value)
         {
-            if(value >=0 && value <= 65535 )
+            if (value < 0)
+            {
+                if (value == -1)
+                {
+                    return MinusOne;
+                }
+                return new JSNumber(value);
+            }
+            if(value <= 65535 )
             {
                 return AsCachedInteger(value);
             }
             return new JSNumber(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(uint value)
         {
             if (value <= 65535)
@@ -130,6 +209,7 @@ namespace YantraJS.Core
             return new JSNumber(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(ulong value)
         {
             if (value <= 65535)
@@ -139,26 +219,37 @@ namespace YantraJS.Core
             return new JSNumber(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(long value)
         {
-            if (value >= 0 && value <= 65535)
+            if (value < 0)
+            {
+                if (value == -1)
+                {
+                    return MinusOne;
+                }
+                return new JSNumber(value);
+            }
+            if (value <= 65535)
             {
                 return AsCachedInteger((int)value);
             }
             return new JSNumber(value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JSNumber AsCachedInteger(int value)
         {
-            var n = numbers[value];
-            if (n == null)
-            {
-                lock (numbers)
-                {
-                    return numbers[value] ??= new JSNumber(value);
-                }
-            }
-            return n;
+            return numbers[value];
+            //var n = numbers[value];
+            //if (n == null)
+            //{
+            //    lock (numbers)
+            //    {
+            //        return numbers[value] ??= new JSNumber(value);
+            //    }
+            //}
+            //return n;
         }
 
 
