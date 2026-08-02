@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,13 +12,13 @@ public class Program
 
     private static readonly Dictionary<string, string> _files = new()
     {
-        // { "array-stress", null },
+        { "array-stress", null },
         //{ "evaluation", null },
         //{ "linq-js", null },
         //{ "minimal", null },
         //{ "stopwatch", null },
         //{ "dromaeo-3d-cube", null },
-        { "dromaeo-core-eval", null },
+        // { "dromaeo-core-eval", null },
         //{ "dromaeo-object-array", null },
         // { "dromaeo-object-regexp", null },
         //{ "dromaeo-object-string", null },
@@ -29,8 +31,13 @@ public class Program
         var endTest = function () { };
         var prep = function (fn) { fn(); };";
 
+    public static void Main(string[] args)
+    {
+        var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
+    }
 
-    public static void Main()
+    [Benchmark]
+    public void Run()
     {
 
         var files = _files.Keys.ToList();
