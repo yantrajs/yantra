@@ -12,7 +12,7 @@ public class Program
 
     private static readonly Dictionary<string, string> _files = new()
     {
-        { "array-stress", null },
+        // { "array-stress", null },
         //{ "evaluation", null },
         //{ "linq-js", null },
         //{ "minimal", null },
@@ -22,7 +22,7 @@ public class Program
         //{ "dromaeo-object-array", null },
         // { "dromaeo-object-regexp", null },
         //{ "dromaeo-object-string", null },
-        //{ "dromaeo-string-base64", null },
+        { "dromaeo-string-base64", null },
     };
 
     private static readonly string _dromaeoHelpers = @"
