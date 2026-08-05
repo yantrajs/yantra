@@ -33,7 +33,13 @@ public class Program
 
     public static void Main(string[] args)
     {
-        var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
+        if (args.Contains("benchmark"))
+        {
+            var summary = BenchmarkRunner.Run(typeof(Program).Assembly);
+            return;
+        }
+        var p = new Program();
+        p.Run();
     }
 
     [Benchmark]
