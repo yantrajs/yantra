@@ -25,7 +25,7 @@ namespace YantraJS.Core
 
         internal static JSString Empty = new JSString(string.Empty);
 
-        internal readonly string value;
+        internal readonly FastString value;
         KeyString _keyString;
 
         private double NumberValue = 0;

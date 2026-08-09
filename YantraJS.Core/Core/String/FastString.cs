@@ -17,58 +17,29 @@ namespace YantraJS.Core;
 public readonly struct FastString
 {
 
-    public static readonly FastString Empty = new FastString();
-
-    public readonly int Length;
-    public readonly int Offset;
+    public static readonly FastString Empty = new FastString(string.Empty);
 
     // this stores single character...
     private readonly char char0;
 
-    //private readonly char char1;
-    //private readonly char char2;
-    //private readonly char char3;
-
-    private readonly char[] chars;
     private readonly string @string;
 
     public FastString(char ch)
     {
-        Length = 1;
         char0 = ch;
     }
 
     public FastString(string text)
     {
-        Length = text.Length;
-        if (Length == 1)
-        {
-            char0 = text[0];
-            return;
-        }
         @string = text;
     }
 
-    public FastString(char[] text)
-    {
-        Length = text.Length;
-        if (Length == 1)
-        {
-            char0 = text[0];
-            return;
-        }
-        chars = text;
-    }
-
     public char this[int index]
-    {   get { 
+    {
+        get { 
             if(@string != null)
             {
-                return @string[index-Offset];
-            }
-            if (chars != null)
-            {
-                return chars[index-Offset];
+                return @string[index];
             }
             if(index == 0 )
             {
@@ -84,21 +55,24 @@ public readonly struct FastString
         {
             return new FastString(@string.Trim());
         }
-        if (chars != null)
+        if(char.IsWhiteSpace(char0))
         {
-            
+            return Empty;
         }
+        return this;
     }
 
     public FastString Substring(int start)
     {
         if (@string != null)
         {
-            if(start == @string.Length - 1)
-            {
-                return Empty;
-            }
+            return new FastString(@string.Substring(start));
         }
+        if(start > 0)
+        {
+            return Empty;
+        }
+        return this;
     }
 
 }
