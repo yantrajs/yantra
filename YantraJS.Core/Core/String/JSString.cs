@@ -25,7 +25,7 @@ namespace YantraJS.Core
 
         internal static JSString Empty = new JSString(string.Empty);
 
-        internal readonly FastString value;
+        internal readonly StringOrChar value;
         KeyString _keyString;
 
         private double NumberValue = 0;
@@ -400,7 +400,7 @@ namespace YantraJS.Core
             }
             return right.CanBeNumber
                 ? DoubleValue > right.DoubleValue
-                : value.Greater(right.ToString());
+                : value.Greater(right.ToStringOrChar());
         }
 
         public override bool GreaterLiteral(double right)
@@ -410,7 +410,7 @@ namespace YantraJS.Core
 
         public override bool GreaterLiteral(string right)
         {
-            return value.Greater(right);
+            return value.Greater(right.AsStringOrChar());
         }
 
 

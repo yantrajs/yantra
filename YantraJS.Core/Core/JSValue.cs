@@ -960,6 +960,8 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         return prototypeChain.GetMethod(key);
     }
 
+    public abstract StringOrChar ToStringOrChar();
+
     /// <summary>
     /// Warning do not use in concatenation
     /// </summary>
