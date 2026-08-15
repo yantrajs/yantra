@@ -28,6 +28,8 @@ public readonly struct StringOrChar
 
     private readonly string @string;
 
+    public bool IsChar => @string == null;
+
     public StringOrChar(char ch)
     {
         char0 = ch;

@@ -48,7 +48,7 @@ namespace YantraJS.Core
             var f = a.Get1();
             if (!f.IsString)
                 return f;
-            var text = (f as JSString).value;
+            var text = (f as JSString).value.ToString();
             string location = null;
             JSContext.Current.DispatchEvalEvent(ref text, ref location);
             return CoreScript.Evaluate(text, null);
