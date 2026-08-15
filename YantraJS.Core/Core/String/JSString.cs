@@ -37,7 +37,7 @@ namespace YantraJS.Core
             {
                 if (NumberParsed)
                     return NumberValue;
-                NumberValue = NumberParser.CoerceToNumber(value);
+                NumberValue = NumberParser.CoerceToNumber(value.ToString());
                 NumberParsed = true;
                 return NumberValue;
             }
@@ -55,14 +55,14 @@ namespace YantraJS.Core
         {
             if (this.value.IsEmpty())
                 return new JSString(value.ToString());
-            return new JSString( string.Concat(this.value, value.ToString()) );
+            return new JSString( this.value.Add(value));
         }
 
         public override JSValue AddValue(string value)
         {
             if (this.value.IsEmpty())
                 return new JSString(value);
-            return new JSString( string.Concat(this.value, value));
+            return new JSString( this.value.Add(value));
         }
 
         public override JSValue AddValue(JSValue value)
@@ -77,7 +77,7 @@ namespace YantraJS.Core
                 {
                     return this;
                 }
-                return new JSString(string.Concat(this.value, vString.value));
+                return new JSString(this.value.Add(vString.value));
             }
 
             if (value.IsObject)
@@ -167,6 +167,11 @@ namespace YantraJS.Core
         }
 
 
+        public JSString(StringOrChar value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
+        {
+            this.value = value;
+        }
+
 
         public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
         {
@@ -175,7 +180,7 @@ namespace YantraJS.Core
                throw new ArgumentNullException(nameof(value));
             }
 #endif
-            this.value = value;
+            this.value = value.AsStringOrChar();
         }
         //public JSString(JSObject prototype, string value): base(prototype)
         //{
@@ -189,11 +194,11 @@ namespace YantraJS.Core
                throw new ArgumentNullException(nameof(value));
             }
 #endif
-            this.value = value.Value;
+            this.value = value.Value.AsStringOrChar();
         }
 
 
-        public JSString(char ch) : this(new string(ch,1))
+        public JSString(char ch) : this(new StringOrChar(ch))
         {
             
         }
@@ -227,7 +232,7 @@ namespace YantraJS.Core
 
         public byte[] Encode(System.Text.Encoding encoding)
         {
-            return encoding.GetBytes(value);
+            return encoding.GetBytes(value.ToString());
         }
 
         public override string ToDetailString()
@@ -353,7 +358,7 @@ namespace YantraJS.Core
             }
             return right.CanBeNumber
                 ? DoubleValue < right.DoubleValue
-                : value.Less(right.ToString());
+                : value.Less(right.ToStringOrChar());
         }
 
         public override bool LessLiteral(double right)
@@ -363,7 +368,7 @@ namespace YantraJS.Core
 
         public override bool LessLiteral(string right)
         {
-            return value.Less(right);
+            return value.Less(right.AsStringOrChar());
         }
 
         public override bool LessOrEqual(JSValue right)
@@ -379,7 +384,7 @@ namespace YantraJS.Core
             }
             return right.CanBeNumber
                 ? DoubleValue <= right.DoubleValue
-                : value.LessOrEqual(right.ToString());
+                : value.LessOrEqual(right.ToStringOrChar());
         }
 
         public override bool LessOrEqualLiteral(double right)
@@ -432,7 +437,7 @@ namespace YantraJS.Core
             }
             return right.CanBeNumber
                 ? DoubleValue >= right.DoubleValue
-                : value.GreaterOrEqual(right.ToString());
+                : value.GreaterOrEqual(right.ToStringOrChar());
         }
 
         public override bool GreaterOrEqualLiteral(double right)
@@ -442,7 +447,7 @@ namespace YantraJS.Core
 
         public override bool GreaterOrEqualLiteral(string right)
         {
-            return value.GreaterOrEqual(right);
+            return value.GreaterOrEqual(right.AsStringOrChar());
         }
 
         public override bool StrictEquals(JSValue right)

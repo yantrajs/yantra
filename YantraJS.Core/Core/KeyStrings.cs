@@ -35,6 +35,11 @@ namespace YantraJS.Core
         private static int NextID = 1;
 
         // internal static (int size, int total, int next) Total => (map.Size, map.Total, NextID);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public KeyString GetOrCreate(StringOrChar key)
+        {
+            return GetOrCreate(key.ToString());
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +57,12 @@ namespace YantraJS.Core
         internal bool TryGet(in StringSpan key, out KeyString ks)
         {
             return map.TryGetValue(key, out ks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool TryGet(StringOrChar key, out KeyString ks)
+        {
+            return map.TryGetValue(key.ToString(), out ks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

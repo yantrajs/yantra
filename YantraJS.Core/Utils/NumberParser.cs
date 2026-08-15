@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -96,14 +97,27 @@ namespace YantraJS.Utils
             return false;
         }
 
+        internal static double CoerceToNumber(in StringSpan span)
+        {
+            return CoerceToNumber(span.GetEnumerable());
+        }
+
+        internal static double CoerceToNumber(in StringOrChar span)
+        {
+            return CoerceToNumber(span.GetEnumerable());
+        }
+
         /// <summary>
         /// Converts a string to a number (used in type coercion).
         /// </summary>
         /// <returns> The result of parsing the string as a number. </returns>
-        internal static double CoerceToNumber(in StringSpan input)
+        internal static double CoerceToNumber(IEnumerable<char> charReader)
         {
             // supporting ES2021 _ number separator
-            var reader = new StringReader(input.Value.Replace("_", ""));
+            // var reader = new StringReader(input.Value.Replace("_", ""));
+            charReader = charReader.Where((c) => c != '_');
+
+            var reader = new CharReader(charReader);
 
             // Skip whitespace and line terminators.
             while (IsWhiteSpaceOrLineTerminator(reader.Peek()))

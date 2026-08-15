@@ -452,6 +452,31 @@ namespace YantraJS.Core
             }
         }
 
+        internal IEnumerable<char> GetEnumerable()
+        {
+            return new CharEnumerable(this);
+        }
+
+        struct CharEnumerable : IEnumerable<char>
+        {
+            private StringSpan stringSpan;
+
+            public CharEnumerable(StringSpan stringSpan)
+            {
+                this.stringSpan = stringSpan;
+            }
+
+            public IEnumerator<char> GetEnumerator()
+            {
+                return stringSpan.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return stringSpan.GetEnumerator();
+            }
+        }
+
         public struct CharEnumerator: IEnumerator<char>
         {
             private readonly StringSpan span;
