@@ -98,6 +98,15 @@ public readonly struct StringOrChar
         return char0 > rightChar;
     }
 
+    public override string ToString()
+    {
+        if(@string != null)
+        {
+            return @string;
+        }
+        return new string(this.char0, 1);
+    }
+
 }
 
 public static class StringOrCharExtensions

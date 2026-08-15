@@ -217,6 +217,11 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
+            return value.ToString();
+        }
+
+        public override StringOrChar ToStringOrChar()
+        {
             return value;
         }
 
@@ -227,13 +232,13 @@ namespace YantraJS.Core
 
         public override string ToDetailString()
         {
-            return value;
+            return value.ToString();
         }
 
         public override string ToLocaleString(string format, CultureInfo culture)
         {
 
-            return value;
+            return value.ToString();
           
         }
 

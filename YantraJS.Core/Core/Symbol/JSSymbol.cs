@@ -86,6 +86,11 @@ namespace YantraJS.Core
             return name;
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return ToString().AsStringOrChar();
+        }
+
 
     }
 }

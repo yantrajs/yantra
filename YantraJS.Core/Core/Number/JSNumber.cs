@@ -399,6 +399,11 @@ namespace YantraJS.Core
             return v;
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return ToString().AsStringOrChar();
+        }
+
         public override string ToLocaleString(string format, CultureInfo culture)
         {
             return value.ToString(format,culture.NumberFormat);

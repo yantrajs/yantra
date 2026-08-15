@@ -136,6 +136,11 @@ namespace YantraJS.Core
             return _value ? "true" : "false";
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return _value ? new StringOrChar("true") : new StringOrChar("false");
+        }
+
         public override int GetHashCode()
         {
             return _value ? 1 : 0;

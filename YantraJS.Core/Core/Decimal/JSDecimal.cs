@@ -90,7 +90,12 @@ namespace YantraJS.Core
 
         public override string ToString()
         {
-            return value.ToString() + "n";
+            return value + "m";
+        }
+
+        public override StringOrChar ToStringOrChar()
+        {
+            return (value + "m").AsStringOrChar();
         }
 
         public override JSValue InvokeFunction(in Arguments a)

@@ -749,6 +749,11 @@ namespace YantraJS.Core
             return "[object Object]";
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return ToString().AsStringOrChar();
+        }
+
         // prevent recursive...
         public override string ToDetailString()
         {

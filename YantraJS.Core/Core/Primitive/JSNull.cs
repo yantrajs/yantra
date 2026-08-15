@@ -24,6 +24,11 @@ namespace YantraJS.Core
             return "null";
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return ToString().AsStringOrChar();
+        }
+
         public override bool BooleanValue => false;
 
         public override double DoubleValue => 0D;

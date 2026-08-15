@@ -94,6 +94,11 @@ namespace YantraJS.Core.BigInt
             return (receiver ?? this).GetValue(p);
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return new StringOrChar(this.value.ToString());
+        }
+
         public override bool Equals(JSValue value)
         {
             if (value is JSBigInt bigint)

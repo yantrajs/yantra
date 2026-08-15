@@ -61,5 +61,10 @@ namespace YantraJS.Core.Core.Array
         {
             throw new NotImplementedException();
         }
+
+        public override StringOrChar ToStringOrChar()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

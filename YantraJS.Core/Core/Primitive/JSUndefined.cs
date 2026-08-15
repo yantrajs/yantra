@@ -42,7 +42,10 @@ namespace YantraJS.Core
             return "undefined";
         }
 
-
+        public override StringOrChar ToStringOrChar()
+        {
+            return ToString().AsStringOrChar();
+        }
         protected internal sealed override JSValue GetValue(KeyString key, JSValue receiver, bool throwError = true)
         {
             throw JSContext.Current.NewTypeError($"Cannot get property {key.ToStringSpan()} of undefined");
