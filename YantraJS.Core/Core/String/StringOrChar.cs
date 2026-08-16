@@ -191,6 +191,27 @@ public readonly struct StringOrChar: IEnumerable<char>
         return -1;
     }
 
+    public int LastIndexOf(StringOrChar test, int position)
+    {
+        if (@string != null)
+        {
+            if (test.@string != null)
+            {
+                return @string.LastIndexOf(test.@string, position);
+            }
+            return @string.LastIndexOf(test.char0, position);
+        }
+        if (position > 0)
+        {
+            return -1;
+        }
+        if (test.Length == 1 && char0 == test[0])
+        {
+            return 0;
+        }
+        return -1;
+    }
+
 
     public bool EndsWith(StringOrChar test)
     {
@@ -207,6 +228,56 @@ public readonly struct StringOrChar: IEnumerable<char>
             return true;
         }
         return false;
+    }
+
+    public StringOrChar Normalize(NormalizationForm nf)
+    {
+        if(@string != null)
+        {
+            return @string.Normalize(nf).AsStringOrChar();
+        }
+        return this.ToString().Normalize(nf).AsStringOrChar();
+    }
+
+    public StringOrChar PadRight(int length, char ch)
+    {
+        if (@string != null)
+        {
+            return @string.PadRight(length, ch).AsStringOrChar();
+        }
+        return new StringOrChar($"{char0}{new string(ch, length)}");
+    }
+
+    public StringOrChar PadLeft(int length, char ch)
+    {
+        if (@string != null)
+        {
+            return @string.PadLeft(length, ch).AsStringOrChar();
+        }
+        return new StringOrChar($"{new string(ch, length)}{char0}");
+    }
+
+    public StringOrChar Replace(StringOrChar test, StringOrChar replace)
+    {
+        if (@string != null)
+        {
+            var testString = test.@string;
+            if(testString != null)
+            {
+                return @string.Replace(testString, replace.ToString()).AsStringOrChar();
+            }
+            if(replace.IsChar)
+            {
+                return @string.Replace(test.char0, replace.char0).AsStringOrChar();
+            }
+            return @string.Replace(test.ToString(), replace.ToString()).AsStringOrChar();
+        }
+        // the only case is...
+        if(test.Length == 1 && char0 == test[0])
+        {
+            return replace;
+        }
+        return this;
     }
 
     public bool StartsWith(StringOrChar test)

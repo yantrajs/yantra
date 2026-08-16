@@ -262,7 +262,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("lastIndexOf", Length = 1)]
         internal static JSValue LastIndexOF(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             //var (text, fromIndex) = a.Get2();
             var searchStr = a[0] ?? JSUndefined.Value;
             var fromIndex = a[1]?.DoubleValue ?? int.MaxValue;
@@ -274,11 +274,11 @@ namespace YantraJS.Core
             startIndex = Math.Min(startIndex + searchStr.Length - 1, @this.Length - 1);
             if (startIndex < 0)
             {
-                if (@this == string.Empty && searchStr.Length == 0)
+                if (@this.IsEmpty() && searchStr.Length == 0)
                     return JSNumber.Zero;
                 return JSNumber.MinusOne;
             }
-            return JSNumber.From(@this.LastIndexOf(searchStr.ToString(), startIndex, StringComparison.Ordinal));
+            return JSNumber.From(@this.LastIndexOf(searchStr.ToStringOrChar(), startIndex));
 
             //if (fromIndex.IsUndefined)
             //    return new JSNumber(@this.LastIndexOf(text.ToString()));
@@ -324,7 +324,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("normalize")]
         internal static JSValue Normalize(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var input = a.Get1();
             
             string form = input.IsNullOrUndefined ? "NFC" : input.ToString();
@@ -347,33 +347,33 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("padEnd")]
         internal static JSValue PadEnd(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var (s, c) = a.Get2();
             var size = s.IntValue;
-            var ch = c.ToString().ToCharArray()[0];
+            var ch = c.ToStringOrChar()[0];
             return new JSString(@this.PadRight(s.IntValue, ch));
         }
 
         [JSPrototypeMethod][JSExport("padStart")]
         internal static JSValue PadStart(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var (s, c) = a.Get2();
-            var ch = c.ToString().ToCharArray()[0];
+            var ch = c.ToString()[0];
             return new JSString(@this.PadLeft(s.IntValue, ch));
         }
 
         [JSPrototypeMethod][JSExport("repeat", Length = 1)]
         internal static JSValue Repeat(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var c = a[0]?.IntegerValue ?? int.MaxValue;
             if (c < 0 || c == int.MaxValue)
                throw JSContext.Current.NewRangeError($"Invalid count value");
             var result = new StringBuilder(c * @this.Length);
             for (var i = 0; i < c; i++)
             {
-                result.Append(@this);
+                result = @this.IsChar ? result.Append(@this[0]) : result.Append(@this);
             }
             return new JSString(result.ToString());
             
@@ -382,26 +382,33 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("replace", Length = 2)]
         internal static JSValue Replace(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var (f, s) = a.Get2();
             if (f is JSRegExp jSRegExp)
             {
-                return new JSString(jSRegExp.Replace(@this, s));
+                return new JSString(jSRegExp.Replace(@this.ToString(), s));
             }
 
             // Find the first occurrance of substr.
-            var substr = f.ToString();
-            var replaceText = s.IsFunction ? s.InvokeFunction(Arguments.Empty).ToString() :  s.ToString();
-            int start = @this.IndexOf(substr, StringComparison.Ordinal);
+            var substr = f.ToStringOrChar();
+            var replaceText = s.IsFunction
+                ? s.InvokeFunction(Arguments.Empty).ToStringOrChar()
+                : s.ToStringOrChar();
+            int start = @this.IndexOf(substr);
             if (start == -1)
                 return a.This;
             int end = start + substr.Length;
+            if (@this.IsChar)
+            {
+                // this is the case when char matches replace text completely...
+                return new JSString(replaceText);
+            }
 
             // Replace only the first match.
             var result = new System.Text.StringBuilder(@this.Length + (replaceText.Length - substr.Length));
-            result.Append(@this, 0, start);
-            result.Append(replaceText);
-            result.Append(@this, end, @this.Length - end);
+            result.Append(@this.ToString(), 0, start);
+            result = replaceText.IsChar ? result.Append(replaceText[0]) : result.Append(replaceText);
+            result.Append(@this.ToString(), end, @this.Length - end);
             return new JSString(result.ToString());
 
 
@@ -411,13 +418,13 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("replaceAll")]
         internal static JSValue ReplaceAll(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var (f, s) = a.Get2();
             if (f is JSRegExp jSRegExp)
             {
-                return new JSString(jSRegExp.Replace(@this, s));
+                return new JSString(jSRegExp.Replace(@this.ToString(), s));
             }
-            return new JSString(@this.Replace(f.ToString(), s.ToString()));
+            return new JSString(@this.Replace(f.ToStringOrChar(), s.ToStringOrChar()));
         }
 
         [JSPrototypeMethod][JSExport("search", Length =1)]
@@ -456,7 +463,7 @@ namespace YantraJS.Core
             //var @this = a.This.AsString();
             //var (f, s) = a.Get2();
             //return new JSString(@this.Slice(f.IntValue ,s.IntValue));
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
 
             //0th argument, start
             var f = a.Get1(); 
@@ -491,7 +498,7 @@ namespace YantraJS.Core
         internal static JSValue Split(in Arguments a)
         {
 
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var (_separator, limit) = a.Get2();
             // Limit defaults to unlimited.  Note the ToUint32() conversion.
             var limitMax = uint.MaxValue;
