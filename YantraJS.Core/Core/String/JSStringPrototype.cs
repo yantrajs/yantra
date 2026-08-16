@@ -120,7 +120,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("charCodeAt", Length =1)]
         internal static JSValue CharCodeAt(in Arguments a)
         {
-            var text = a.This.AsString();
+            var text = a.This.AsStringOrChar();
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
             if (pos < 0 || pos >= text.Length)
@@ -133,7 +133,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("codePointAt", Length =1)]
         internal static JSValue CodePointAt(in Arguments a)
         {
-            var text = a.This.AsString();
+            var text = a.This.AsStringOrChar();
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
             if (pos < 0 || pos >= text.Length)
@@ -152,11 +152,11 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("concat", Length = 1)]
         internal static JSValue Concat(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             if (a.Length == 0)
                 return a.This;
             StringBuilder sb = new StringBuilder();
-            sb.Append(@this);
+            sb = @this.IsChar ?  sb.Append(@this[0]) : sb.Append(@this.ToString());
             for (int i = 0; i < a.Length; i++)
             {
                 sb.Append(a.GetAt(i));
@@ -166,8 +166,8 @@ namespace YantraJS.Core
 
         [JSPrototypeMethod][JSExport("contains", Length = 1)]
         internal static JSValue Contains(in Arguments a) {
-            var @this = a.This.AsString();
-            var arg = a.Get1().ToString();
+            var @this = a.This.AsStringOrChar();
+            var arg = a.Get1().ToStringOrChar();
             int position = a.GetIntAt(1,0);
             position = Math.Min(Math.Max(0, position), @this.Length);
             if(@this.IndexOf(arg, position) >= 0)
@@ -179,7 +179,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("endsWith", Length = 1)]
         internal static JSValue EndsWith(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var f = a.Get1();
             if (f is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");

@@ -153,6 +153,80 @@ public readonly struct StringOrChar: IEnumerable<char>
         return this;
     }
 
+    public int IndexOf(StringOrChar test)
+    {
+        if(@string != null)
+        {
+            if(test.@string != null)
+            {
+                return @string.IndexOf(test.@string);
+            }
+            return @string.IndexOf(test.char0);
+        }
+        if(test.Length == 1 && char0 == test[0])
+        {
+            return 0;
+        }
+        return -1;
+    }
+
+    public int IndexOf(StringOrChar test, int position)
+    {
+        if (@string != null)
+        {
+            if (test.@string != null)
+            {
+                return @string.IndexOf(test.@string, position);
+            }
+            return @string.IndexOf(test.char0, position);
+        }
+        if(position > 0)
+        {
+            return -1;
+        }
+        if (test.Length == 1 && char0 == test[0])
+        {
+            return 0;
+        }
+        return -1;
+    }
+
+
+    public bool EndsWith(StringOrChar test)
+    {
+        if (@string != null)
+        {
+            if (test.@string != null)
+            {
+                return @string.EndsWith(test.@string);
+            }
+            return @string.IndexOf(test.char0) == @string.Length-1;
+        }
+        if (test.Length == 1 && char0 == test[0])
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public bool StartsWith(StringOrChar test)
+    {
+        if (@string != null)
+        {
+            if (test.@string != null)
+            {
+                return @string.StartsWith(test.@string);
+            }
+            return @string[0] == test.char0;
+        }
+        if (test.Length == 1 && char0 == test[0])
+        {
+            return true;
+        }
+        return false;
+    }
+
+
     public bool Greater(StringOrChar right)
     {
         var rightString = right.@string;
