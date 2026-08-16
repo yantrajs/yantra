@@ -24,11 +24,11 @@ public readonly struct StringOrChar: IEnumerable<char>
 
     public static bool operator ==(in StringOrChar left, in StringOrChar right)
     {
-        return left.Equals(right);
+        return left.Equals(in right);
     }
     public static bool operator !=(in StringOrChar left, in StringOrChar right)
     {
-        return !left.Equals(right);
+        return !left.Equals(in right);
     }
 
     //public static implicit operator StringOrChar(string source)
@@ -73,6 +73,11 @@ public readonly struct StringOrChar: IEnumerable<char>
         }
     }
 
+    public bool Equals(string right)
+    {
+        return Equals(new StringOrChar(right));
+    }
+
     public bool Equals(in StringOrChar right)
     {
         if(this.Length != right.Length)
@@ -87,11 +92,11 @@ public readonly struct StringOrChar: IEnumerable<char>
             }
             return @string.Equals(char0);
         }
-        if (right.@string != null)
+        if (right.Length == 1)
         {
-            return right.@string.Equals(char0);
+            return char0 == right.@string[0];
         }
-        return char0 == right.char0;
+        return false;
     }
 
     public int CompareTo(in StringOrChar right)
