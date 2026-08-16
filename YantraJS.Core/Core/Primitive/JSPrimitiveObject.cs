@@ -25,6 +25,11 @@ namespace YantraJS.Core.Core.Primitive
             return value.ToString();
         }
 
+        public override StringOrChar ToStringOrChar()
+        {
+            return value.ToStringOrChar();
+        }
+
         public override double DoubleValue => value.DoubleValue;
 
         public override long BigIntValue => value.BigIntValue;
