@@ -234,7 +234,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             {
                 return string.Compare(@string, endPosition, test.@string, startPosition, length);
             }
-            return @string[endPosition] - char0;
+            return char0 - @string[endPosition];
         }
         if(test.IsEmpty())
         {
