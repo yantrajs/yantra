@@ -435,7 +435,7 @@ namespace YantraJS.Core
             //var reg = Regex.Match(@this, search.ToString());
             //var index = @this.IndexOf(reg.ToString().ToCharArray()[0]);
             //return new JSNumber(index);
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var search = a.Get1();
 
             //search string not defined
@@ -445,7 +445,7 @@ namespace YantraJS.Core
             // is Regex?
             if (search is JSRegExp jSRegExp) 
             {
-                var reg = jSRegExp.value.Match(@this);
+                var reg = jSRegExp.value.Match(@this.ToString());
                
                 if (!reg.Success)
                     return JSNumber.MinusOne;
@@ -453,7 +453,7 @@ namespace YantraJS.Core
             }
 
             //is String
-            var index = @this.IndexOf(search.ToString()); 
+            var index = @this.IndexOf(search.ToStringOrChar()); 
             return JSNumber.From(index);
         }
 
@@ -498,7 +498,7 @@ namespace YantraJS.Core
         internal static JSValue Split(in Arguments a)
         {
 
-            var @this = a.This.AsStringOrChar();
+            var @this = a.This.AsStringOrChar().ToString();
             var (_separator, limit) = a.Get2();
             // Limit defaults to unlimited.  Note the ToUint32() conversion.
             var limitMax = uint.MaxValue;
@@ -512,9 +512,9 @@ namespace YantraJS.Core
              
             }
 
-            var separator = _separator.ToString();
+            var separator = _separator.ToStringOrChar();
             var result = new Sequence<JSValue>();
-            if (string.IsNullOrEmpty(separator))
+            if (separator.IsEmpty())
 
             {
                 // If the separator is empty, split the string into individual characters.
@@ -527,7 +527,9 @@ namespace YantraJS.Core
 
             // .NET Split is buggy, it should not remove empty string entries
             // when StringSplitOptions is None
-            var splitStrings = @this.Split(new string[] { separator }, StringSplitOptions.None);
+            var splitStrings = separator.IsChar
+                    ?  @this.Split(new char[] { separator[0] }, StringSplitOptions.None)
+                    : @this.Split(new string[] { separator.ToString() }, StringSplitOptions.None);
             if (limitMax < splitStrings.Length)
             {
                 var splitStrings2 = new string[limitMax];
