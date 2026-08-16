@@ -14,7 +14,7 @@ internal class CharReader: TextReader
     public CharReader(IEnumerable<char> reader)
     {
         this.reader = reader.GetEnumerator();
-        this.done = this.reader.MoveNext();
+        this.done = !this.reader.MoveNext();
         this.peek = this.reader.Current;
     }
 
@@ -30,7 +30,7 @@ internal class CharReader: TextReader
             return -1;
         }
         var r = this.peek;
-        this.done = this.reader.MoveNext();
+        this.done = !this.reader.MoveNext();
         this.peek = this.done ? -1 : this.reader.Current;
         return r;
     }
