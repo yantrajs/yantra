@@ -19,12 +19,12 @@ namespace YantraJS.Core.InternalExtensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static string AsString(this JSValue v,
+        internal static StringOrChar AsString(this JSValue v,
             [CallerMemberName] string helper = null)
         {
             if (v.IsNullOrUndefined)
                 throw JSContext.Current.NewTypeError($"String.prototype.{helper} called on null or undefined");
-            return v.ToString();
+            return v.ToStringOrChar();
         }
     }
 
