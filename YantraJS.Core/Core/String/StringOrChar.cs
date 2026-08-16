@@ -226,6 +226,22 @@ public readonly struct StringOrChar: IEnumerable<char>
         return false;
     }
 
+    public int Compare(int endPosition, StringOrChar test, int startPosition, int length)
+    {
+        if (@string != null)
+        {
+            if(test.@string != null)
+            {
+                return string.Compare(@string, endPosition, test.@string, startPosition, length);
+            }
+            return @string[endPosition] - char0;
+        }
+        if(test.IsEmpty())
+        {
+            return -char0;
+        }
+        return char0 - test[0];
+    }
 
     public bool Greater(StringOrChar right)
     {

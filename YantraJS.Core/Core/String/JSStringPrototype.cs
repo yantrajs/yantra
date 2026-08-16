@@ -185,7 +185,7 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
             //int length = a.GetIntAt(1, int.MaxValue);
             var endPosition = a[1]?.IntegerValue ?? int.MaxValue;
-            var fs = f.ToString();
+            var fs = f.ToStringOrChar();
             if (endPosition == int.MaxValue)
                 return @this.EndsWith(fs) ? JSBoolean.True : JSBoolean.False;
             endPosition = Math.Min(Math.Max(0, endPosition), @this.Length);
@@ -194,7 +194,7 @@ namespace YantraJS.Core
                 return JSBoolean.False;
             //if (@this.Substring(length - f.Length, f.Length) == f.ToString())
             //    return JSBoolean.True;
-            if (string.Compare(@this, endPosition - fs.Length, fs, 0, fs.Length) == 0)
+            if (@this.Compare(endPosition - fs.Length, fs, 0, fs.Length) == 0)
                 return JSBoolean.True;
             return JSBoolean.False;
 
@@ -204,14 +204,14 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("startsWith", Length =1)]
         internal static JSValue StartsWith(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             //var (searchString,pos) = a.Get2();
             var searchStr = a[0] ?? JSUndefined.Value;
             var pos = a[1]?.IntegerValue ?? 0;
             if (searchStr is JSRegExp)
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
             //int position = pos.IntValue;
-            var search = searchStr.ToString();
+            var search = searchStr.ToStringOrChar();
             if (pos == 0)
                 return @this.StartsWith(search) ? JSBoolean.True : JSBoolean.False;
 
@@ -235,7 +235,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("includes", Length = 1)]
         internal static JSValue Includes(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var searchStr = a[0] ?? JSUndefined.Value;
             var pos = a[1]?.IntegerValue ?? 0;
             //var (searchStr, pos) = a.Get2();
@@ -243,19 +243,19 @@ namespace YantraJS.Core
                 throw JSContext.Current.NewTypeError("Substring argument must not be a regular expression.");
             // var startIndex = pos.IsUndefined ? 0 : pos.IntValue;
             pos = Math.Min(Math.Max(pos, 0), @this.Length);
-            return @this.IndexOf(searchStr.ToString(), pos) >= 0 ? JSBoolean.True : JSBoolean.False;
+            return @this.IndexOf(searchStr.ToStringOrChar(), pos) >= 0 ? JSBoolean.True : JSBoolean.False;
         }
 
         [JSPrototypeMethod][JSExport("indexOf", Length = 1)]
         internal static JSValue IndexOf(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             //var (searchStr, pos) = a.Get2();
             var searchStr = a[0] ?? JSUndefined.Value;
             var pos = a[1]?.IntegerValue ?? 0;
             //var startIndex = pos.IsUndefined ? 0 : pos.IntValue;
             pos = Math.Min(Math.Max(pos, 0), @this.Length);
-            var index = @this.IndexOf(searchStr.ToString(), pos);
+            var index = @this.IndexOf(searchStr.ToStringOrChar(), pos);
             return JSNumber.From(index);
         }
 
