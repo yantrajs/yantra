@@ -14,7 +14,7 @@ namespace YantraJS.Core;
 /// FastString reduces allocations by storing string or a single char. if string is null, it means it stores a single
 /// character. Empty will reference back to string.Empty instance.
 /// </summary>
-public readonly struct StringOrChar
+public readonly struct StringOrChar: IEnumerable<char>
 {
 
     public static readonly StringOrChar Empty = new StringOrChar(string.Empty);
@@ -22,11 +22,11 @@ public readonly struct StringOrChar
 
     public static bool operator ==(in StringOrChar left, in StringOrChar right)
     {
-        return left.Equals(in right, StringComparison.Ordinal);
+        return left.Equals(right);
     }
     public static bool operator !=(in StringOrChar left, in StringOrChar right)
     {
-        return !left.Equals(in right, StringComparison.Ordinal);
+        return !left.Equals(right);
     }
 
     //public static implicit operator StringOrChar(string source)
@@ -225,15 +225,6 @@ public readonly struct StringOrChar
         return new string(this.char0, 1);
     }
 
-    internal IEnumerable<char> GetEnumerable()
-    {
-        if(@string != null)
-        {
-            return @string;
-        }
-        return new CharEnumerable(this.char0);
-    }
-
     internal StringOrChar Add(StringOrChar value)
     {
         if(this.IsEmpty())
@@ -287,6 +278,17 @@ public readonly struct StringOrChar
             return (@string + value).AsStringOrChar();
         }
         return $"{char0}{value}".AsStringOrChar();
+    }
+
+    public IEnumerator<char> GetEnumerator()
+    {
+        if(@string != null) {  return @string.GetEnumerator(); }
+        return new CharEnumerator(char0);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 
     internal readonly struct CharEnumerable : IEnumerable<char>

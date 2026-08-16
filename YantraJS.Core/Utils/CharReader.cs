@@ -9,7 +9,7 @@ internal class CharReader: TextReader
 {
     private readonly IEnumerator<char> reader;
     private bool done;
-    private char peek;
+    private int peek;
 
     public CharReader(IEnumerable<char> reader)
     {
@@ -25,10 +25,24 @@ internal class CharReader: TextReader
 
     public override int Read()
     {
+        if (this.done)
+        {
+            return -1;
+        }
         var r = this.peek;
         this.done = this.reader.MoveNext();
-        this.peek = this.reader.Current;
+        this.peek = this.done ? -1 : this.reader.Current;
         return r;
+    }
+
+    public override string ReadToEnd()
+    {
+        var sb = new StringBuilder();
+        while (!this.done)
+        {
+            sb.Append((char)this.Read());
+        }
+        return sb.ToString();
     }
 
 }

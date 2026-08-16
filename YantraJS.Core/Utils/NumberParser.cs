@@ -104,7 +104,7 @@ namespace YantraJS.Utils
 
         internal static double CoerceToNumber(in StringOrChar span)
         {
-            return CoerceToNumber(span.GetEnumerable());
+            return CoerceToNumber(span);
         }
 
         /// <summary>

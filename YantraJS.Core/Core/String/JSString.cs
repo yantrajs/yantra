@@ -100,6 +100,11 @@ namespace YantraJS.Core
         {
             if (type == typeof(string))
             {
+                value = this.value.ToString();
+                return true;
+            }
+            if (type == typeof(StringOrChar))
+            {
                 value = this.value;
                 return true;
             }
@@ -394,7 +399,7 @@ namespace YantraJS.Core
 
         public override bool LessOrEqualLiteral(string right)
         {
-            return value.LessOrEqual(right);
+            return value.LessOrEqual(right.AsStringOrChar());
         }
 
         public override bool Greater(JSValue right)
@@ -480,22 +485,22 @@ namespace YantraJS.Core
 
         private struct ElementEnumerator : IElementEnumerator
         {
-            private StringSpan.CharEnumerator en;
+            private StringOrChar value;
             int index;
-            public ElementEnumerator(in StringSpan value)
+            public ElementEnumerator(StringOrChar value)
             {
-                this.en = value.GetEnumerator();
+                this.value = value;
                 index = -1;
             }
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
             {
-                if (en.MoveNext(out var ch))
+                if (this.value.Length > index)
                 {
                     index++;
                     i = (uint)index;
                     hasValue = true;
-                    value = new JSString(new string(ch, 1));
+                    value = new JSString(new StringOrChar(this.value[index]));
                     return true;
                 }
                 i = 0;
@@ -506,10 +511,10 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                if (en.MoveNext(out var ch))
+                if (this.value.Length > index)
                 {
                     index++;
-                    value = new JSString(new string(ch, 1));
+                    value = new JSString(new StringOrChar(this.value[index]));
                     return true;
                 }
                 value = JSUndefined.Value;
@@ -518,10 +523,10 @@ namespace YantraJS.Core
 
             public bool MoveNextOrDefault(out JSValue value, JSValue @default)
             {
-                if (en.MoveNext(out var ch))
+                if (this.value.Length > index)
                 {
                     index++;
-                    value = new JSString(new string(ch, 1));
+                    value = new JSString(new StringOrChar(this.value[index]));
                     return true;
                 }
                 value = @default;
@@ -530,10 +535,10 @@ namespace YantraJS.Core
 
             public JSValue NextOrDefault(JSValue @default)
             {
-                if (en.MoveNext(out var ch))
+                if (this.value.Length > index)
                 {
                     index++;
-                    return new JSString(new string(ch, 1));
+                    return new JSString(new StringOrChar(this.value[index]));
                 }
                 return @default;
             }
