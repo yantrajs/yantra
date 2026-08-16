@@ -140,6 +140,19 @@ public readonly struct StringOrChar: IEnumerable<char>
         return this;
     }
 
+    public StringOrChar Substring(int start, int length)
+    {
+        if (@string != null)
+        {
+            return new StringOrChar(@string.Substring(start, length));
+        }
+        if (start > 0)
+        {
+            return Empty;
+        }
+        return this;
+    }
+
     public bool Greater(StringOrChar right)
     {
         var rightString = right.@string;

@@ -33,7 +33,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("charAt", Length =1)]
         public static JSValue CharAt(in Arguments a)
         {
-            var text = a.This.AsString();
+            var text = a.This.AsStringOrChar();
             //int at = a.TryGetAt(0, out var n) ? (!n.IsNullOrUndefined ? n.IntValue : 0) : 0;
             //var at = a.TryGetAt(0, out var n) ? n.DoubleValue : 0;
             var pos = a[0]?.IntegerValue ?? 0;
@@ -43,13 +43,13 @@ namespace YantraJS.Core
             if (pos < 0 || pos >= text.Length)
                 return JSString.Empty;
           
-            return new JSString(new string(text[pos], 1));
+            return new JSString(text[pos]);
         }
 
         [JSPrototypeMethod][JSExport("substring", Length =2)]
         public static JSValue Substring(in Arguments a) 
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             //int start = a.GetIntAt(0, 0);  
             //int end = a.GetIntAt(1, int.MaxValue);   
             var start = a[0]?.IntegerValue ?? 0;

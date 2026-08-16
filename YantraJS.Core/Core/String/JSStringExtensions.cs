@@ -19,7 +19,7 @@ namespace YantraJS.Core.InternalExtensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static StringOrChar AsString(this JSValue v,
+        internal static StringOrChar AsStringOrChar(this JSValue v,
             [CallerMemberName] string helper = null)
         {
             if (v.IsNullOrUndefined)
