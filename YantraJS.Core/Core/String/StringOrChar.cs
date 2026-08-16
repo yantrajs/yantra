@@ -69,7 +69,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             {
                 return char0;
             }
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException($"{index}");
         }
     }
 
