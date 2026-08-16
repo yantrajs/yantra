@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -114,13 +116,40 @@ public readonly struct StringOrChar: IEnumerable<char>
         return CompareTo(right.AsStringOrChar());
     }
 
-    public StringOrChar Trim()
+    public StringOrChar Trim(char[] chars)
     {
         if (@string != null)
         {
-            return new StringOrChar(@string.Trim());
+            return new StringOrChar(@string.Trim(chars));
         }
-        if(char.IsWhiteSpace(char0))
+        if(chars.Contains(char0))
+        {
+            return Empty;
+        }
+        return this;
+    }
+
+
+    public StringOrChar TrimStart(char[] chars)
+    {
+        if (@string != null)
+        {
+            return new StringOrChar(@string.TrimStart(chars));
+        }
+        if (chars.Contains(char0))
+        {
+            return Empty;
+        }
+        return this;
+    }
+
+    public StringOrChar TrimEnd(char[] chars)
+    {
+        if (@string != null)
+        {
+            return new StringOrChar(@string.TrimEnd(chars));
+        }
+        if (chars.Contains(char0))
         {
             return Empty;
         }
@@ -246,6 +275,43 @@ public readonly struct StringOrChar: IEnumerable<char>
             return @string.PadRight(length, ch).AsStringOrChar();
         }
         return new StringOrChar($"{char0}{new string(ch, length)}");
+    }
+
+    public StringOrChar ToLowerInvariant()
+    {
+        if(@string != null)
+        {
+            return @string.ToLowerInvariant().AsStringOrChar();
+        }
+        return new StringOrChar(Char.ToLowerInvariant(char0));
+    }
+
+
+    public StringOrChar ToUpperInvariant()
+    {
+        if (@string != null)
+        {
+            return @string.ToUpperInvariant().AsStringOrChar();
+        }
+        return new StringOrChar(Char.ToUpperInvariant(char0));
+    }
+
+    public StringOrChar ToLower(CultureInfo culture)
+    {
+        if (@string != null)
+        {
+            return @string.ToLower(culture).AsStringOrChar();
+        }
+        return new StringOrChar(Char.ToLower(char0, culture));
+    }
+
+    public StringOrChar ToUpper(CultureInfo culture)
+    {
+        if (@string != null)
+        {
+            return @string.ToUpper(culture).AsStringOrChar();
+        }
+        return new StringOrChar(Char.ToUpper(char0, culture));
     }
 
     public StringOrChar PadLeft(int length, char ch)

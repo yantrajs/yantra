@@ -570,7 +570,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("toLocaleLowerCase")]
         internal static JSValue ToLocaleLowerCase(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var locale = a.Get1();
             try
             {
@@ -586,7 +586,7 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("toLocaleUpperCase")]
         internal static JSValue ToLocaleUpperCase(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             var locale = a.Get1();
             try
             {
@@ -602,14 +602,14 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("toLowerCase")]
         internal static JSValue ToLowerCase(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             return new JSString(@this.ToLowerInvariant());
         }
 
         [JSPrototypeMethod][JSExport("toUpperCase")]
         internal static JSValue ToUpperCase(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             return new JSString(@this.ToUpperInvariant());
         }
 
@@ -630,21 +630,21 @@ namespace YantraJS.Core
         [JSPrototypeMethod][JSExport("trim")]
         internal static JSValue Trim(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             return new JSString(@this.Trim(trimCharacters));
         }
 
         [JSPrototypeMethod][JSExport("trimEnd")]
         internal static JSValue TrimEnd(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             return new JSString(@this.TrimEnd(trimCharacters));
         }
 
         [JSPrototypeMethod][JSExport("trimStart")]
         internal static JSValue TrimStart(in Arguments a)
         {
-            var @this = a.This.AsString();
+            var @this = a.This.AsStringOrChar();
             return new JSString(@this.TrimStart(trimCharacters));
         }
 
