@@ -431,9 +431,9 @@ namespace YantraJS.Core
             if (value is JSPrimitiveObject po)
                 value = po.value;
             if (value is JSString @string)
-                return new JSString(this.value + @string.ToString());
+                return new JSString(StringOrChar.Concat(this.value , @string.ToStringOrChar()));
             if(value is JSObject @object)
-                return new JSString(this.value + @object.StringValue);
+                return new JSString(StringOrChar.Concat(this.value, @object.ToStringOrChar()));
             return JSNumber.From(this.value + value.DoubleValue);
         }
 

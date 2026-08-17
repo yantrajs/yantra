@@ -86,14 +86,14 @@ namespace YantraJS.Core
             }
 
             if (this.value.IsEmpty())
-                return new JSString(value.StringValue);
+                return new JSString(value.ToStringOrChar());
 
-            var v = value.StringValue;
+            var v = value.ToStringOrChar();
             if (v.Length == 0)
             {
                 return this;
             }
-            return new JSString(string.Concat(this.value, v));
+            return new JSString(this.value.Add(v));
         }
 
         public override bool ConvertTo(Type type, out object value)

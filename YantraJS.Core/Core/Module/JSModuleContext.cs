@@ -241,7 +241,7 @@ namespace YantraJS.Core
                 var name = a[0];
                 if (!name.IsString)
                     throw NewTypeError("import method's parameter must be a string");
-                var result = LoadModuleAsync(dirPath, name.StringValue);
+                var result = LoadModuleAsync(dirPath, name.ToStringOrChar().ToString());
                 return Clr.ClrProxy.Marshal(result);
             });
 
@@ -250,7 +250,7 @@ namespace YantraJS.Core
                 var name = a[0];
                 if (!name.IsString)
                     throw NewTypeError("require method's parameter must be a string");
-                var result = LoadModuleAsync(dirPath, name.StringValue);
+                var result = LoadModuleAsync(dirPath, name.ToStringOrChar().ToString());
                 return AsyncPump.Run(() => result);
             });
             newModule.Compile = new JSFunction((in Arguments a) =>
@@ -321,7 +321,7 @@ namespace YantraJS.Core
                     var name = a[0];
                     if (!name.IsString)
                         throw NewTypeError("import method's parameter must be a string");
-                    var result = LoadModuleAsync(dirPath, name.StringValue);
+                    var result = LoadModuleAsync(dirPath, name.ToStringOrChar().ToString());
                     return Clr.ClrProxy.Marshal(result);
                 });
 
@@ -330,7 +330,7 @@ namespace YantraJS.Core
                     var name = a[0];
                     if (!name.IsString)
                         throw NewTypeError("require method's parameter must be a string");
-                    var result = LoadModuleAsync(dirPath, name.StringValue);
+                    var result = LoadModuleAsync(dirPath, name.ToStringOrChar().ToString());
                     return AsyncPump.Run(() => result);
                 });
                 newModule.Compile = new JSFunction((in Arguments a) =>

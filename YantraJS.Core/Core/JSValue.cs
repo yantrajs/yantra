@@ -170,7 +170,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
 
     public abstract bool BooleanValue { get; }
 
-    internal virtual string StringValue => this.ToString();
+    // internal virtual string StringValue => this.ToString();
 
     public JSValue TypeOf()
     {
@@ -351,8 +351,8 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
             return JSNumber.From(self.DoubleValue + value.DoubleValue);
         }
         if (value.ToString().Length == 0)
-            return self.IsString ? self : new JSString(self.StringValue);
-        return new JSString(self.StringValue + value.StringValue);
+            return self.IsString ? self : new JSString(self.ToStringOrChar());
+        return new JSString(StringOrChar.Concat(self.ToStringOrChar(), value.ToStringOrChar()));
     }
     /// <summary>
     /// Speed improvements for string contact operations
@@ -366,9 +366,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         {
             return JSNumber.From(self.DoubleValue + value);
         }
-        //if (value.ToString().Length == 0)
-        //    return self.IsString ? self : new JSString(self.StringValue);
-        return new JSString(self.StringValue + value);
+        return new JSString(self.ToStringOrChar().Add(value));
     }
     /// <summary>
     /// Speed improvements for string contact operations
@@ -380,8 +378,8 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         var self = this.ValueOf();
 
         if (value.Length == 0)
-            return self.IsString ? self : new JSString(self.StringValue);
-        return new JSString(self.StringValue + value);
+            return self.IsString ? self : new JSString(self.ToStringOrChar());
+        return new JSString(StringOrChar.Concat(self.ToStringOrChar() , value));
     }
 
 

@@ -274,10 +274,10 @@ namespace YantraJS.Core
             }
             if (value is JSString @string)
             {
-                return new JSString(this.value.ToString() + "n" + @string.ToString());
+                return new JSString(StringOrChar.Concat(this.value, 'm' , @string.ToStringOrChar()));
             }
             if (value is JSObject @object)
-                return new JSString(this.value + @object.StringValue);
+                return new JSString(StringOrChar.Concat(this.value , @object.ToStringOrChar()));
             return new JSDecimal(this.value + value.BigIntValue);
         }
 

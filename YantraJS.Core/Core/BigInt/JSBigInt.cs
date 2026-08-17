@@ -273,10 +273,10 @@ namespace YantraJS.Core.BigInt
             }
             if (value is JSString @string)
             {
-                return new JSString(this.value.ToString() + "n" + @string.ToString());
+                return new JSString(StringOrChar.Concat(this.value, 'n' , @string.ToStringOrChar()));
             }
             if (value is JSObject @object)
-                return new JSString(this.value + @object.StringValue);
+                return new JSString(StringOrChar.Concat(this.value, @object.ToStringOrChar()));
             return new JSBigInt(this.value + value.BigIntValue);
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Numerics;
 using System.Text;
 
 namespace YantraJS.Core;
@@ -534,6 +535,78 @@ public readonly struct StringOrChar: IEnumerable<char>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    internal static StringOrChar Concat(BigInteger value, StringOrChar text)
+    {
+        if(text.IsEmpty())
+        {
+            return value.ToString().AsStringOrChar();
+        }
+        if(text.IsChar) {
+            return new StringOrChar($"{value}{text.char0}");
+        }
+        return new StringOrChar($"{value}{text.@string}");
+    }
+    internal static StringOrChar Concat<T>(T value, char p1, StringOrChar text)
+    {
+        if (text.IsChar)
+        {
+            return new StringOrChar($"{value}{p1}{text.char0}");
+        }
+        return new StringOrChar($"{value}{p1}{text.@string}");
+    }
+
+    internal static StringOrChar Concat(StringOrChar t1, StringOrChar t2)
+    {
+        if (t1.IsEmpty())
+        {
+            return t2;
+        }
+        if (t2.IsEmpty())
+        {
+            return t1;
+        }
+        if (t1.IsChar)
+        {
+            if (t2.IsChar)
+            {
+                return $"{t1.char0}{t2.char0}".AsStringOrChar();
+            }
+            return $"{t1.char0}{t2.@string}".AsStringOrChar();
+        }
+        if(t2.IsChar)
+        {
+            return $"{t1.@string}{t2.char0}".AsStringOrChar();
+        }
+        return $"{t1.@string}{t2.@string}".AsStringOrChar();
+    }
+
+    internal static StringOrChar Concat(StringOrChar t1, string t2)
+    {
+        if(t1.IsEmpty())
+        {
+            return t2.AsStringOrChar();
+        }
+        if(t2.IsEmpty())
+        {
+            return t1;
+        }
+        if (t1.IsChar)
+        {
+            return $"{t1.char0}{t2}".AsStringOrChar();
+        }
+        return $"{t1.@string}{t2}".AsStringOrChar();
+    }
+
+
+    internal static StringOrChar Concat<T>(T value, StringOrChar text)
+    {
+        if (text.IsChar)
+        {
+            return new StringOrChar($"{value}{text.char0}");
+        }
+        return new StringOrChar($"{value}{text.@string}");
     }
 
     internal readonly struct CharEnumerable : IEnumerable<char>
