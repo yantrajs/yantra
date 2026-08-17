@@ -43,6 +43,21 @@ namespace YantraJS.Core
         //     return JSConstants.Symbol;
         // }
 
+        public override JSValue AddValue(double value)
+        {
+            throw JSContext.Current.NewTypeError("Cannot add number to symbol");
+        }
+
+        public override JSValue AddValue(string value)
+        {
+            throw JSContext.Current.NewTypeError("Cannot add string to symbol");
+        }
+
+        public override JSValue AddValue(JSValue value)
+        {
+            throw JSContext.Current.NewTypeError("Cannot add value to symbol");
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is JSSymbol s)
