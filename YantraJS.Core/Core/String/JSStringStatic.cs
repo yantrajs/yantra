@@ -18,6 +18,10 @@ namespace YantraJS.Core
             if (a.Length == 0)
                 return new JSString(string.Empty);
             var al = a.Length;
+            if(al == 1)
+            {
+                return new JSString(new StringOrChar((char)a[0].IntValue));
+            }
             StringBuilder sb = new StringBuilder(al);
             for(var ai = 0; ai < al; ai++)
             {

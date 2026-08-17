@@ -258,7 +258,7 @@ namespace YantraJS.Core
             {
                 return JSUndefined.Value;
             }
-            return new JSString(new string(this.value[(int)key], 1));
+            return new JSString(new StringOrChar(this.value[(int)key]));
         }
 
         //public override JSValue this[uint key] { 

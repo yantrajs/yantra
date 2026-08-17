@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "JIntPerfTests": {
+      "commandName": "Project"
+    },
+    "JIntPerfBenchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "benchmark"
+    }
+  }
+}
