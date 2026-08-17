@@ -90,7 +90,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             {
                 return @string.Equals(right.@string);
             }
-            return @string.Equals(char0);
+            return @string[0] == right.char0;
         }
         if (right.Length == 1)
         {

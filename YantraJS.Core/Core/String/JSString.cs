@@ -487,15 +487,17 @@ namespace YantraJS.Core
         {
             private StringOrChar value;
             int index;
+            int last;
             public ElementEnumerator(StringOrChar value)
             {
                 this.value = value;
+                last = value.Length - 1;
                 index = -1;
             }
 
             public bool MoveNext(out bool hasValue, out JSValue value, out uint i)
             {
-                if (this.value.Length > index)
+                if (last > index)
                 {
                     index++;
                     i = (uint)index;
@@ -511,7 +513,7 @@ namespace YantraJS.Core
 
             public bool MoveNext(out JSValue value)
             {
-                if (this.value.Length > index)
+                if (last > index)
                 {
                     index++;
                     value = new JSString(new StringOrChar(this.value[index]));
@@ -523,7 +525,7 @@ namespace YantraJS.Core
 
             public bool MoveNextOrDefault(out JSValue value, JSValue @default)
             {
-                if (this.value.Length > index)
+                if (last > index)
                 {
                     index++;
                     value = new JSString(new StringOrChar(this.value[index]));
@@ -535,7 +537,7 @@ namespace YantraJS.Core
 
             public JSValue NextOrDefault(JSValue @default)
             {
-                if (this.value.Length > index)
+                if (last > index)
                 {
                     index++;
                     return new JSString(new StringOrChar(this.value[index]));
