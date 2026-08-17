@@ -86,13 +86,13 @@ namespace YantraJS.Core
 
         private static JSNumber[] numbers = new JSNumber[65536];
 
-        static JSNumber()
-        {
-            for(int i=0;i<=65535;i++)
-            {
-                numbers [i] = new JSNumber(i);
-            }
-        }
+        //static JSNumber()
+        //{
+        //    for(int i=0;i<=65535;i++)
+        //    {
+        //        numbers [i] = new JSNumber(i);
+        //    }
+        //}
 
         // [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static JSNumber From(double value)
@@ -240,16 +240,16 @@ namespace YantraJS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static JSNumber AsCachedInteger(int value)
         {
-            return numbers[value];
-            //var n = numbers[value];
-            //if (n == null)
-            //{
-            //    lock (numbers)
-            //    {
-            //        return numbers[value] ??= new JSNumber(value);
-            //    }
-            //}
-            //return n;
+            // return numbers[value];
+            var n = numbers[value];
+            if (n == null)
+            {
+                lock (numbers)
+                {
+                    return numbers[value] ??= new JSNumber(value);
+                }
+            }
+            return n;
         }
 
 

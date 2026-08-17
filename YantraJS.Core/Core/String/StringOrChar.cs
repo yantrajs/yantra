@@ -477,57 +477,17 @@ public readonly struct StringOrChar: IEnumerable<char>
 
     internal StringOrChar Add(StringOrChar value)
     {
-        if(this.IsEmpty())
-        {
-            return value;
-        }
-        if (value.IsEmpty())
-        {
-            return this;
-        }
-        if (@string != null)
-        {
-            if(value.@string != null)
-            {
-                return (@string + value.@string).AsStringOrChar();
-            }
-            return $"{@string}{value.char0}".AsStringOrChar();            
-        }
-        if(value.@string != null)
-        {
-            return $"{char0}{value.@string}".AsStringOrChar();
-        }
-        return $"{char0}{value.char0}".AsStringOrChar();
+        return Concat(this, value);
     }
 
     internal StringOrChar Add(double value)
     {
-        if(this.IsEmpty())
-        {
-            return value.ToString().AsStringOrChar();
-        }
-        if(@string != null)
-        {
-            return (@string + value).AsStringOrChar();
-        }
-        return $"{char0}{value}".AsStringOrChar();
+        return Concat(this, value.ToString());
     }
 
     internal StringOrChar Add(string value)
     {
-        if (this.IsEmpty())
-        {
-            return value.ToString().AsStringOrChar();
-        }
-        if(value.IsEmpty())
-        {
-            return this;
-        }
-        if (@string != null)
-        {
-            return (@string + value).AsStringOrChar();
-        }
-        return $"{char0}{value}".AsStringOrChar();
+        return Concat(this, value);
     }
 
     public IEnumerator<char> GetEnumerator()
@@ -548,17 +508,17 @@ public readonly struct StringOrChar: IEnumerable<char>
             return value.ToString().AsStringOrChar();
         }
         if(text.IsChar) {
-            return new StringOrChar($"{value}{text.char0}");
+            return new StringOrChar(value.ToString() + text.char0);
         }
-        return new StringOrChar($"{value}{text.@string}");
+        return new StringOrChar(value.ToString() + text.@string);
     }
     internal static StringOrChar Concat<T>(T value, char p1, StringOrChar text)
     {
         if (text.IsChar)
         {
-            return new StringOrChar($"{value}{p1}{text.char0}");
+            return new StringOrChar(value.ToString() + p1 + text.char0);
         }
-        return new StringOrChar($"{value}{p1}{text.@string}");
+        return new StringOrChar(value.ToString() + p1 + text.@string);
     }
 
     internal static StringOrChar Concat(StringOrChar t1, StringOrChar t2)
@@ -575,18 +535,18 @@ public readonly struct StringOrChar: IEnumerable<char>
         {
             if (t2.IsChar)
             {
-                return $"{t1.char0}{t2.char0}".AsStringOrChar();
+                return (t1.char0.ToString() + t2.char0).AsStringOrChar();
             }
-            return $"{t1.char0}{t2.@string}".AsStringOrChar();
+            return (t1.char0 + t2.@string).AsStringOrChar();
         }
         if(t2.IsChar)
         {
-            return $"{t1.@string}{t2.char0}".AsStringOrChar();
+            return (t1.@string + t2.char0).AsStringOrChar();
         }
-        return $"{t1.@string}{t2.@string}".AsStringOrChar();
+        return (t1.@string + t2.@string).AsStringOrChar();
     }
 
-    internal static StringOrChar Concat(StringOrChar t1, string t2)
+    internal unsafe static StringOrChar Concat(StringOrChar t1, string t2)
     {
         if(t1.IsEmpty())
         {
@@ -598,9 +558,9 @@ public readonly struct StringOrChar: IEnumerable<char>
         }
         if (t1.IsChar)
         {
-            return $"{t1.char0}{t2}".AsStringOrChar();
+            return (t1.char0 + t2).AsStringOrChar();
         }
-        return $"{t1.@string}{t2}".AsStringOrChar();
+        return (t1.@string+t2).AsStringOrChar();
     }
 
 
@@ -608,9 +568,9 @@ public readonly struct StringOrChar: IEnumerable<char>
     {
         if (text.IsChar)
         {
-            return new StringOrChar($"{value}{text.char0}");
+            return new StringOrChar(value + text.char0.ToString());
         }
-        return new StringOrChar($"{value}{text.@string}");
+        return new StringOrChar(value + text.@string);
     }
 
     internal readonly struct CharEnumerable : IEnumerable<char>
@@ -674,6 +634,10 @@ public static class StringOrCharExtensions
 {
     public static StringOrChar AsStringOrChar(this string value)
     {
+        if(value.Length == 1)
+        {
+            return new StringOrChar(value[0]);
+        }
         return new StringOrChar(value);
     }
 }
