@@ -255,7 +255,7 @@ public partial class JSJSON : JSObject
         if (input.IsChar)
         {
             result.Write('"');
-            char c = input[0];
+            char c = input.Char;
             WriteCharacter(c, result);
             result.Write('"');
             return;

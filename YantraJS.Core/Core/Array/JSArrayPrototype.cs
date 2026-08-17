@@ -443,7 +443,7 @@ namespace YantraJS.Core
         {
             var @this = a.This as JSObject;
             var first = a.Get1();
-            var sep = first.IsUndefined ? "," : first.ToString();
+            var sep = first.IsUndefined ? new StringOrChar(',') : first.ToStringOrChar();
             var sb = new StringBuilder();
             var length = (uint)@this.Length;
             for (uint i = 0; i < length; i++)
@@ -451,7 +451,14 @@ namespace YantraJS.Core
                 var item = @this[i];
                 if  (i != 0)
                 {
-                    sb.Append(sep);
+                    if (sep.IsChar)
+                    {
+                        sb.Append(sep.Char);
+                    }
+                    else
+                    {
+                        sb.Append(sep.ToString());
+                    }
                 }
                 if (item.IsNullOrUndefined)
                     continue;
