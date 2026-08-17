@@ -47,6 +47,8 @@ public readonly struct StringOrChar: IEnumerable<char>
 
     public char Char => char0;
 
+    public string String => @string;
+
     public int Length => @string?.Length ?? 1;
 
     public bool IsEmpty() => @string?.IsEmpty() ?? false;

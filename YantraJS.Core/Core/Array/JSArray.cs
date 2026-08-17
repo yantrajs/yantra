@@ -104,7 +104,10 @@ namespace YantraJS.Core
                     sb.Append(',');
                 var item = this[i];
                 if (item != null && !item.IsNullOrUndefined)
-                    sb.Append(item);
+                {
+                    var itemString = item.ToStringOrChar();
+                    sb = itemString.IsChar ? sb.Append(itemString.Char) : sb.Append(item);
+                }
             }
             return sb.ToString();
         }

@@ -156,10 +156,10 @@ namespace YantraJS.Core
             if (a.Length == 0)
                 return a.This;
             StringBuilder sb = new StringBuilder();
-            sb = @this.IsChar ?  sb.Append(@this[0]) : sb.Append(@this.ToString());
+            sb.AppendStringOrChar(@this);
             for (int i = 0; i < a.Length; i++)
             {
-                sb.Append(a.GetAt(i));
+                sb.AppendStringOrChar(a.GetAt(i));
             }
                 return new JSString( sb.ToString() );
         }

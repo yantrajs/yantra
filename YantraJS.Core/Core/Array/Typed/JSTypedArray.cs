@@ -208,7 +208,7 @@ namespace YantraJS.Core.Typed
                     sb.Append(',');
                 }
 
-                sb.Append(this[(uint)i].ToString());
+                sb.AppendStringOrChar(this[(uint)i]);
             }
             return sb.ToString();
         }

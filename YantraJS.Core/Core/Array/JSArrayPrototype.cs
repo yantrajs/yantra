@@ -462,7 +462,7 @@ namespace YantraJS.Core
                 }
                 if (item.IsNullOrUndefined)
                     continue;
-                sb.Append(item.ToString());
+                sb.AppendStringOrChar(item);
             }
             //var en = @this.GetElementEnumerator();
             //while(en.MoveNext(out var item))

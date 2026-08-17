@@ -276,7 +276,7 @@ namespace YantraJS.Core.Typed
                 }
                 if (item.IsUndefined)
                     continue;
-                sb.Append(item.ToString());
+                sb.AppendStringOrChar(item);
             }
             return new JSString(sb.ToString());
         }
