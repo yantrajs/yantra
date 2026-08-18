@@ -7,6 +7,7 @@ using System.Linq;
 using YantraJS.Core;
 using YantraJS.Core.FastParser;
 
+[MemoryDiagnoser(false)]
 public class Program
 {
 
@@ -22,7 +23,7 @@ public class Program
         //{ "dromaeo-object-array", null },
         // { "dromaeo-object-regexp", null },
         //{ "dromaeo-object-string", null },
-        { "dromaeo-string-base64", null },
+        { "dromaeo-string-base64-modern", null },
     };
 
     private static readonly string _dromaeoHelpers = @"
