@@ -47,6 +47,9 @@ public readonly struct StringOrChar: IEnumerable<char>
 
     public char Char => char0;
 
+    /** The reason this exists is, jit can inline this for fast compare*/
+    internal char FirstChar => @string?[0] ?? char0;
+
     public string String => @string;
 
     public int Length => @string?.Length ?? 1;
@@ -99,7 +102,7 @@ public readonly struct StringOrChar: IEnumerable<char>
         }
         if (right.Length == 1)
         {
-            return char0 == right.@string[0];
+            return char0 == right.FirstChar;
         }
         return false;
     }
@@ -202,7 +205,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             }
             return @string.IndexOf(test.char0);
         }
-        if(test.Length == 1 && char0 == test[0])
+        if(test.Length == 1 && char0 == test.FirstChar)
         {
             return 0;
         }
@@ -223,7 +226,7 @@ public readonly struct StringOrChar: IEnumerable<char>
         {
             return -1;
         }
-        if (test.Length == 1 && char0 == test[0])
+        if (test.Length == 1 && char0 == test.FirstChar)
         {
             return 0;
         }
@@ -244,7 +247,7 @@ public readonly struct StringOrChar: IEnumerable<char>
         {
             return -1;
         }
-        if (test.Length == 1 && char0 == test[0])
+        if (test.Length == 1 && char0 == test.FirstChar)
         {
             return 0;
         }
@@ -262,7 +265,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             }
             return @string.IndexOf(test.char0) == @string.Length-1;
         }
-        if (test.Length == 1 && char0 == test[0])
+        if (test.Length == 1 && char0 == test.FirstChar)
         {
             return true;
         }
@@ -284,7 +287,7 @@ public readonly struct StringOrChar: IEnumerable<char>
         {
             return @string.PadRight(length, ch).AsStringOrChar();
         }
-        return new StringOrChar($"{char0}{new string(ch, length)}");
+        return new StringOrChar(char0 + new string(ch, length));
     }
 
     public StringOrChar ToLowerInvariant()
@@ -330,7 +333,7 @@ public readonly struct StringOrChar: IEnumerable<char>
         {
             return @string.PadLeft(length, ch).AsStringOrChar();
         }
-        return new StringOrChar($"{new string(ch, length)}{char0}");
+        return new StringOrChar(new string(ch, length) + char0);
     }
 
     public StringOrChar Replace(StringOrChar test, StringOrChar replace)
@@ -349,7 +352,7 @@ public readonly struct StringOrChar: IEnumerable<char>
             return @string.Replace(test.ToString(), replace.ToString()).AsStringOrChar();
         }
         // the only case is...
-        if(test.Length == 1 && char0 == test[0])
+        if(test.Length == 1 && char0 == test.FirstChar)
         {
             return replace;
         }
@@ -366,11 +369,24 @@ public readonly struct StringOrChar: IEnumerable<char>
             }
             return @string[0] == test.char0;
         }
-        if (test.Length == 1 && char0 == test[0])
+        if (test.Length == 1 && char0 == test.FirstChar)
         {
             return true;
         }
         return false;
+    }
+
+    public int CompareOrdinal(StringOrChar test)
+    {
+        if (@string != null && test.@string != null) {
+            return string.CompareOrdinal(@string, test.@string);
+        }
+        var i = FirstChar - test.FirstChar;
+        if (i == 0)
+        {
+            return Length - test.Length;
+        }
+        return i;
     }
 
     public int Compare(int endPosition, StringOrChar test, int startPosition, int length)
@@ -381,89 +397,85 @@ public readonly struct StringOrChar: IEnumerable<char>
             {
                 return string.Compare(@string, endPosition, test.@string, startPosition, length);
             }
-            return char0 - @string[endPosition];
+            if(startPosition > 0)
+            {
+                return @string[endPosition];
+            }
+            return @string[endPosition] - test.char0;
         }
         if(test.IsEmpty())
         {
-            return -char0;
+            return char0;
         }
-        return char0 - test[0];
+        return char0 - test[startPosition];
     }
 
     public bool Greater(StringOrChar right)
     {
-        var rightString = right.@string;
-        var rightChar= right.char0;
-        if (@string !=null)
-        {
-            if(rightString != null)
-            {
-                return @string.Greater(rightString);
-            }
-            return @string[0] > rightChar;
+        if (@string != null && right.@string != null) {
+            return @string.Greater(right.@string);
         }
-        if(rightString != null)
+        var selfChar0 = this.FirstChar;
+        var rightChar0 = right.FirstChar;
+        // if both char are same...
+        var i = selfChar0 - rightChar0;
+        if(i == 0)
         {
-            return char0 > rightString[0];
+            return Length > right.Length;                
         }
-        return char0 > rightChar;
+        return i > 0;
     }
 
     public bool GreaterOrEqual(StringOrChar right)
     {
-        var rightString = right.@string;
-        var rightChar = right.char0;
-        if (@string != null)
+        if (@string != null && right.@string != null)
         {
-            if (rightString != null)
-            {
-                return @string.GreaterOrEqual(rightString);
-            }
-            return @string[0] >= rightChar;
+            return @string.GreaterOrEqual(right.@string);
         }
-        if (rightString != null)
+        var selfChar0 = this.FirstChar;
+        var rightChar0 = right.FirstChar;
+        // if both char are same...
+        var i = selfChar0 - rightChar0;
+        if (i == 0)
         {
-            return char0 >= rightString[0];
+            return Length >= right.Length;
         }
-        return char0 >= rightChar;
+        return i >= 0;
     }
 
     public bool Less(StringOrChar right)
     {
-        var rightString = right.@string;
-        var rightChar = right.char0;
-        if (@string != null)
+        if (@string != null && right.@string != null)
         {
-            if (rightString != null)
-            {
-                return @string.Less(rightString);
-            }
-            return @string[0] < rightChar;
+            return @string.Less(right.@string);
         }
-        if (rightString != null)
+        var selfChar0 = this.FirstChar;
+        var rightChar0 = right.FirstChar;
+        // if both char are same...
+        var i = selfChar0 - rightChar0;
+        if (i == 0)
         {
-            return char0 < rightString[0];
+            return Length < right.Length;
         }
-        return char0 < rightChar;
+        return i < 0;
     }
 
     public bool LessOrEqual(StringOrChar right)
     {
-        var rightString = right.@string;
-        var rightChar = right.char0;
-        if (@string != null)
+        if (@string != null && right.@string != null)
         {
-            if (rightString != null)
-            {
-                return @string.LessOrEqual(rightString);
-            }
-            return @string[0] <= rightChar;
+            return @string.LessOrEqual(right.@string);
         }
-        if (rightString != null)
+        var selfChar0 = this.FirstChar;
+        var rightChar0 = right.FirstChar;
+        // if both char are same...
+        var i = selfChar0 - rightChar0;
+        if (i == 0)
         {
-            return char0 <= rightString[0];
+            return Length <= right.Length;
         }
-        return char0 <= rightChar;
+        return i <= 0;
+
     }
 
     public override string ToString()

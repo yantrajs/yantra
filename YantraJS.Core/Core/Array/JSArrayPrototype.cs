@@ -883,9 +883,10 @@ namespace YantraJS.Core
                     }
                     if (right == JSUndefined.Value)
                         return -1;
-                    return string.CompareOrdinal(
-                        left.IsUndefined ? string.Empty : left.ToString(),
-                        right.IsUndefined ? string.Empty : right.ToString());
+                    return (left.IsUndefined
+                        ? StringOrChar.Empty
+                        : left.ToStringOrChar())
+                            .CompareOrdinal(right.IsUndefined ? StringOrChar.Empty : right.ToStringOrChar());
                 };
             }
 
