@@ -39,6 +39,24 @@ namespace YantraJS.Core.FastParser.Compiler
                         return ExpHelper.JSBooleanBuilder.False;
                     case TokenTypes.String:
                     case TokenTypes.TemplatePart:
+
+                        /*
+                         * 
+                         * we will plan this in future
+                         * as this needs to be optimized since
+                         * try reduce string will skip char and
+                         * will still create new JSString
+                         * 
+                         * 
+                         * **/
+
+                        //var sv = literal.StringValue;
+                        //if(sv.Length == 1)
+                        //{
+                        //    // create from char
+                        //    char ch0 = sv[0];
+                        //    return JSStringBuilder.NewFromChar(Exp.Constant(ch0));
+                        //}
                         return JSStringBuilder.New(Exp.Constant(literal.StringValue));
                     case TokenTypes.BigInt:
                         return ExpHelper.JSBigIntBuilder.New(literal.StringValue);
