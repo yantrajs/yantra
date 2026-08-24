@@ -18,24 +18,25 @@
 	  <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath> -->
   </PropertyGroup>
 
-	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-	</PropertyGroup>
-	<Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
-		<ItemGroup>
-			<Compile Include="Generated\**" />
-		</ItemGroup>
-	</Target>
-	<Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
-		<ItemGroup>
-			<Compile Remove="Generated\**" />
-		</ItemGroup>
-	</Target>
 
 	<!-- <ItemGroup>
 		<Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
 	</ItemGroup> -->
+
+	<!-- Run code generation right before the CoreCompile step -->
+	<Target Name="RunRoslynParser" BeforeTargets="CoreCompile">
+		<PropertyGroup>
+			<!-- Define the relative or absolute path to your parser executable -->
+			<ParserExePath>$(SolutionDir)YantraJS.JSClassGenerator\bin\Debug\net8.0\YantraJS.JSClassGenerator.exe</ParserExePath>
+		</PropertyGroup>
+
+		<Message Importance="high" Text="[Pre-Build] Executing Roslyn Parser Engine..." />
+
+		<!-- Execute the console app. Pass project directory as an argument if needed -->
+		<Exec Command="&quot;$(ParserExePath)&quot; &quot;$(ProjectDir).&quot; &quot;$(ProjectDir)Generated&quot;" 
+			  ContinueOnError="WarnAndContinue"/>
+	</Target>
+
 
 	<ItemGroup>
 		<ProjectReference Include="..\YantraJS.Core\YantraJS.Core.csproj" />
@@ -45,8 +46,4 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-
-	</ItemGroup>
 </Project>
