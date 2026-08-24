@@ -33,7 +33,7 @@
 		<Message Importance="high" Text="[Pre-Build] Executing Roslyn Parser Engine..." />
 
 		<!-- Execute the console app. Pass project directory as an argument if needed -->
-		<Exec Command="&quot;$(ParserExePath)&quot; &quot;$(ProjectDir).&quot; &quot;$(ProjectDir)Generated&quot;" 
+		<Exec Command="&quot;$(ParserExePath)&quot; &quot;YantraJS.Network&quot; &quot;$(ProjectDir).&quot; &quot;$(ProjectDir)Generated&quot;" 
 			  ContinueOnError="WarnAndContinue"/>
 	</Target>
 

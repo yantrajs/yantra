@@ -14,16 +14,16 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function SuppressedError() { [native code] }"
                             );
                         if (register) {
-                            context["SuppressedError".ToKeyString()] = @class;
+                            context[KeyString.SuppressedError] = @class;
                         }
                         prototype = @class.prototype;
                         
- var @base = context["Error".ToKeyString()] as JSFunction;
+ var @base = context[KeyString.Error] as JSFunction;
 @class.SetPrototypeOf(@base);
 prototype.SetPrototypeOf(@base.prototype);
 // Exporting Error as error
 prototype.FastAddProperty(
-                "error".ToKeyString(),
+                KeyString.error,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSSuppressedError @this
                         ? @this.Error
@@ -40,7 +40,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Suppressed as suppressed
 prototype.FastAddProperty(
-                "suppressed".ToKeyString(),
+                KeyString.suppressed,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSSuppressedError @this
                         ? @this.Suppressed
@@ -55,6 +55,7 @@ prototype.FastAddProperty(
                 },
                 "set suppressed"),
                 JSPropertyAttributes.ConfigurableProperty);
+context.SuppressedError_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

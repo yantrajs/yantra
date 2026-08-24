@@ -13,13 +13,13 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Map() { [native code] }"
                             );
                         if (register) {
-                            context["Map".ToKeyString()] = @class;
+                            context[KeyString.Map] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Size as size
 prototype.FastAddProperty(
-                "size".ToKeyString(),
+                KeyString.size,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSMap @this
                         ? ClrProxy.Marshal(@this.Size)
@@ -28,7 +28,7 @@ prototype.FastAddProperty(
                 null,
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Set as set
-prototype.FastAddValue("set".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.set, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSMap");
 			var pkey = a[0];
@@ -41,21 +41,21 @@ prototype.FastAddValue("set".ToKeyString(), new JSFunction(context, (in Argument
                 ,"function set() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Set as clear
-prototype.FastAddValue("clear".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.clear, new JSFunction(context, (in Arguments a) =>
                     a.This is JSMap @this
                         ? @this.Set(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSMap")
                         , "clear"
                         ,"function clear() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Delete as delete
-prototype.FastAddValue("delete".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.delete, new JSFunction(context, (in Arguments a) =>
                     a.This is JSMap @this
                         ? @this.Delete(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSMap")
                         , "delete"
                         ,"function delete() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting GetEntries as entries
-prototype.FastAddValue("entries".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.entries, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSMap");
 			var @return = @this.GetEntries();
@@ -66,21 +66,21 @@ prototype.FastAddValue("entries".ToKeyString(), new JSFunction(context, (in Argu
                 ,"function entries() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting ForEach as forEach
-prototype.FastAddValue("forEach".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.forEach, new JSFunction(context, (in Arguments a) =>
                     a.This is JSMap @this
                         ? @this.ForEach(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSMap")
                         , "forEach"
                         ,"function forEach() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Has as has
-prototype.FastAddValue("has".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.has, new JSFunction(context, (in Arguments a) =>
                     a.This is JSMap @this
                         ? @this.Has(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSMap")
                         , "has"
                         ,"function has() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Get as get
-prototype.FastAddValue("get".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.get, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSMap");
 			var pkey = a[0];
@@ -92,7 +92,7 @@ prototype.FastAddValue("get".ToKeyString(), new JSFunction(context, (in Argument
                 ,"function get() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Keys as keys
-prototype.FastAddValue("keys".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.keys, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSMap");
 			var @return = @this.Keys();
@@ -103,7 +103,7 @@ prototype.FastAddValue("keys".ToKeyString(), new JSFunction(context, (in Argumen
                 ,"function keys() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Values as values
-prototype.FastAddValue("values".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.values, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSMap");
 			var @return = @this.Values();
@@ -113,6 +113,7 @@ prototype.FastAddValue("values".ToKeyString(), new JSFunction(context, (in Argum
                 "Values"
                 ,"function values() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
+context.Map_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

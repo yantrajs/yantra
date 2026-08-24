@@ -14,22 +14,23 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function Uint32Array() { [native code] }"
                             , length:3);
                         if (register) {
-                            context["Uint32Array".ToKeyString()] = @class;
+                            context[KeyString.Uint32Array] = @class;
                         }
                         prototype = @class.prototype;
                         
- var @base = context["TypedArray".ToKeyString()] as JSFunction;
+ var @base = context[KeyString.TypedArray] as JSFunction;
 @class.SetPrototypeOf(@base);
 prototype.SetPrototypeOf(@base.prototype);
 // Exporting BYTES_PER_ELENENT as BYTES_PER_ELEMENT
 @class.FastAddValue(
-                "BYTES_PER_ELEMENT".ToKeyString(),
+                KeyString.BYTES_PER_ELEMENT,
                 ClrProxy.Marshal(JSUInt32Array.BYTES_PER_ELENENT),
                 JSPropertyAttributes.ReadonlyValue);
 // Exporting From as from
-@class.FastAddValue("from".ToKeyString(), new JSFunction(context, JSUInt32Array.From, "from" ,"function from() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+@class.FastAddValue(KeyString.from, new JSFunction(context, JSUInt32Array.From, "from" ,"function from() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting Of as of
-@class.FastAddValue("of".ToKeyString(), new JSFunction(context, JSUInt32Array.Of, "of" ,"function of() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+@class.FastAddValue(KeyString.of, new JSFunction(context, JSUInt32Array.Of, "of" ,"function of() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+context.Uint32Array_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

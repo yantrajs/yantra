@@ -13,20 +13,21 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Function() { [native code] }"
                             );
                         if (register) {
-                            context["Function".ToKeyString()] = @class;
+                            context[KeyString.Function] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting ValueOf as valueOf
-prototype.FastAddValue("valueOf".ToKeyString(), new JSFunction(context, JSFunction.ValueOf, "valueOf" ,"function valueOf() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.valueOf, new JSFunction(context, JSFunction.ValueOf, "valueOf" ,"function valueOf() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting Call as call
-prototype.FastAddValue("call".ToKeyString(), new JSFunction(context, JSFunction.Call, "call" ,"function call() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.call, new JSFunction(context, JSFunction.Call, "call" ,"function call() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting Apply as apply
-prototype.FastAddValue("apply".ToKeyString(), new JSFunction(context, JSFunction.Apply, "apply" ,"function apply() { [native] }", createPrototype: false, length: 2), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.apply, new JSFunction(context, JSFunction.Apply, "apply" ,"function apply() { [native] }", createPrototype: false, length: 2), JSPropertyAttributes.ConfigurableValue);
 // Exporting Bind as bind
-prototype.FastAddValue("bind".ToKeyString(), new JSFunction(context, JSFunction.Bind, "bind" ,"function bind() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.bind, new JSFunction(context, JSFunction.Bind, "bind" ,"function bind() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting ToString as toString
-prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, JSFunction.ToString, "toString" ,"function toString() { [native] }", createPrototype: false, length: 0), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.toString, new JSFunction(context, JSFunction.ToString, "toString" ,"function toString() { [native] }", createPrototype: false, length: 0), JSPropertyAttributes.ConfigurableValue);
+context.Function_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

@@ -13,13 +13,13 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function Symbol() { [native code] }"
                             );
                         if (register) {
-                            context["Symbol".ToKeyString()] = @class;
+                            context[KeyString.Symbol] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting asyncDispose as asyncDispose
 @class.FastAddProperty(
-                "asyncDispose".ToKeyString(),
+                KeyString.asyncDispose,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.asyncDispose),
                 "get asyncDispose"),
@@ -31,7 +31,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting dispose as dispose
 @class.FastAddProperty(
-                "dispose".ToKeyString(),
+                KeyString.dispose,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.dispose),
                 "get dispose"),
@@ -43,7 +43,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting asyncIterator as asyncIterator
 @class.FastAddProperty(
-                "asyncIterator".ToKeyString(),
+                KeyString.asyncIterator,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.asyncIterator),
                 "get asyncIterator"),
@@ -55,7 +55,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting hasInstance as hasInstance
 @class.FastAddProperty(
-                "hasInstance".ToKeyString(),
+                KeyString.hasInstance,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.hasInstance),
                 "get hasInstance"),
@@ -67,7 +67,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting isConcatSpreadable as isConcatSpreadable
 @class.FastAddProperty(
-                "isConcatSpreadable".ToKeyString(),
+                KeyString.isConcatSpreadable,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.isConcatSpreadable),
                 "get isConcatSpreadable"),
@@ -79,7 +79,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting iterator as iterator
 @class.FastAddProperty(
-                "iterator".ToKeyString(),
+                KeyString.iterator,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.iterator),
                 "get iterator"),
@@ -91,7 +91,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting match as match
 @class.FastAddProperty(
-                "match".ToKeyString(),
+                KeyString.match,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.match),
                 "get match"),
@@ -103,7 +103,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting replace as replace
 @class.FastAddProperty(
-                "replace".ToKeyString(),
+                KeyString.replace,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.replace),
                 "get replace"),
@@ -115,7 +115,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting search as search
 @class.FastAddProperty(
-                "search".ToKeyString(),
+                KeyString.search,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.search),
                 "get search"),
@@ -127,7 +127,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting species as species
 @class.FastAddProperty(
-                "species".ToKeyString(),
+                KeyString.species,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.species),
                 "get species"),
@@ -139,7 +139,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting split as split
 @class.FastAddProperty(
-                "split".ToKeyString(),
+                KeyString.split,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.split),
                 "get split"),
@@ -151,7 +151,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting toPrimitive as toPrimitive
 @class.FastAddProperty(
-                "toPrimitive".ToKeyString(),
+                KeyString.toPrimitive,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.toPrimitive),
                 "get toPrimitive"),
@@ -163,7 +163,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting toStringTag as toStringTag
 @class.FastAddProperty(
-                "toStringTag".ToKeyString(),
+                KeyString.toStringTag,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.toStringTag),
                 "get toStringTag"),
@@ -175,7 +175,7 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting unscopables as unscopables
 @class.FastAddProperty(
-                "unscopables".ToKeyString(),
+                KeyString.unscopables,
                 new JSFunction(context, (in Arguments a) =>
                     ClrProxy.Marshal(JSSymbol.unscopables),
                 "get unscopables"),
@@ -186,7 +186,8 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                 "set unscopables"),
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting For as for
-@class.FastAddValue("for".ToKeyString(), new JSFunction(context, JSSymbol.For, "for" ,"function for() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+@class.FastAddValue(KeyString.@for, new JSFunction(context, JSSymbol.For, "for" ,"function for() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+context.Symbol_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

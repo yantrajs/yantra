@@ -13,10 +13,11 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Proxy() { [native code] }"
                             );
                         if (register) {
-                            context["Proxy".ToKeyString()] = @class;
+                            context[KeyString.Proxy] = @class;
                         }
                         prototype = @class.prototype;
                         
+context.Proxy_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

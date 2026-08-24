@@ -13,17 +13,18 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Error() { [native code] }"
                             );
                         if (register) {
-                            context["Error".ToKeyString()] = @class;
+                            context[KeyString.Error] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting ToString as toString
-prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.toString, new JSFunction(context, (in Arguments a) =>
                     a.This is JSError @this
                         ? @this.ToString(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSError")
                         , "toString"
                         ,"function toString() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+context.Error_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

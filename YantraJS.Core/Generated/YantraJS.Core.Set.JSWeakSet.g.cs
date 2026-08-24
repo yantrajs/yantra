@@ -14,12 +14,12 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function WeakSet() { [native code] }"
                             );
                         if (register) {
-                            context["WeakSet".ToKeyString()] = @class;
+                            context[KeyString.WeakSet] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Add as add
-prototype.FastAddValue("add".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.add, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSWeakSet @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakSet");
 			var pa = a[0] is JSObject obja ? obja : throw new JSException("a is not an object");
@@ -31,12 +31,13 @@ prototype.FastAddValue("add".ToKeyString(), new JSFunction(context, (in Argument
                 ,"function add() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Delete as delete
-prototype.FastAddValue("delete".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.delete, new JSFunction(context, (in Arguments a) =>
                     a.This is JSWeakSet @this
                         ? @this.Delete(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakSet")
                         , "delete"
                         ,"function delete() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+context.WeakSet_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

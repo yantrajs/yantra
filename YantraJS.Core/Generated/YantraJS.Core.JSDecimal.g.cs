@@ -13,12 +13,12 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function Decimal() { [native code] }"
                             );
                         if (register) {
-                            context["Decimal".ToKeyString()] = @class;
+                            context[KeyString.Decimal] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting JSToString as toString
-prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.toString, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSDecimal @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSDecimal");
 			var @return = @this.JSToString();
@@ -29,21 +29,21 @@ prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, (in Arg
                 ,"function toString() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting JSToFixed as toFixed
-prototype.FastAddValue("toFixed".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.toFixed, new JSFunction(context, (in Arguments a) =>
                     a.This is JSDecimal @this
                         ? @this.JSToFixed(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSDecimal")
                         , "toFixed"
                         ,"function toFixed() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting ToLocaleString as toLocaleString
-prototype.FastAddValue("toLocaleString".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.toLocaleString, new JSFunction(context, (in Arguments a) =>
                     a.This is JSDecimal @this
                         ? @this.ToLocaleString(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSDecimal")
                         , "toLocaleString"
                         ,"function toLocaleString() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting ValueOf as valueOf
-prototype.FastAddValue("valueOf".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.valueOf, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSDecimal @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSDecimal");
 			var @return = @this.ValueOf();
@@ -53,6 +53,7 @@ prototype.FastAddValue("valueOf".ToKeyString(), new JSFunction(context, (in Argu
                 "ValueOf"
                 ,"function valueOf() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
+context.Decimal_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

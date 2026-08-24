@@ -9,13 +9,13 @@ public static JSObject CreateClass(JSContext context, bool register = true) {
 
                     var @class = new JSObject();
                     if (register) {
-                        context["JSON".ToKeyString()] = @class;
+                        context[KeyString.JSON] = @class;
                     }
                 
 // Exporting Parse as parse
-@class.FastAddValue("parse".ToKeyString(), new JSFunction(context, JSJSON.Parse, "parse" ,"function parse() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+@class.FastAddValue(KeyString.parse, new JSFunction(context, JSJSON.Parse, "parse" ,"function parse() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Stringify as stringify
-@class.FastAddValue("stringify".ToKeyString(), new JSFunction(context, JSJSON.Stringify, "stringify" ,"function stringify() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+@class.FastAddValue(KeyString.stringify, new JSFunction(context, JSJSON.Stringify, "stringify" ,"function stringify() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 return @class;
 }
 }

@@ -16,10 +16,12 @@ internal class SourceGeneratorContext
 {
     private CSharpCompilation compilation;
     private List<SyntaxTree> syntaxTrees;
+    private string assemblyName;
 
-    public SourceGeneratorContext()
+    public SourceGeneratorContext(string name)
     {
-        var compilation = CSharpCompilation.Create("AnalysisAssembly")
+        this.assemblyName = name;
+        var compilation = CSharpCompilation.Create(assemblyName)
         .AddReferences(
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
             MetadataReference.CreateFromFile(Path.Combine(RuntimeEnvironment.GetRuntimeDirectory(), "netstandard.dll")),

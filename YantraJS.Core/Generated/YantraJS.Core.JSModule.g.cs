@@ -13,13 +13,13 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Module() { [native code] }"
                             );
                         if (register) {
-                            context["Module".ToKeyString()] = @class;
+                            context[KeyString.Module] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Code as code
 prototype.FastAddProperty(
-                "code".ToKeyString(),
+                KeyString.code,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? ClrProxy.Marshal(@this.Code)
@@ -36,7 +36,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Id as id
 prototype.FastAddProperty(
-                "id".ToKeyString(),
+                KeyString.id,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? @this.Id
@@ -46,7 +46,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Exports as exports
 prototype.FastAddProperty(
-                "exports".ToKeyString(),
+                KeyString.exports,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? @this.Exports
@@ -63,7 +63,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Require as require
 prototype.FastAddProperty(
-                "require".ToKeyString(),
+                KeyString.require,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? @this.Require
@@ -80,7 +80,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Import as import
 prototype.FastAddProperty(
-                "import".ToKeyString(),
+                KeyString.import,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? @this.Import
@@ -97,7 +97,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Compile as compile
 prototype.FastAddProperty(
-                "compile".ToKeyString(),
+                KeyString.compile,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSModule @this
                         ? @this.Compile
@@ -112,6 +112,7 @@ prototype.FastAddProperty(
                 },
                 "set compile"),
                 JSPropertyAttributes.ConfigurableProperty);
+context.Module_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

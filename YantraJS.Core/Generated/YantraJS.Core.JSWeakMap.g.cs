@@ -13,12 +13,12 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function WeakMap() { [native code] }"
                             );
                         if (register) {
-                            context["WeakMap".ToKeyString()] = @class;
+                            context[KeyString.WeakMap] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Set as set
-prototype.FastAddValue("set".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.set, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSWeakMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakMap");
 			var pkey = a[0] is JSObject objkey ? objkey : throw new JSException("key is not an object");
@@ -31,21 +31,21 @@ prototype.FastAddValue("set".ToKeyString(), new JSFunction(context, (in Argument
                 ,"function set() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Delete as delete
-prototype.FastAddValue("delete".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.delete, new JSFunction(context, (in Arguments a) =>
                     a.This is JSWeakMap @this
                         ? @this.Delete(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakMap")
                         , "delete"
                         ,"function delete() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Has as has
-prototype.FastAddValue("has".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.has, new JSFunction(context, (in Arguments a) =>
                     a.This is JSWeakMap @this
                         ? @this.Has(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakMap")
                         , "has"
                         ,"function has() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Get as get
-prototype.FastAddValue("get".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.get, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSWeakMap @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakMap");
 			var pkey = a[0] is JSObject objkey ? objkey : throw new JSException("key is not an object");
@@ -56,6 +56,7 @@ prototype.FastAddValue("get".ToKeyString(), new JSFunction(context, (in Argument
                 "Get"
                 ,"function get() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
+context.WeakMap_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

@@ -13,13 +13,13 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function RegExp() { [native code] }"
                             );
                         if (register) {
-                            context["RegExp".ToKeyString()] = @class;
+                            context[KeyString.RegExp] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting pattern as source
 prototype.FastAddProperty(
-                "source".ToKeyString(),
+                KeyString.source,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.pattern)
@@ -29,7 +29,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting flags as flags
 prototype.FastAddProperty(
-                "flags".ToKeyString(),
+                KeyString.flags,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.flags)
@@ -39,7 +39,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting globalSearch as global
 prototype.FastAddProperty(
-                "global".ToKeyString(),
+                KeyString.global,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.globalSearch)
@@ -49,7 +49,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting multiline as multiline
 prototype.FastAddProperty(
-                "multiline".ToKeyString(),
+                KeyString.multiline,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.multiline)
@@ -59,7 +59,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting ignoreCase as ignoreCase
 prototype.FastAddProperty(
-                "ignoreCase".ToKeyString(),
+                KeyString.ignoreCase,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.ignoreCase)
@@ -69,7 +69,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting lastIndex as lastIndex
 prototype.FastAddProperty(
-                "lastIndex".ToKeyString(),
+                KeyString.lastIndex,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.lastIndex)
@@ -86,7 +86,7 @@ prototype.FastAddProperty(
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting LastIndex as lastIndex
 prototype.FastAddProperty(
-                "lastIndex".ToKeyString(),
+                KeyString.lastIndex,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? ClrProxy.Marshal(@this.LastIndex)
@@ -102,23 +102,24 @@ prototype.FastAddProperty(
                 "set lastIndex"),
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Test as test
-prototype.FastAddValue("test".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.test, new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? @this.Test(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSRegExp")
                         , "test"
                         ,"function test() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Exec as exec
-prototype.FastAddValue("exec".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.exec, new JSFunction(context, (in Arguments a) =>
                     a.This is JSRegExp @this
                         ? @this.Exec(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSRegExp")
                         , "exec"
                         ,"function exec() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting ToString as toString
-prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, JSRegExp.ToString, "toString" ,"function toString() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.toString, new JSFunction(context, JSRegExp.ToString, "toString" ,"function toString() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting ToLocaleString as toLocaleString
-prototype.FastAddValue("toLocaleString".ToKeyString(), new JSFunction(context, JSRegExp.ToLocaleString, "toLocaleString" ,"function toLocaleString() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+prototype.FastAddValue(KeyString.toLocaleString, new JSFunction(context, JSRegExp.ToLocaleString, "toLocaleString" ,"function toLocaleString() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+context.RegExp_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

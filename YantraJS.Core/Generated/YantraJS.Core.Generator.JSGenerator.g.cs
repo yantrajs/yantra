@@ -14,38 +14,39 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Generator() { [native code] }"
                             );
                         if (register) {
-                            context["Generator".ToKeyString()] = @class;
+                            context[KeyString.Generator] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting ToString as toString
-prototype.FastAddValue("toString".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.toString, new JSFunction(context, (in Arguments a) =>
                     a.This is JSGenerator @this
                         ? @this.ToString(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSGenerator")
                         , "toString"
                         ,"function toString() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Next as next
-prototype.FastAddValue("next".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.next, new JSFunction(context, (in Arguments a) =>
                     a.This is JSGenerator @this
                         ? @this.Next(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSGenerator")
                         , "next"
                         ,"function next() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting Return as return
-prototype.FastAddValue("return".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.@return, new JSFunction(context, (in Arguments a) =>
                     a.This is JSGenerator @this
                         ? @this.Return(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSGenerator")
                         , "return"
                         ,"function return() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
 // Exporting Throw as throw
-prototype.FastAddValue("throw".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.@throw, new JSFunction(context, (in Arguments a) =>
                     a.This is JSGenerator @this
                         ? @this.Throw(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSGenerator")
                         , "throw"
                         ,"function throw() { [native] }", createPrototype: false, length: 1), JSPropertyAttributes.ConfigurableValue);
+context.Generator_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

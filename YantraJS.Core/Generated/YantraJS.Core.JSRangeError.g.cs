@@ -13,13 +13,14 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function RangeError() { [native code] }"
                             );
                         if (register) {
-                            context["RangeError".ToKeyString()] = @class;
+                            context[KeyString.RangeError] = @class;
                         }
                         prototype = @class.prototype;
                         
- var @base = context["Error".ToKeyString()] as JSFunction;
+ var @base = context[KeyString.Error] as JSFunction;
 @class.SetPrototypeOf(@base);
 prototype.SetPrototypeOf(@base.prototype);
+context.RangeError_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

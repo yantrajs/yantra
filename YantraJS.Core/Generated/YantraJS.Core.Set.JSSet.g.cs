@@ -14,13 +14,13 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function Set() { [native code] }"
                             );
                         if (register) {
-                            context["Set".ToKeyString()] = @class;
+                            context[KeyString.Set] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Size as size
 prototype.FastAddProperty(
-                "size".ToKeyString(),
+                KeyString.size,
                 new JSFunction(context, (in Arguments a) =>
                     a.This is JSSet @this
                         ? ClrProxy.Marshal(@this.Size)
@@ -29,7 +29,7 @@ prototype.FastAddProperty(
                 null,
                 JSPropertyAttributes.ConfigurableProperty);
 // Exporting Add as add
-prototype.FastAddValue("add".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.add, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSSet @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSSet");
 			var pkey = a[0];
@@ -41,21 +41,21 @@ prototype.FastAddValue("add".ToKeyString(), new JSFunction(context, (in Argument
                 ,"function add() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Set as clear
-prototype.FastAddValue("clear".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.clear, new JSFunction(context, (in Arguments a) =>
                     a.This is JSSet @this
                         ? @this.Set(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSSet")
                         , "clear"
                         ,"function clear() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Delete as delete
-prototype.FastAddValue("delete".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.delete, new JSFunction(context, (in Arguments a) =>
                     a.This is JSSet @this
                         ? @this.Delete(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSSet")
                         , "delete"
                         ,"function delete() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting GetEntries as entries
-prototype.FastAddValue("entries".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.entries, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSSet @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSSet");
 			var @return = @this.GetEntries();
@@ -66,21 +66,21 @@ prototype.FastAddValue("entries".ToKeyString(), new JSFunction(context, (in Argu
                 ,"function entries() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting ForEach as forEach
-prototype.FastAddValue("forEach".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.forEach, new JSFunction(context, (in Arguments a) =>
                     a.This is JSSet @this
                         ? @this.ForEach(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSSet")
                         , "forEach"
                         ,"function forEach() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Has as has
-prototype.FastAddValue("has".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.has, new JSFunction(context, (in Arguments a) =>
                     a.This is JSSet @this
                         ? @this.Has(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSSet")
                         , "has"
                         ,"function has() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 // Exporting Keys as keys
-prototype.FastAddValue("keys".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.keys, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSSet @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSSet");
 			var @return = @this.Keys();
@@ -91,7 +91,7 @@ prototype.FastAddValue("keys".ToKeyString(), new JSFunction(context, (in Argumen
                 ,"function keys() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Values as values
-prototype.FastAddValue("values".ToKeyString(), new JSFunction(context, (in Arguments a) => {
+prototype.FastAddValue(KeyString.values, new JSFunction(context, (in Arguments a) => {
 			if(!(a.This is JSSet @this))
 							throw JSContext.Current.NewTypeError("Failed to convert this to JSSet");
 			var @return = @this.Values();
@@ -101,6 +101,7 @@ prototype.FastAddValue("values".ToKeyString(), new JSFunction(context, (in Argum
                 "Values"
                 ,"function values() { [native] }", createPrototype: false
             ), JSPropertyAttributes.ConfigurableValue);
+context.Set_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

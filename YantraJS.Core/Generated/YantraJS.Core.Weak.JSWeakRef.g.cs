@@ -14,17 +14,18 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function WeakRef() { [native code] }"
                             );
                         if (register) {
-                            context["WeakRef".ToKeyString()] = @class;
+                            context[KeyString.WeakRef] = @class;
                         }
                         prototype = @class.prototype;
                         
 // Exporting Deref as deref
-prototype.FastAddValue("deref".ToKeyString(), new JSFunction(context, (in Arguments a) =>
+prototype.FastAddValue(KeyString.deref, new JSFunction(context, (in Arguments a) =>
                     a.This is JSWeakRef @this
                         ? @this.Deref(in a)
                         : throw JSContext.Current.NewTypeError("Failed to convert this to JSWeakRef")
                         , "deref"
                         ,"function deref() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+context.WeakRef_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

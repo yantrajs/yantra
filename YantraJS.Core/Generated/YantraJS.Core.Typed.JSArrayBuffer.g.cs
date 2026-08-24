@@ -14,10 +14,11 @@ public static JSFunction CreateClass(JSContext context, bool register = true) {
                             , "function ArrayBuffer() { [native code] }"
                             );
                         if (register) {
-                            context["ArrayBuffer".ToKeyString()] = @class;
+                            context[KeyString.ArrayBuffer] = @class;
                         }
                         prototype = @class.prototype;
                         
+context.ArrayBuffer_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }

@@ -18,11 +18,15 @@ internal class Program
         var argText = System.Text.Json.JsonSerializer.Serialize(args);
         Console.WriteLine($"Args: {argText}");
 
-        var path = args[0];
 
-        var root = args[1];
 
-        var sgc = new SourceGeneratorContext();
+        var name = args[0];
+
+        var path = args[1];
+
+        var root = args[2];
+
+        var sgc = new SourceGeneratorContext(name);
         sgc.AddFiles(new DirectoryInfo(path));
 
         sgc.GenerateSource(root);

@@ -13,13 +13,14 @@ public static new JSFunction CreateClass(JSContext context, bool register = true
                             , "function SyntaxError() { [native code] }"
                             );
                         if (register) {
-                            context["SyntaxError".ToKeyString()] = @class;
+                            context[KeyString.SyntaxError] = @class;
                         }
                         prototype = @class.prototype;
                         
- var @base = context["Error".ToKeyString()] as JSFunction;
+ var @base = context[KeyString.Error] as JSFunction;
 @class.SetPrototypeOf(@base);
 prototype.SetPrototypeOf(@base.prototype);
+context.SyntaxError_Prototype = prototype.PrototypeObject;
 return @class;
 }
 }
