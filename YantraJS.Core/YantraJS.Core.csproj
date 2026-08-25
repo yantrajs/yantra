@@ -20,32 +20,20 @@
        <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-	<PropertyGroup>
-		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-	</PropertyGroup>
-	<Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
-		<ItemGroup>
-			<Compile Include="Generated\**" />
-		</ItemGroup>
-	</Target>
-	<Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
-		<ItemGroup>
-			<Compile Remove="Generated\**" />
-		</ItemGroup>
-	</Target>
+	<!-- Run code generation right before the CoreCompile step -->
+	<Target Name="RunRoslynParser" BeforeTargets="CoreCompile">
+		<PropertyGroup>
+			<!-- Define the relative or absolute path to your parser executable -->
+			<ParserExePath>$(SolutionDir)YantraJS.JSClassGenerator\bin\Debug\net8.0\YantraJS.JSClassGenerator.exe</ParserExePath>
+		</PropertyGroup>
 
-  <!-- <ItemGroup>
-    <Compile Include="..\esprima-dotnet\src\Esprima\*.cs">
-      <Link>Esprima\%(RecursiveDir)%(FileName)%(Extension)</Link>
-    </Compile>
-    <Compile Include="..\esprima-dotnet\src\Esprima\Ast\*.cs">
-      <Link>Esprima\Ast\%(RecursiveDir)%(FileName)%(Extension)</Link>
-    </Compile>
-    <Compile Include="..\esprima-dotnet\src\Esprima\Utils\*.cs">
-      <Link>Esprima\Utils\%(RecursiveDir)%(FileName)%(Extension)</Link>
-    </Compile>
-  </ItemGroup> -->
+		<Message Importance="high" Text="[Pre-Build] Executing Roslyn Parser Engine..." />
+
+		<!-- Execute the console app. Pass project directory as an argument if needed -->
+		<Exec Command="&quot;$(ParserExePath)&quot; &quot;YantraJS.Core&quot; &quot;$(ProjectDir).&quot; &quot;$(ProjectDir)Generated&quot;" 
+			  ContinueOnError="WarnAndContinue"/>
+	</Target>
+	
   
   <ItemGroup>
     <PackageReference Include="ErrorProne.NET.Structs" Version="0.3.0-beta.0">
@@ -72,7 +60,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YantraJS.ExpressionCompiler\YantraJS.ExpressionCompiler.csproj" />
-    <ProjectReference Include="..\YantraJS.JSClassGenerator\YantraJS.JSClassGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
   
   <ItemGroup>

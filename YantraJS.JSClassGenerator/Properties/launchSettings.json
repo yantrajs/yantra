@@ -1,1 +1,9 @@
-{}
+{
+  "profiles": {
+    "YantraJS.JSClassGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "\"YantraJS.Core\" \"YantraJS.Core\\Generated\"",
+      "workingDirectory": "../"
+    }
+  }
+}

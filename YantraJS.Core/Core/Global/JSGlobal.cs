@@ -161,5 +161,10 @@ namespace YantraJS.Core
         }
 
 
+        public JSGlobalStatic(in Arguments a)
+        {
+            
+        }
+
     }
 }
