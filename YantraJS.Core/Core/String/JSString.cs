@@ -45,7 +45,7 @@ namespace YantraJS.Core
 
         
 
-        public override bool BooleanValue => value.Length > 0;
+        // public override bool BooleanValue => value.Length > 0;
 
         public override long BigIntValue => long.TryParse(this.ToString(), out var n) ? n : 0;
 
@@ -178,7 +178,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSString(string value): base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
+        public JSString(string value): base(JSValueType.String, value.Length != 0, JSContext.CurrentContext.String_Prototype)
         {
 #if DEBUG
             if(value == null) {
@@ -192,7 +192,7 @@ namespace YantraJS.Core
         //    this.value = value;
         //}
 
-        public JSString(in StringSpan value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
+        public JSString(in StringSpan value) : base(JSValueType.String, value.Length != 0, JSContext.CurrentContext.String_Prototype)
         {
 #if DEBUG
             if(value == null) {

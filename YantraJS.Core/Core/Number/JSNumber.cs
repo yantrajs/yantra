@@ -299,7 +299,7 @@ namespace YantraJS.Core
             return KeyStrings.Instance.GetOrCreate(n.ToString());
         }
 
-        public JSNumber(double value) : base(JSValueType.Number, null)
+        public JSNumber(double value) : base(JSValueType.Number, !double.IsNaN(value) && value != 0, null)
         {
             //if (value > 0 && value < double.Epsilon)
             //{
@@ -312,7 +312,7 @@ namespace YantraJS.Core
 
         public override double DoubleValue => value;
 
-        public override bool BooleanValue => !double.IsNaN(value) && value != 0;
+        // public override bool BooleanValue => !double.IsNaN(value) && value != 0;
 
         public override long BigIntValue => (long)this.value;
 

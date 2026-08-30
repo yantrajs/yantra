@@ -43,7 +43,7 @@ namespace YantraJS.Core
 
         internal readonly bool _value;
 
-        private JSBoolean(bool _value) : base(JSValueType.Boolean)
+        private JSBoolean(bool _value) : base(JSValueType.Boolean, _value)
         {
             this._value = _value;
         }
@@ -95,7 +95,7 @@ namespace YantraJS.Core
 
         public override double DoubleValue => this._value ? 1 : 0;
 
-        public override bool BooleanValue => this._value;
+        // public override bool BooleanValue => this._value;
 
         // public override bool IsBoolean => true;
 

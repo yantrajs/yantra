@@ -34,7 +34,7 @@ namespace YantraJS.Core
 
         internal readonly decimal value;
 
-        public override bool BooleanValue => value != 0;
+        // public override bool BooleanValue => value != 0;
 
         public override double DoubleValue => throw CannotMix();
 
@@ -61,21 +61,25 @@ namespace YantraJS.Core
 
         }
 
-        private JSDecimal(): base(JSValueType.Decimal, JSContext.CurrentContext.Decimal_Prototype)
-        {
-
-        }
-
-        public JSDecimal(decimal value): this()
-        {
-            this.value = value;
-        }
-        public JSDecimal(string stringValue):this()
+        public static decimal Parse(string stringValue)
         {
             var v = stringValue.TrimEnd('m').Replace("_", "");
             if (!decimal.TryParse(v, out var n))
                 throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
-            this.value = n;
+            return n;
+        }
+
+        private JSDecimal(bool truthy): base(JSValueType.Decimal, truthy, JSContext.CurrentContext.Decimal_Prototype)
+        {
+
+        }
+
+        public JSDecimal(decimal value): this(value != 0)
+        {
+            this.value = value;
+        }
+        public JSDecimal(string stringValue):this(Parse(stringValue))
+        {
         }
 
         public override bool Equals(JSValue value)

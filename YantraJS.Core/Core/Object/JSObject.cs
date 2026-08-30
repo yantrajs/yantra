@@ -66,7 +66,7 @@ namespace YantraJS.Core
         private static long NextID = 0;
         internal long UniqueID => uid ??= Interlocked.Increment(ref NextID);
 
-        public override bool BooleanValue => true;
+        // public override bool BooleanValue => true;
 
         // public override bool IsObject => true;
 
@@ -165,19 +165,19 @@ namespace YantraJS.Core
         //     return JSConstants.Object;
         // }
 
-        public JSObject() : base(JSValueType.Object, JSContext.CurrentContext.Object_Prototype)
+        public JSObject() : base(JSValueType.Object, true, JSContext.CurrentContext.Object_Prototype)
         {
             
         }
 
         protected JSObject(JSValueType valueType, JSPrototypeObject prototype)
-            : base(valueType, prototype)
+            : base(valueType, true, prototype)
         {
 
         }
 
         protected JSObject(JSPrototypeObject prototype)
-            : base(JSValueType.Object, prototype)
+            : base(JSValueType.Object, true, prototype)
         {
 
         }

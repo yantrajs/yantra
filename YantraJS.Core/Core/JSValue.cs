@@ -168,7 +168,7 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
 
     public virtual double DoubleValue => Double.NaN;
 
-    public abstract bool BooleanValue { get; }
+    public readonly bool BooleanValue;
 
     // internal virtual string StringValue => this.ToString();
 
@@ -383,15 +383,17 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
     }
 
 
-    protected JSValue(JSValueType valueType, JSPrototypeObject prototype)
+    protected JSValue(JSValueType valueType, bool truthyValue, JSPrototypeObject prototype)
     {
         this.ValueType = valueType;
+        this.BooleanValue = truthyValue;
         this.prototypeChain = prototype.prototype;
     }
 
-    protected JSValue(JSValueType valueType)
+    protected JSValue(JSValueType valueType, bool truthyValue)
     {
         this.ValueType = valueType;
+        this.BooleanValue = truthyValue;
     }
 
     //protected JSValue(JSValueType valueType, JSObject prototype)

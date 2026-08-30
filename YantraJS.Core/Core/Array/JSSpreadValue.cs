@@ -33,7 +33,7 @@ namespace YantraJS.Core.Core.Array
         }
 
 
-        public override bool BooleanValue => throw new NotImplementedException();
+        // public override bool BooleanValue => throw new NotImplementedException();
 
         public JSValue Value { get; }
 

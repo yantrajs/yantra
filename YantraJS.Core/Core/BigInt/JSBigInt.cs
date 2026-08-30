@@ -34,7 +34,7 @@ namespace YantraJS.Core.BigInt
 
         internal readonly BigInteger value;
 
-        public override bool BooleanValue => value != 0;
+        // public override bool BooleanValue => value != 0;
 
         public override double DoubleValue => throw CannotMix();
 
@@ -61,21 +61,25 @@ namespace YantraJS.Core.BigInt
 
         }
 
-        private JSBigInt(): base(JSValueType.BigInt, JSContext.CurrentContext.BigInt_Prototype)
-        {
-
-        }
-
-        public JSBigInt(BigInteger value): this()
-        {
-            this.value = value;
-        }
-        public JSBigInt(string stringValue): this()
+        public static BigInteger Parse(string stringValue)
         {
             var v = stringValue.TrimEnd('n').Replace("_", "");
             if (!BigInteger.TryParse(v, out var n))
                 throw JSContext.Current.NewTypeError($"{stringValue} is not a valid big integer");
-            this.value = n;
+            return n;
+        }
+
+        private JSBigInt(bool truthy): base(JSValueType.BigInt, truthy, JSContext.CurrentContext.BigInt_Prototype)
+        {
+
+        }
+
+        public JSBigInt(BigInteger value): this(value != 0)
+        {
+            this.value = value;
+        }
+        public JSBigInt(string stringValue): this(Parse(stringValue))
+        {
         }
 
         private JSPrototype GetPrototype(JSContext context = null)

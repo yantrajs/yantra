@@ -7,7 +7,7 @@ namespace YantraJS.Core
 {
     public sealed class JSUndefined : JSValue
     {
-        private JSUndefined():base(JSValueType.Undefined, default)
+        private JSUndefined():base(JSValueType.Undefined, false, default)
         {
 
         }
@@ -24,7 +24,7 @@ namespace YantraJS.Core
         //     return JSConstants.Undefined;
         // }
 
-        public override bool BooleanValue => false;
+        // public override bool BooleanValue => false;
 
         public override double DoubleValue => double.NaN;
 

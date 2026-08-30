@@ -7,7 +7,7 @@ namespace YantraJS.Core
 {
     public sealed class JSNull : JSValue
     {
-        private JSNull(): base(JSValueType.Null, default)
+        private JSNull(): base(JSValueType.Null, false, default)
         {
 
         }
@@ -29,7 +29,7 @@ namespace YantraJS.Core
             return ToString().AsStringOrChar();
         }
 
-        public override bool BooleanValue => false;
+        // public override bool BooleanValue => false;
 
         public override double DoubleValue => 0D;
 
