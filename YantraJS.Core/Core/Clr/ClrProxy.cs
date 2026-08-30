@@ -30,14 +30,14 @@ namespace YantraJS.Core.Clr
         }
 
 
-        public override bool BooleanValue
-        {
-            get {
-                if (value == null)
-                    return false;
-                return true;
-            }
-        }
+        //public override bool BooleanValue
+        //{
+        //    get {
+        //        if (value == null)
+        //            return false;
+        //        return true;
+        //    }
+        //}
 
         /// <summary>
         /// Todo improvise...

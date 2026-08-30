@@ -172,7 +172,7 @@ namespace YantraJS.Core
         }
 
 
-        public JSString(StringOrChar value) : base(JSValueType.String, JSContext.CurrentContext.String_Prototype)
+        public JSString(StringOrChar value) : base(JSValueType.String, value.Length != 0, JSContext.CurrentContext.String_Prototype)
         {
             this.value = value;
         }
