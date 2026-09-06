@@ -48,7 +48,7 @@ namespace YantraJS.Core
             return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
         }
 
-        [JSExport("resolve")]
+        [JSExport("reject")]
         public static JSValue Reject(in Arguments a)
         {
             var reason = a.Get1();
@@ -60,7 +60,7 @@ namespace YantraJS.Core
         }
 
 
-        [JSExport("resolve")]
+        [JSExport("all")]
         public static JSValue All(in Arguments a)
         {
             var f = a.Get1();

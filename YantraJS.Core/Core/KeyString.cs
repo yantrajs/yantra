@@ -123,6 +123,8 @@ public enum KeyString : int
     Module,
     module,
     resolve,
+    reject,
+    all,
     require,
     @default,
     import,

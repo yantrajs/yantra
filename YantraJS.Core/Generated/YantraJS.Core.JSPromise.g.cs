@@ -50,10 +50,10 @@ prototype.FastAddValue(KeyString.@finally, new JSFunction(context, (in Arguments
             ), JSPropertyAttributes.ConfigurableValue);
 // Exporting Resolve as resolve
 @class.FastAddValue(KeyString.resolve, new JSFunction(context, JSPromise.Resolve, "resolve" ,"function resolve() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
-// Exporting Reject as resolve
-@class.FastAddValue(KeyString.resolve, new JSFunction(context, JSPromise.Reject, "resolve" ,"function resolve() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
-// Exporting All as resolve
-@class.FastAddValue(KeyString.resolve, new JSFunction(context, JSPromise.All, "resolve" ,"function resolve() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+// Exporting Reject as reject
+@class.FastAddValue(KeyString.reject, new JSFunction(context, JSPromise.Reject, "reject" ,"function reject() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
+// Exporting All as all
+@class.FastAddValue(KeyString.all, new JSFunction(context, JSPromise.All, "all" ,"function all() { [native] }", createPrototype: false), JSPropertyAttributes.ConfigurableValue);
 context.Promise_Prototype = prototype.PrototypeObject;
 return @class;
 }

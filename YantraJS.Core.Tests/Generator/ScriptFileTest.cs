@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Emit;
+using YantraJS.Generator;
 using YantraJS.Tests;
 using YantraJS.Utils;
 
@@ -23,6 +24,8 @@ public class ScriptFileTest
 
     public static IEnumerable<object[]> GetJavaScriptTestFiles()
     {
+        ILCodeGenerator.GenerateLogs = true;
+
         // Return the full file path to the test method
         return Directory.GetFiles(folder, "*.js", SearchOption.AllDirectories)
                         .Select(filePath => new object[] {
@@ -60,29 +63,20 @@ public class ScriptFileTest
             var ctx = new SynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(ctx);
             Exception lastError = null;
-            System.Diagnostics.Debug.WriteLine($"Processing {file.FullName}");
-            StringBuilder sb = new StringBuilder();
-            try
+            string content = await System.IO.File.ReadAllTextAsync(file.FullName);
+            using (var jc = new JSTestContext(ctx))
             {
-                string content;
-                using (var fs = file.OpenText())
+                jc.Log += (_, s) =>
                 {
-                    content = await fs.ReadToEndAsync();
-                }
-                using (var jc = CreateContext(file, ctx))
-                {
-                    jc.Log += (_, s) =>
-                    {
-                        var text = s.ToDetailString();
-                        Console.WriteLine(text);
-                    };
-                    jc.Error += (_, e) => lastError = e;
-                    await EvaluateAsync(jc, content, file.FullName);
-                }
+                    var text = s.ToDetailString();
+                    Console.WriteLine(text);
+                };
+                jc.Error += (_, e) => lastError = e;
+                await CoreScript.EvaluateAsync(content, file.FullName, DictionaryCodeCache.Current);
             }
-            catch (Exception ex)
+            if (lastError != null)
             {
-                lastError = ex;
+                throw JSException.From(lastError);
             }
         }
         finally
@@ -91,14 +85,4 @@ public class ScriptFileTest
         }
     }
 
-    protected virtual JSContext CreateContext(FileInfo file, SynchronizationContext ctx)
-    {
-        return new JSTestContext(ctx);
-    }
-
-    protected virtual Task EvaluateAsync(JSContext context, string content, string fullName)
-    {
-        return CoreScript.EvaluateAsync(content, fullName, DictionaryCodeCache.Current);
-
-    }
 }
