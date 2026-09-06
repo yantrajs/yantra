@@ -251,6 +251,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
 
         protected override Exp VisitYield(YYieldExpression node)
         {
+            //if (node.Argument is YYieldExpression a)
+            //{
+            //    // this is only case of yield await
+            //    var va = Visit(a.Argument);
+            //}
+
             var arg = Visit(node.Argument);
             var (label, id) = GetNextYieldJumpTarget();
             return Expression.Block(

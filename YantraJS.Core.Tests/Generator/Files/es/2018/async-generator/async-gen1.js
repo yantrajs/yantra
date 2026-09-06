@@ -10,9 +10,12 @@ async function* g1() {
     yield delay(3);
 }
 
-const a = [];
-for await (const i of g1()) {
-    a.push(i);
+async function test() {
+    const a = [];
+    for await (const i of g1()) {
+        a.push(i);
+    }
+    assert.equal("1,2,3", a.toString());
 }
 
-assert.equal("1,2,3", a.toString());
+test().catch((r) => assert.fail(r));
