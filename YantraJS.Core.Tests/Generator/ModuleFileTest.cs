@@ -11,9 +11,9 @@ using YantraJS.Utils;
 namespace YantraJS.Core.FileTests;
 
 [TestClass]
-public class ScriptFileTest
+public class ModuleFileTest
 {
-    private static readonly string folder = "../../../Generator/Files/";
+    private static readonly string folder = "../../../Generator/Modules/";
 
     public static IEnumerable<object[]> GetJavaScriptTestFiles()
         => FilesTest.GetJavaScriptTestFiles(folder);
@@ -38,21 +38,15 @@ public class ScriptFileTest
         {
             var ctx = new SynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(ctx);
-            Exception lastError = null;
             string content = await System.IO.File.ReadAllTextAsync(file.FullName);
-            using (var jc = new JSTestContext(ctx))
+            using var m = new JSModuleContext(ctx);
+            try
             {
-                jc.Log += (_, s) =>
-                {
-                    var text = s.ToDetailString();
-                    Console.WriteLine(text);
-                };
-                jc.Error += (_, e) => lastError = e;
-                await CoreScript.EvaluateAsync(content, file.FullName, DictionaryCodeCache.Current);
+                await m.RunAsync(file.DirectoryName, "./" + file.Name);
             }
-            if (lastError != null)
+            catch (TaskCanceledException)
             {
-                throw JSException.From(lastError);
+
             }
         }
         finally

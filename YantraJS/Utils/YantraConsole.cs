@@ -22,5 +22,20 @@ namespace YantraJS.Utils
             return JSUndefined.Value;
         }
 
+
+        public static JSValue Error(in Arguments a)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a.TryGetAt(i, out var ai))
+                {
+                    Console.Error.Write(ai);
+                    JSContext.CurrentContext.ReportLog(ai);
+                }
+            }
+            Console.Error.WriteLine();
+            return JSUndefined.Value;
+        }
+
     }
 }

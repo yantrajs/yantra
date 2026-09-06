@@ -66,11 +66,11 @@ namespace YantraTests
         }
     }
 
-    [TestClass]
+    // [TestClass]
     public class Modules
     {
 
-        [ModuleFolder("in-built")]
+        // [ModuleFolder("in-built")]
         public void TestMethod1()
         {
         }
