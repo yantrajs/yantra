@@ -26,8 +26,7 @@ namespace YantraJS.Core.FastParser
             var begin = stream.Current;
             stream.Consume();
 
-            if (stream.CheckAndConsume(FastKeywords.await))
-                throw stream.Unexpected();
+            var isAsync = stream.CheckAndConsume(FastKeywords.await);
 
             stream.Expect(TokenTypes.BracketStart);
 
@@ -91,6 +90,7 @@ namespace YantraJS.Core.FastParser
                     && b.Operator == TokenTypes.In
                     && stream.CheckAndConsume(TokenTypes.BracketEnd))
                 {
+
                     @in = true;
                     beginNode = b.Left;
                     inTarget = b.Right;
@@ -136,6 +136,12 @@ namespace YantraJS.Core.FastParser
                     else stream.Unexpected();
                 }
 
+                if(isAsync && !of)
+                {
+                    // for await is only supported wit `of`
+                    throw stream.Unexpected();
+                }
+
                 AstStatement statement;
                 if (stream.CheckAndConsume(TokenTypes.CurlyBracketStart))
                 {
@@ -167,7 +173,7 @@ namespace YantraJS.Core.FastParser
                 }
                 if (of)
                 {
-                    node = new AstForOfStatement(begin, PreviousToken, beginNode, ofTarget, statement);
+                    node = new AstForOfStatement(begin, PreviousToken, beginNode, ofTarget, statement, isAsync);
                     scope.GetVariables();
                     return true;
                 }

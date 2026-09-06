@@ -71,8 +71,62 @@ namespace YantraJS.Core.FastParser.Compiler
             }
         }
 
+        protected Expression VisitForAwaitOfStatement(AstForOfStatement forOfStatement, string? label = null)
+        {
+            var breakTarget = Exp.Label();
+            var continueTarget = Exp.Label();
+            // this will create a variable if needed...
+            // desugar takes care of let so do not worry
+            Exp? identifier = null;
+            switch (forOfStatement.Init.Type)
+            {
+                case FastNodeType.Identifier:
+                case FastNodeType.VariableDeclaration:
+                    identifier = Visit(forOfStatement.Init);
+                    break;
+                default:
+                    throw new FastParseException(forOfStatement.Start, $"Unexpcted");
+            }
+            var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label));
+
+            var en = Exp.Variable(typeof(IElementEnumerator));
+
+            var next = Exp.Variable(typeof(JSValue));
+
+            var pList = new ParameterExpression[]
+            {
+                en,
+                next
+            };
+
+            var body = VisitStatement(forOfStatement.Body);
+
+            var bodyList = Exp.Block(
+                    Exp.Assign(next, Exp.Yield(en.InvokeJSMethod(KeyString.next))),
+                    Exp.IfThen(
+                    Exp.Not(next.CheckIfDoneIsTrue()),
+                    Exp.Goto(s.Break)),
+                    Exp.Assign(identifier, next.ValueProperty()),
+                body);
+
+            var right = VisitExpression(forOfStatement.Target);
+            var r = Exp.Block(
+                pList,
+                Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
+                Exp.Loop(bodyList, s.Break, s.Continue)
+                );
+            s.Dispose();
+            return r;
+
+        }
+
         protected override Expression VisitForOfStatement(AstForOfStatement forOfStatement, string? label = null)
         {
+            if(forOfStatement.IsAsync)
+            {
+                return VisitForAwaitOfStatement(forOfStatement, label);
+            }
+
             var breakTarget = Exp.Label();
             var continueTarget = Exp.Label();
             // this will create a variable if needed...
