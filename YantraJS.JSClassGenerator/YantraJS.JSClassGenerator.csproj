@@ -10,7 +10,7 @@
 	  <PackageProjectUrl>http://yantrajs.com/</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/yantrajs/yantra</RepositoryUrl>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <Version>1.0.1</Version>
+	  <Version>1.0.2</Version>
   </PropertyGroup>
 	
   <PropertyGroup>
