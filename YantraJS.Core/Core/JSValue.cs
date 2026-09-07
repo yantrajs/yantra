@@ -938,10 +938,6 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         }
     }
 
-    public virtual IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true) {
-        return new ElementEnumerator();
-    }
-
     internal virtual JSBoolean Is(JSValue value)
     {
         return object.ReferenceEquals(this, value) ? JSBoolean.True : JSBoolean.False;

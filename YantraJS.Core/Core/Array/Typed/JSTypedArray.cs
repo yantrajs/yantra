@@ -269,11 +269,6 @@ namespace YantraJS.Core.Typed
             }
         }
 
-        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
-        {
-            return new KeyEnumerator(this.length);
-        }
-
         internal JSGenerator GetKeys()
         {
             return new JSGenerator(new KeyEnumerator(this.length), "Array Iterator");

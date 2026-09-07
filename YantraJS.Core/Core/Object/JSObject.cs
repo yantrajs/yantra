@@ -879,50 +879,6 @@ namespace YantraJS.Core
             }
         }
 
-        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
-        {
-            return new KeyEnumerator(this, showEnumerableOnly, inherited);
-            //var elements = this.elements;
-            //if (elements != null)
-            //{
-            //    foreach (var (Key, Value) in elements.AllValues)
-            //    {
-            //        if (showEnumerableOnly)
-            //        {
-            //            if (!Value.IsEnumerable)
-            //                continue;
-            //        }
-            //        yield return new JSNumber(Key);
-            //    }
-            //}
-
-            //var ownProperties = this.ownProperties;
-            //if (ownProperties != null)
-            //{
-            //    var en = new PropertySequence.Enumerator(ownProperties);
-            //    while(en.MoveNext())
-            //    {
-            //        var p = en.Current;
-            //        if (showEnumerableOnly)
-            //        {
-            //            if (!p.IsEnumerable)
-            //                continue;
-            //        }
-            //        yield return p.ToJSValue();
-            //    }
-            //}
-
-            //if (inherited)
-            //{
-            //    var @base = this.prototypeChain;
-            //    if (@base != this && @base != null)
-            //    {
-            //        foreach (var i in @base.GetAllKeys(showEnumerableOnly))
-            //            yield return i;
-            //    }
-            //}
-        }
-
         internal JSProperty ToProperty(uint key)
         {
             JSFunction pget = null;

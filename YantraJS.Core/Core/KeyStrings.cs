@@ -20,13 +20,15 @@ namespace YantraJS.Core
             map = ConcurrentStringMap<KeyString>.Create();
             names = ConcurrentUInt32Map<StringSpan>.Create();
             var t = typeof(KeyString);
+            var last = 0;
             foreach (var f in Enum.GetNames(t))
             {
                 var k = (KeyString)Enum.Parse(t, f);
                 map[f] = k;
                 names[(uint)k] = f;
-                NextID = (int)k;
+                last = (int)k;
             }
+            NextID = last;
         }
 
         private ConcurrentStringMap<KeyString> map;

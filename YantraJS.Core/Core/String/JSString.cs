@@ -293,10 +293,6 @@ namespace YantraJS.Core
                 yield return item;
             }
         }
-        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
-        {
-            return new KeyEnumerator(this.Length);
-        }
 
         [JSExport]
         public override int Length => value.Length;

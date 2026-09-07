@@ -159,26 +159,10 @@ namespace YantraJS.Core
             this.target.SetPrototypeOf(proto);
         }
 
-        public override IElementEnumerator GetAllKeys(bool showEnumerableOnly = true, bool inherited = true)
-        {
-
-            var fx = handler[KeyString.ownKeys];
-            if (fx is JSFunction fxFunction)
-            {
-                return fxFunction.InvokeFunction(new Arguments(this.target)).GetElementEnumerator();
-            }
-            return target.GetAllKeys(showEnumerableOnly, inherited);
-        }
-
         public override bool StrictEquals(JSValue value)
         {
             return target.StrictEquals(value);
         }
-
-        // public override JSValue TypeOf()
-        // {
-        //     return target.TypeOf();
-        // }
 
         internal override PropertyKey ToKey(bool create = false)
         {

@@ -169,7 +169,7 @@ namespace YantraJS.Core
             return diff;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {
@@ -363,13 +363,13 @@ namespace YantraJS.Core
             return a.Equals(in b, comparisonType);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(string other)
+        public bool Equals(string? other)
         {
             return Equals(other, StringComparison.Ordinal);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(string text, StringComparison comparisonType)
+        public bool Equals(string? text, StringComparison comparisonType)
         {
             if (text == null)
             {

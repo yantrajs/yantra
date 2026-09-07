@@ -58,24 +58,40 @@ namespace YantraJS.Core.Core.Storage
             {
                 
                 lockSlim.EnterReadLock();
-                var value = Map[key];
-                lockSlim.ExitReadLock();
-                return value;
+                try
+                {
+                    var value = Map[key];
+                    return value;
+                } finally
+                {
+                    lockSlim.ExitReadLock();
+                }
             }
             set
             {
                 lockSlim.EnterWriteLock();
-                Map.Put(key) = value;
-                lockSlim.ExitWriteLock();
+                try
+                {
+                    Map.Put(key) = value;
+                }
+                finally
+                {
+                    lockSlim.ExitWriteLock();
+                }
             }
         }
 
         public bool TryGetValue(in StringSpan key, out T value)
         {
             lockSlim.EnterReadLock();
-            var r = Map.TryGetValue(key, out value);
-            lockSlim.ExitReadLock();
-            return r;
+            try
+            {
+                return Map.TryGetValue(key, out value);
+            }
+            finally
+            {
+                lockSlim.ExitReadLock();
+            }
         }
 
         public T GetOrCreate(in StringSpan key, Func<StringSpan, T> value)
@@ -125,25 +141,37 @@ namespace YantraJS.Core.Core.Storage
             {
 
                 lockSlim.EnterReadLock();
-                // var value = Map[key];
-                Map.TryGetValue(key, out var value);
-                lockSlim.ExitReadLock();
-                return value;
+                try
+                {
+                    Map.TryGetValue(key, out var value);
+                    return value;
+                } finally
+                {
+                    lockSlim.ExitReadLock();
+                }
             }
             set
             {
                 lockSlim.EnterWriteLock();
-                Map.Put(key) = value;
-                lockSlim.ExitWriteLock();
+                try
+                {
+                    Map.Put(key) = value;
+                } finally {
+                    lockSlim.ExitWriteLock();
+                }
             }
         }
 
         public bool TryGetValue(uint key, out T value)
         {
             lockSlim.EnterReadLock();
-            var r = Map.TryGetValue(key, out value);
-            lockSlim.ExitReadLock();
-            return r;
+            try
+            {
+                return Map.TryGetValue(key, out value);
+            } finally
+            {
+                lockSlim.ExitReadLock();
+            }
         }
 
         internal T GetOrCreate<TP>(uint key, Func<TP, T> value, in TP p)
