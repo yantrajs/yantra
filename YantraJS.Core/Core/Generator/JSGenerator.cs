@@ -50,6 +50,11 @@ namespace YantraJS.Core.Generator
             return new JSString(ToString());
         }
 
+        public override IElementEnumerator GetAsyncIterator()
+        {
+            return this.GetElementEnumerator();
+        }
+
 
         // Thread thread;
 

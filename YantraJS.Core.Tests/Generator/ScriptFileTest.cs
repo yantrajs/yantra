@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using YantraJS.Emit;
+using YantraJS.Generator;
 using YantraJS.Utils;
 
 namespace YantraJS.Core.FileTests;
@@ -25,6 +26,7 @@ public class ScriptFileTest
     [DynamicData(nameof(GetJavaScriptTestFiles), DynamicDataDisplayName = nameof(GetCustomTestName))]
     public async Task ExecuteScript(string filePath)
     {
+        ILCodeGenerator.GenerateLogs = true;
         await RunAsyncTest(new FileInfo(filePath));
     }
 

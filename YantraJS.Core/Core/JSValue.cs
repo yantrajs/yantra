@@ -1092,6 +1092,11 @@ public abstract partial class JSValue : IDynamicMetaObjectProvider
         return ElementEnumerator.Empty;
     }
 
+    public virtual IElementEnumerator GetAsyncIterator()
+    {
+        return this[JSSymbol.asyncIterator].GetElementEnumerator();
+    }
+
 
     private readonly struct ElementEnumerator : IElementEnumerator
     {

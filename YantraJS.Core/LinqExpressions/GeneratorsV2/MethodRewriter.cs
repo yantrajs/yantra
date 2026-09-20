@@ -45,6 +45,20 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             return base.VisitAssign(yAssignExpression);
         }
 
+        protected override Expression VisitYield(YYieldExpression node)
+        {
+            // we need to break nested yield...
+            if(node.Argument is YYieldExpression nested)
+            {
+                var bb = new YBlockBuilder();
+                var nv = bb.ConvertToVariable(Visit(nested.Argument));
+                bb.AddExpression(Exp.Assign(nv, Exp.Yield(nv)));
+                bb.AddExpression(Exp.Assign(nv, Exp.Yield(nv)));
+                return bb.Build();
+            }
+            return base.VisitYield(node);
+        }
+
         private Exp BreakAssign(YAssignExpression assign)
         {
             var bb = new YBlockBuilder();

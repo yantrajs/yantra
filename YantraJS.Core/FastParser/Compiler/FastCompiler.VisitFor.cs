@@ -89,7 +89,7 @@ namespace YantraJS.Core.FastParser.Compiler
             }
             var s = scope.Top.Loop.Push(new LoopScope(breakTarget, continueTarget, false, label));
 
-            var en = Exp.Variable(typeof(IElementEnumerator));
+            var en = Exp.Variable(typeof(JSValue));
 
             var next = Exp.Variable(typeof(JSValue));
 
@@ -102,17 +102,17 @@ namespace YantraJS.Core.FastParser.Compiler
             var body = VisitStatement(forOfStatement.Body);
 
             var bodyList = Exp.Block(
-                    Exp.Assign(next, Exp.Yield(en.InvokeJSMethod(KeyString.next))),
+                    IElementEnumeratorBuilder.MoveNext(en, next),
                     Exp.IfThen(
                     Exp.Not(next.CheckIfDoneIsTrue()),
                     Exp.Goto(s.Break)),
-                    Exp.Assign(identifier, next.ValueProperty()),
+                    Exp.Assign(identifier, Exp.Yield(next.ValueProperty())),
                 body);
 
             var right = VisitExpression(forOfStatement.Target);
             var r = Exp.Block(
                 pList,
-                Exp.Assign(en, IElementEnumeratorBuilder.Get(right)),
+                Exp.Assign(en, right.CallExpression<JSValue>(() =>(x) => x.GetAsyncIterator())),
                 Exp.Loop(bodyList, s.Break, s.Continue)
                 );
             s.Dispose();

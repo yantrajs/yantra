@@ -26,6 +26,12 @@ namespace YantraJS.Core.LinqExpressions.GeneratorsV2
             // var c = new CallStackItem(script.FileName, this.name, 0, 0);
             return new Generator.JSGenerator( new ClrGeneratorV2(this, @delegate, a));
         }
+
+        public override IElementEnumerator GetAsyncIterator()
+        {
+            return (new Generator.JSGenerator(new ClrGeneratorV2(this, @delegate, Arguments.Empty)))
+                .GetElementEnumerator();
+        }
     }
 
     public class GeneratorState
