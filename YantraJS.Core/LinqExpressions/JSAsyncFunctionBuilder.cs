@@ -14,8 +14,16 @@ namespace YantraJS.Core.LinqExpressions
 
         public static YExpression Create(YExpression fx)
         {
-            return NewLambdaExpression.StaticCallExpression<JSFunction>(() => () => JSAsyncFunction.Create((JSGeneratorFunctionV2)null), fx);
+            return NewLambdaExpression
+                .StaticCallExpression<JSFunction>(() =>
+                    () => JSAsyncFunction.Create((JSGeneratorFunctionV2)null), fx);
         }
 
+        public static YExpression CreateGenerator(YExpression fx)
+        {
+            return NewLambdaExpression
+                .StaticCallExpression<JSFunction>(() =>
+                    () => JSAsyncFunction.CreateGenerator((JSGeneratorFunctionV2)null), fx);
+        }
     }
 }

@@ -11,6 +11,7 @@ using LambdaExpression = YantraJS.Expressions.YLambdaExpression;
 using YantraJS.Expressions;
 using System.Reflection;
 using YantraJS.Core.LambdaGen;
+using YantraJS.Core.Core.Generator;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -227,29 +228,7 @@ namespace YantraJS.Core.FastParser.Compiler
 
                     LambdaExpression lambda;
                     Exp jsf;
-                    if (functionDeclaration.Generator)
-                    {
-                        //lambda = Exp.Lambda(typeof(JSGeneratorDelegate),
-                        //    YieldRewriter.Rewrite(block, r, cs.Generator, lexicalScopeVar),
-                        //    functionName, new ParameterExpression[] {
-                        //    cs.ScriptInfo, cs.Closures, cs.Generator, stackItem, cs.Arguments
-                        //    });
-                        // rewrite lambda...
-
-                        // lambda.Compile();
-
-                        lambda = GeneratorRewriter.Rewrite(in scriptFunctionName, block, cs.ReturnLabel, cs.Generator, 
-                            replaceArgs: cs.Arguments,
-                            replaceStackItem: cs.StackItem,
-                            replaceContext: cs.Context, 
-                            replaceScriptInfo: scriptInfo);
-
-                        jsf = JSGeneratorFunctionBuilderV2.New(lambda, fxName, code);
-
-                        // jsf = JSGeneratorFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
-
-                    }
-                    else if (functionDeclaration.Async)
+                    if (functionDeclaration.Async)
                     {
 
                         lambda = GeneratorRewriter.Rewrite(in scriptFunctionName, block, cs.ReturnLabel, cs.Generator,
@@ -258,16 +237,30 @@ namespace YantraJS.Core.FastParser.Compiler
                             replaceContext: cs.Context,
                             replaceScriptInfo: scriptInfo);
 
-                        jsf = JSAsyncFunctionBuilder.Create(
-                            JSGeneratorFunctionBuilderV2.New(lambda, fxName, code));
+                    var jfg = JSGeneratorFunctionBuilderV2.New(lambda, fxName, code);
+                        jsf = functionDeclaration.Generator
+                            ? JSAsyncFunctionBuilder.CreateGenerator(jfg)
+                            : JSAsyncFunctionBuilder.Create(jfg);
 
                         //lambda = Exp.Lambda(typeof(JSAsyncDelegate), block, in scriptFunctionName, new ParameterExpression[] {
                         //    cs.ScriptInfo, cs.Closures, cs.Awaiter, cs.Arguments
                         //});
                         //jsf = JSAsyncFunctionBuilder.New(parentScriptInfo, closureArray, ToDelegate(lambda), fxName, code);
-                    }
-                    else
-                    {
+                    } else if (functionDeclaration.Generator)
+                {
+
+                    lambda = GeneratorRewriter.Rewrite(in scriptFunctionName, block, cs.ReturnLabel, cs.Generator,
+                        replaceArgs: cs.Arguments,
+                        replaceStackItem: cs.StackItem,
+                        replaceContext: cs.Context,
+                        replaceScriptInfo: scriptInfo);
+
+                    jsf = JSGeneratorFunctionBuilderV2.New(lambda, fxName, code);
+
+                }
+
+                else
+                {
                         lambda = Exp.Lambda(typeof(JSFunctionDelegate), block, in scriptFunctionName, new ParameterExpression[] { cs.Arguments });
                         //if (createClass)
                         //{

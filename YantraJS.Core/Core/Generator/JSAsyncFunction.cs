@@ -7,6 +7,15 @@ using YantraJS.Core.LinqExpressions.GeneratorsV2;
 
 namespace YantraJS.Core.Core.Generator
 {
+    public class JSAsyncValue: JSObject
+    {
+        public readonly JSValue Value;
+
+        public JSAsyncValue(JSValue value)
+        {
+            this.Value = value;
+        }
+    }
 
     // need generator changes here...
     public class JSAsyncFunction
@@ -19,6 +28,18 @@ namespace YantraJS.Core.Core.Generator
                 var gen = gf.InvokeFunction(in a) as JSGenerator;
 
                 return ToPromise(gen!, JSUndefined.Value);
+            }
+
+            return new JSFunction(ToAsync, gf.name, gf.Length);
+        }
+
+        public static JSFunction CreateGenerator(JSGeneratorFunctionV2 gf)
+        {
+            JSValue ToAsync(in Arguments a)
+            {
+                return new JSAsyncGenerator(gf.InvokeFunction(in a) as JSGenerator);
+
+                // return ToPromise(gen!, JSUndefined.Value);
             }
 
             return new JSFunction(ToAsync, gf.name, gf.Length);
