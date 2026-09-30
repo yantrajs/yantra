@@ -33,26 +33,26 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
                 return null;
             }
 
-            if(r is JSAsyncValue av)
+            if(r is not JSAsyncValue av)
             {
-                return av.Value;
-                // retr
+                return r;
             }
 
-            var then = r[KeyString.then];
-            if (then.IsUndefined)
-            {
-                return new JSPromise(r, JSPromise.PromiseState.Resolved);
-            }
+            r = av.Value;
+            //var then = r[KeyString.then];
+            //if (then.IsUndefined)
+            //{
+            //    return new JSPromise(r, JSPromise.PromiseState.Resolved);
+            //}
 
-            r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
-            {
-                return ToPromise(gen, a.Get1());
-            }), new JSFunction((in Arguments a) =>
-            {
-                gen.Throw(a.Get1());
-                return a.Get1();
-            }));
+            //r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
+            //{
+            //    return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
+            //}), new JSFunction((in Arguments a) =>
+            //{
+            //    gen.Throw(a.Get1());
+            //    return a.Get1();
+            //}));
             return r;
         }
         catch (Exception ex)
