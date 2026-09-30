@@ -37,7 +37,7 @@ namespace YantraJS.Core.Core.Generator
         {
             JSValue ToAsync(in Arguments a)
             {
-                return new JSAsyncGenerator(gf.InvokeFunction(in a) as JSGenerator);
+                return gf.InvokeFunction(in a);
 
                 // return ToPromise(gen!, JSUndefined.Value);
             }

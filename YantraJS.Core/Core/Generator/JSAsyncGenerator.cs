@@ -39,20 +39,21 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
             }
 
             r = av.Value;
-            //var then = r[KeyString.then];
-            //if (then.IsUndefined)
-            //{
-            //    return new JSPromise(r, JSPromise.PromiseState.Resolved);
-            //}
+            var then = r[KeyString.then];
+            if (then.IsUndefined)
+            {
+                return new JSPromise(r, JSPromise.PromiseState.Resolved);
+            }
 
-            //r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
-            //{
-            //    return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
-            //}), new JSFunction((in Arguments a) =>
-            //{
-            //    gen.Throw(a.Get1());
-            //    return a.Get1();
-            //}));
+            r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
+            {
+                // return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
+                return a.Get1();
+            }), new JSFunction((in Arguments a) =>
+            {
+                gen.Throw(a.Get1());
+                return a.Get1();
+            }));
             return r;
         }
         catch (Exception ex)
