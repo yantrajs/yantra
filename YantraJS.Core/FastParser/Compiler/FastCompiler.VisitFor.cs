@@ -104,7 +104,7 @@ namespace YantraJS.Core.FastParser.Compiler
             var bodyList = Exp.Block(
                     IElementEnumeratorBuilder.MoveNext(en, next),
                     Exp.IfThen(
-                    Exp.Not(next.CheckIfDoneIsTrue()),
+                    next.CheckIfDoneIsTrue(),
                     Exp.Goto(s.Break)),
                     Exp.Assign(identifier, Exp.Yield(next.ValueProperty())),
                 body);
