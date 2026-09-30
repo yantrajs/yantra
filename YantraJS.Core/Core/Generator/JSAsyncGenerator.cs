@@ -64,8 +64,31 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
 
     public bool MoveNext(out JSValue value)
     {
-        value = ToPromise(generator, JSUndefined.Value);
-        return value != null;
+        // value = ToPromise(generator, JSUndefined.Value);
+        // return value != null;
+
+        if(!generator.MoveNext(JSUndefined.Value, out var v))
+        {
+            value = v;
+            return false;
+        }
+
+        if(v is JSAsyncValue av)
+        {
+
+            var pendingPromise = av.Value;
+            // we might have more pending promises...
+            value = ToPromise(pendingPromise);
+
+        }
+        value = v;
+
+        return true;
+    }
+
+    private JSValue ToPromise(JSValue pendingPromise)
+    {
+        // nest all promises till you find a non promise value...
     }
 
     public bool MoveNextOrDefault(out JSValue value, JSValue @default)
