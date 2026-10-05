@@ -4,9 +4,9 @@ function delay(n) {
     });
 }
 
-async function* g1() {
+function* g1() {
     console.log("start");
-    yield await delay(1);
+    yield delay(1);
     console.log("sent 1");
     yield delay(2);
     console.log("sent 2");

@@ -35,8 +35,14 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
             return false;
         }
 
+        if(!v.IsObject || v is not JSAsyncValue av)
+        {
+            value = v;
+            return true;
+        }
+
         value = new JSPromise((resolve, reject) => {
-                ToPromise(v, resolve, new JSFunction((in a) => {
+                ToPromise(av.Value, resolve, new JSFunction((in a) => {
                     reject(a[0] ?? JSUndefined.Value);
                     return JSUndefined.Value;
                 }));
