@@ -24,44 +24,6 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
         throw new System.NotImplementedException();
     }
 
-    private static JSValue ToPromise(JSGenerator gen, JSValue lastResult)
-    {
-        try
-        {
-            if (!gen.MoveNext(lastResult, out var r))
-            {
-                return null;
-            }
-
-            if(r is not JSAsyncValue av)
-            {
-                return r;
-            }
-
-            r = av.Value;
-            var then = r[KeyString.then];
-            if (then.IsUndefined)
-            {
-                return new JSPromise(r, JSPromise.PromiseState.Resolved);
-            }
-
-            r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
-            {
-                // return new JSPromise(a.Get1(), JSPromise.PromiseState.Resolved);
-                return a.Get1();
-            }), new JSFunction((in Arguments a) =>
-            {
-                gen.Throw(a.Get1());
-                return a.Get1();
-            }));
-            return r;
-        }
-        catch (Exception ex)
-        {
-            return new JSPromise(JSError.From(ex), JSPromise.PromiseState.Rejected);
-        }
-    }
-
     public bool MoveNext(out JSValue value)
     {
         // value = ToPromise(generator, JSUndefined.Value);
@@ -73,19 +35,12 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
             return false;
         }
 
-        if(v is JSAsyncValue av)
-        {
-
-            var pendingPromise = av.Value;
-            // we might have more pending promises...
-            value = new JSPromise((resolve, reject) => {
-                ToPromise(pendingPromise, resolve, new JSFunction((in a) => {
+        value = new JSPromise((resolve, reject) => {
+                ToPromise(v, resolve, new JSFunction((in a) => {
                     reject(a[0] ?? JSUndefined.Value);
                     return JSUndefined.Value;
                 }));
             });
-        }
-        value = v;
 
         return true;
     }
@@ -111,7 +66,10 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
         }
         then.Call(pendingPromise,
             new JSFunction((in a) => {
-                ToPromise(a[0] ?? JSUndefined.Value, resolve, reject);
+
+                generator.MoveNext(JSUndefined.Value, out var v);
+
+                ToPromise(v, resolve, reject);
                 return JSUndefined.Value;
             }),
             reject
