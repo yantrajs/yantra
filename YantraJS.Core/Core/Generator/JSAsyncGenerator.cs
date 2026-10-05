@@ -79,11 +79,8 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
             var pendingPromise = av.Value;
             // we might have more pending promises...
             value = new JSPromise((resolve, reject) => {
-                ToPromise(pendingPromise, new JSFunction((in a) => {
-                    resolve(a[0]);
-                    return JSUndefined.Value;
-                }), new JSFunction((in a) => {
-                    reject(a[0]);
+                ToPromise(pendingPromise, resolve, new JSFunction((in a) => {
+                    reject(a[0] ?? JSUndefined.Value);
                     return JSUndefined.Value;
                 }));
             });
@@ -92,29 +89,57 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
 
         return true;
     }
-
-    private void ToPromise(JSValue pendingPromise, JSFunction resolve, JSFunction reject)
+    private void ToPromise(JSValue pendingPromise, Action<JSValue> resolve, JSFunction reject)
     {
         // nest all promises till you find a non promise value...
-        if(!pendingPromise.IsObject)
-        {   
-            resolve.Call(JSUndefined.Value, pendingPromise);
+        if (!pendingPromise.IsObject)
+        {
+            resolve(pendingPromise);
             return;
         }
-        if(pendingPromise is not JSAsyncValue av)
+        if (pendingPromise is not JSAsyncValue av)
         {
-            resolve.Call(JSUndefined.Value, pendingPromise);
+            resolve(pendingPromise);
             return;
         }
         pendingPromise = av.Value;
         var then = pendingPromise[KeyString.then];
-        if(then.IsUndefined)
+        if (then.IsUndefined)
         {
-            resolve.Call(JSUndefined.Value, pendingPromise);
+            resolve(pendingPromise);
             return;
         }
-        then.Call(pendingPromise, resolve, reject);
+        then.Call(pendingPromise,
+            new JSFunction((in a) => {
+                ToPromise(a[0] ?? JSUndefined.Value, resolve, reject);
+                return JSUndefined.Value;
+            }),
+            reject
+        );
     }
+
+    //private void ToPromise(JSValue pendingPromise, JSFunction resolve, JSFunction reject)
+    //{
+    //    // nest all promises till you find a non promise value...
+    //    if(!pendingPromise.IsObject)
+    //    {   
+    //        resolve.Call(JSUndefined.Value, pendingPromise);
+    //        return;
+    //    }
+    //    if(pendingPromise is not JSAsyncValue av)
+    //    {
+    //        resolve.Call(JSUndefined.Value, pendingPromise);
+    //        return;
+    //    }
+    //    pendingPromise = av.Value;
+    //    var then = pendingPromise[KeyString.then];
+    //    if(then.IsUndefined)
+    //    {
+    //        resolve.Call(JSUndefined.Value, pendingPromise);
+    //        return;
+    //    }
+    //    then.Call(pendingPromise, resolve, reject);
+    //}
 
     public bool MoveNextOrDefault(out JSValue value, JSValue @default)
     {
