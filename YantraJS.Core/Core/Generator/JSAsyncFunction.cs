@@ -53,7 +53,10 @@ namespace YantraJS.Core.Core.Generator
                 {
                     return new JSPromise(r, JSPromise.PromiseState.Resolved);
                 }
-
+                if(!r.IsObject)
+                {
+                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
+                }
                 var then = r[KeyString.then];
                 if (then.IsUndefined)
                 {
