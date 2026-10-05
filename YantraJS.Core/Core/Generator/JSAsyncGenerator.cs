@@ -78,17 +78,42 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
 
             var pendingPromise = av.Value;
             // we might have more pending promises...
-            value = ToPromise(pendingPromise);
-
+            value = new JSPromise((resolve, reject) => {
+                ToPromise(pendingPromise, new JSFunction((in a) => {
+                    resolve(a[0]);
+                    return JSUndefined.Value;
+                }), new JSFunction((in a) => {
+                    reject(a[0]);
+                    return JSUndefined.Value;
+                }));
+            });
         }
         value = v;
 
         return true;
     }
 
-    private JSValue ToPromise(JSValue pendingPromise)
+    private void ToPromise(JSValue pendingPromise, JSFunction resolve, JSFunction reject)
     {
         // nest all promises till you find a non promise value...
+        if(!pendingPromise.IsObject)
+        {   
+            resolve.Call(JSUndefined.Value, pendingPromise);
+            return;
+        }
+        if(pendingPromise is not JSAsyncValue av)
+        {
+            resolve.Call(JSUndefined.Value, pendingPromise);
+            return;
+        }
+        pendingPromise = av.Value;
+        var then = pendingPromise[KeyString.then];
+        if(then.IsUndefined)
+        {
+            resolve.Call(JSUndefined.Value, pendingPromise);
+            return;
+        }
+        then.Call(pendingPromise, resolve, reject);
     }
 
     public bool MoveNextOrDefault(out JSValue value, JSValue @default)
