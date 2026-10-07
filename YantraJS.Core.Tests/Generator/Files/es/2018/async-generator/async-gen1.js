@@ -16,7 +16,8 @@ function* g1() {
 
 async function test() {
     const a = [];
-    for await (const i of g1()) {
+    for (const x of g1()) {
+        const i = await x;
         console.log(i);
         a.push(i);
     }
