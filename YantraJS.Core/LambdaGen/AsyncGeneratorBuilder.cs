@@ -14,14 +14,14 @@ internal static class AsyncGeneratorBuilder
         var done = KeyString.done;
         var r = target.MakeIndexExpression<JSValue, KeyString, JSValue>(
             () => (x, k) => x[k],
-            YExpression.Constant(done));
+            YExpression.Constant((uint)done));
         return JSValueBuilder.BooleanValue(r);
     }
 
     public static YExpression ValueProperty(this YExpression target)
     {
         return target.MakeIndexExpression<JSValue,KeyString,JSValue>(() => (x, k) => x[k],
-            YExpression.Constant(KeyString.value));
+            YExpression.Constant((uint)KeyString.value));
     }
 
 }

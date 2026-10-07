@@ -15,6 +15,7 @@ using GotoExpression = YantraJS.Expressions.YGoToExpression;
 using TryExpression = YantraJS.Expressions.YTryCatchFinallyExpression;
 using System.Linq;
 using YantraJS.Core.LambdaGen;
+using YantraJS.Expressions;
 
 namespace YantraJS.Core.FastParser.Compiler
 {
@@ -102,11 +103,13 @@ namespace YantraJS.Core.FastParser.Compiler
             var body = VisitStatement(forOfStatement.Body);
 
             var bodyList = Exp.Block(
-                    IElementEnumeratorBuilder.MoveNext(en, next),
                     Exp.IfThen(
-                    next.CheckIfDoneIsTrue(),
+                            Exp.Not(
+                                IElementEnumeratorBuilder.MoveNext(en, next)
+                            )
+                    ,
                     Exp.Goto(s.Break)),
-                    Exp.Assign(identifier, Exp.Yield(next.ValueProperty())),
+                    Exp.Assign(identifier, Exp.Yield(next)),
                 body);
 
             var right = VisitExpression(forOfStatement.Target);
