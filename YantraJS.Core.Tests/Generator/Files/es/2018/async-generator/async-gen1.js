@@ -16,10 +16,14 @@ function* g1() {
 
 async function test() {
     const a = [];
-    for (const x of g1()) {
-        const i = await x;
-        console.log(i);
-        a.push(i);
+    // for (const x of g1()) {
+    //     const i = await x;
+    //     console.log(i);
+    //     a.push(i);
+    // }
+    for await(const x of g1()) {
+        console.log(x);
+        a.push(x);
     }
     // assert.equal("1,2", a.toString());
     return a.join(",");
