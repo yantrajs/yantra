@@ -44,6 +44,7 @@ namespace YantraJS.Core.Core.Generator
 
         private static void ToPromise2(JSGenerator gen, JSValue value, Action<JSValue> resolve, JSFunction reject)
         {
+            Console.WriteLine($"ToPromise {value}");
             do
             {
                 if (!gen.MoveNext(value, out var r))
@@ -61,7 +62,7 @@ namespace YantraJS.Core.Core.Generator
                     continue;
                 }
                 then.Call(r, new JSFunction((in a) => {
-                    ToPromise2(gen, a[0] ?? JSUndefined.Value, resolve, reject);
+                    ToPromise2(gen, a[0] ?? value, resolve, reject);
                     return JSUndefined.Value;
                 }), reject);
                 break;
