@@ -63,28 +63,13 @@ namespace YantraJS.Core
         long promiseID;
         ConcurrentDictionary<long, JSPromise> pending;
 
-        /// <summary>
-        /// .Net removes promises aggressively via
-        /// garbage collection... so all promises
-        /// till resolved/failed are stored in 
-        /// global list
-        /// </summary>
-        private void  RegisterPromise()
-        {
-            promiseID = Interlocked.Increment(ref nextPromiseID);
-
-            pending = JSContext.Current.PendingPromises;
-            pending.TryAdd(promiseID, this);
-        }
-
         private JSPromise(): base(JSContext.CurrentContext.Promise_Prototype)
         {
-
+            InitPromise();
         }
 
         internal JSPromise(JSValue value, PromiseState state): this()
         {
-            InitPromise();
             this.state = state;
             this.result = value;
         }
@@ -96,7 +81,6 @@ namespace YantraJS.Core
         public JSPromise(Task<JSValue> value) : this()
         {
             sc = JSContext.Current.synchronizationContext;
-            RegisterPromise();
             value.ContinueWith((t) => {
                 if (t.IsCompleted)
                 {
@@ -142,7 +126,6 @@ namespace YantraJS.Core
 
         public JSPromise(JSPromiseDelegate @delegate) : this()
         {
-            InitPromise();
             try
             {
                 @delegate((v) => resolveFunction.Call(JSUndefined.Value,v), (v) => rejectFunction.Call(JSUndefined.Value, v));
@@ -160,7 +143,11 @@ namespace YantraJS.Core
             if (sc == null)
                 throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
 
-            RegisterPromise();
+            promiseID = Interlocked.Increment(ref nextPromiseID);
+
+            pending = JSContext.Current.PendingPromises;
+            pending.TryAdd(promiseID, this);
+
 
             resolveFunction = new JSFunction((in Arguments a) =>
             {
@@ -319,7 +306,6 @@ namespace YantraJS.Core
             if (@return == null)
             {
                 @return = new JSPromise();
-                @return.InitPromise();
             }
             var resolved = new Reaction { Promise = @return, Type = ReactionType.Resolve, Handler = resolve };
             var rejected = new Reaction { Promise = @return, Type = ReactionType.Reject, Handler = fail };
