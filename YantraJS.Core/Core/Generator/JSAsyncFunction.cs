@@ -62,7 +62,7 @@ namespace YantraJS.Core.Core.Generator
                     continue;
                 }
                 then.Call(r, new JSFunction((in a) => {
-                    ToPromise2(gen, a[0] ?? r ?? value, resolve, reject);
+                    ToPromise2(gen, a[0] ?? r, resolve, reject);
                     return JSUndefined.Value;
                 }), reject);
                 break;
