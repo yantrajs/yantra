@@ -16,7 +16,7 @@ namespace YantraJS.Core.FastParser.Compiler
         protected override YExpression VisitAwaitExpression(AstAwaitExpression node)
         {
             var target = VisitExpression(node.Argument);
-            if (this.scope.Top.Function.Generator)
+            if (this.scope.Top.Function?.Generator ?? false)
             {
                 var c = TypeQuery
                     .QueryConstructor<JSAsyncValue>(() => () => new JSAsyncValue((JSValue)null, false));
