@@ -147,8 +147,10 @@ namespace YantraJS.Core
                 throw current.NewTypeError($"Cannot use promise without Synchronization Context");
 
             promiseID = Interlocked.Increment(ref nextPromiseID);
-
-            current.AddWaitCount();
+            if (this.state == PromiseState.Pending)
+            {
+                current.AddWaitCount();
+            }
 
             //pending = JSContext.Current.PendingPromises;
             //pending.TryAdd(promiseID, this);
