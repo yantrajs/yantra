@@ -87,15 +87,13 @@ namespace YantraJS.Core
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
         // private TaskCompletionSource<int> _waitTask;
-        private AsyncCountdownEvent countdownEvent = new AsyncCountdownEvent();
-
-        internal AsyncCountdownEvent CountdownEvent => countdownEvent;
+        private AsyncCountdownEvent countdownEvent;
 
         internal Task WaitTask
         {
             get
             {
-                return countdownEvent.Task;
+                return countdownEvent?.Task;
             }
         }
 
@@ -459,7 +457,7 @@ namespace YantraJS.Core
             if(timeouts.TryRemove(n, out var timer))
             {
                 try { timer.Dispose(); } catch { }
-                countdownEvent.Signal();
+                ReduceWaitCount();
             }
         }
 
@@ -468,10 +466,14 @@ namespace YantraJS.Core
             if (timers.TryRemove(n, out var timer))
             {
                 try { timer.Dispose(); } catch { }
-                countdownEvent.Signal();
+                ReduceWaitCount();
             }
         }
 
+        internal void ReduceWaitCount()
+        {
+            countdownEvent.Signal();
+        }
 
         static readonly ConcurrentUInt32Map<JSFunction> cache = ConcurrentUInt32Map<JSFunction>.Create();
         internal readonly SynchronizationContext synchronizationContext;
@@ -553,7 +555,7 @@ namespace YantraJS.Core
         internal long PostTimeout(int delay, JSFunction f, in Arguments a)
         {
             var ctx = this.synchronizationContext;
-            if(ctx == null)
+            if (ctx == null)
             {
                 throw NewTypeError($"Synchronization context must be present to set timeout");
             }
@@ -567,13 +569,16 @@ namespace YantraJS.Core
                     args[i - 2] = a.GetAt(i);
                 }
             }
-            var timer = new Timer((_) => {
-                ctx.Post((x) => {
+            var timer = new Timer((_) =>
+            {
+                ctx.Post((x) =>
+                {
                     var f = x as JSValue;
                     try
                     {
                         f.InvokeFunction(new Arguments(JSUndefined.Value, args));
-                    }catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         this.ReportError(ex);
                     }
@@ -582,9 +587,15 @@ namespace YantraJS.Core
             }, f, delay, Timeout.Infinite);
 
             timeouts.AddOrUpdate(key, timer, (a1, a2) => a2);
-            countdownEvent.AddCount();
+            AddWaitCount();
             return key;
         }
+
+        internal void AddWaitCount()
+        {
+            (countdownEvent ??= new AsyncCountdownEvent()).AddCount();
+        }
+
         internal long SetInterval(int delay, JSFunction f, in Arguments a)
         {
             var ctx = this.synchronizationContext;
@@ -616,7 +627,7 @@ namespace YantraJS.Core
             }, f, delay, Timeout.Infinite);
 
             timers.AddOrUpdate(key, timer, (a1, a2) => a2);
-            countdownEvent.AddCount();
+            AddWaitCount();
             return key;
 
         }

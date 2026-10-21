@@ -60,6 +60,8 @@ namespace YantraJS.Core
 
         static long nextPromiseID = 1;
 
+        JSContext current;
+
         long promiseID;
         // ConcurrentDictionary<long, JSPromise> pending;
 
@@ -138,7 +140,7 @@ namespace YantraJS.Core
 
         private void InitPromise()
         {
-            var current = JSContext.Current;
+            this.current = JSContext.Current;
             // to improve speed of promise, we will add then/catch here...
             sc = current.synchronizationContext;
             if (sc == null)
@@ -146,7 +148,7 @@ namespace YantraJS.Core
 
             promiseID = Interlocked.Increment(ref nextPromiseID);
 
-            current.CountdownEvent.AddCount();
+            current.AddWaitCount();
 
             //pending = JSContext.Current.PendingPromises;
             //pending.TryAdd(promiseID, this);
@@ -186,11 +188,11 @@ namespace YantraJS.Core
             if (state != PromiseState.Pending)
                 return;
 
-            JSContext.Current.CountdownEvent.Signal();
+            current.ReduceWaitCount();
 
             if (value == this)
             {
-                Reject(JSContext.Current.NewTypeError("A promise cannot be resolved with itself").Error);
+                Reject(current.NewTypeError("A promise cannot be resolved with itself").Error);
                 return;
             }
 
@@ -242,7 +244,7 @@ namespace YantraJS.Core
             this.state = PromiseState.Rejected;
             this.result = value;
 
-            JSContext.Current.CountdownEvent.Signal();
+            current.ReduceWaitCount();
 
             // pending.TryRemove(promiseID, out var __);
 
