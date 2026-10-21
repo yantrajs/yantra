@@ -1,4 +1,6 @@
-﻿namespace YantraJS.Core;
+﻿using System;
+
+namespace YantraJS.Core;
 
 partial class JSContext
 {
@@ -14,6 +16,10 @@ partial class JSContext
         return new JSPrototypeObject(o);
     }
 
+    internal void Reset()
+    {
+        this.countdownEvent = null;
+    }
 
     internal JSPrototype String_Prototype;
     internal JSPrototype Object_Prototype;

@@ -674,6 +674,8 @@ namespace YantraJS.Core
         /// <returns></returns>
         public async Task<JSValue> ExecuteAsync(string code, string codeFilePath = null)
         {
+            // we need to reset previous wait count
+            this.countdownEvent = null;
             var r = CoreScript.Evaluate(code, codeFilePath, codeCache: CodeCache);
             var wt = this.WaitTask;
             if (wt != null)

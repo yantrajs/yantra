@@ -82,6 +82,7 @@ namespace YantraJS
             var result = JSUndefined.Value;
             var ctx = JSContext.Current;
             var fx = Compile(code, location, null, codeCache ?? ctx.CodeCache);
+            ctx.Reset();
             result = fx(new Arguments(ctx));
             if (ctx.WaitTask != null)
             {
