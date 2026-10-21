@@ -21,7 +21,7 @@ internal class AsyncCountdownEvent
     }
 
     // This is the property/task you can await in your messaging loop
-    public Task WaitAsync => _tcs.Task;
+    public Task Task => _tcs.Task;
 
     public void AddCount(int count = 1)
     {

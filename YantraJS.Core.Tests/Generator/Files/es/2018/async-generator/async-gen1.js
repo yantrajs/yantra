@@ -22,7 +22,6 @@ async function test() {
     //     a.push(i);
     // }
     for await(const x of g1()) {
-        console.log(x);
         a.push(x);
     }
     // assert.equal("1,2", a.toString());

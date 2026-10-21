@@ -86,12 +86,16 @@ namespace YantraJS.Core
         // internal LightWeightStack<CallStackItem> Stack = new LightWeightStack<CallStackItem>(256);
 
         // internal LinkedList<Task> waitTasks = new LinkedList<Task>();
-        private TaskCompletionSource<int> _waitTask;
+        // private TaskCompletionSource<int> _waitTask;
+        private AsyncCountdownEvent countdownEvent = new AsyncCountdownEvent();
+
+        internal AsyncCountdownEvent CountdownEvent => countdownEvent;
+
         internal Task WaitTask
         {
             get
             {
-                return _waitTask?.Task;
+                return countdownEvent.Task;
             }
         }
 
@@ -455,10 +459,7 @@ namespace YantraJS.Core
             if(timeouts.TryRemove(n, out var timer))
             {
                 try { timer.Dispose(); } catch { }
-            }
-            if (timers.Count == 0 && timeouts.Count == 0)
-            {
-                _waitTask.TrySetResult(1);
+                countdownEvent.Signal();
             }
         }
 
@@ -467,10 +468,7 @@ namespace YantraJS.Core
             if (timers.TryRemove(n, out var timer))
             {
                 try { timer.Dispose(); } catch { }
-            }
-            if (timers.Count == 0 && timeouts.Count == 0)
-            {
-                _waitTask.TrySetResult(1);
+                countdownEvent.Signal();
             }
         }
 
@@ -584,10 +582,7 @@ namespace YantraJS.Core
             }, f, delay, Timeout.Infinite);
 
             timeouts.AddOrUpdate(key, timer, (a1, a2) => a2);
-            lock(this)
-            {
-                _waitTask = _waitTask ?? new TaskCompletionSource<int>();
-            }
+            countdownEvent.AddCount();
             return key;
         }
         internal long SetInterval(int delay, JSFunction f, in Arguments a)
@@ -621,18 +616,15 @@ namespace YantraJS.Core
             }, f, delay, Timeout.Infinite);
 
             timers.AddOrUpdate(key, timer, (a1, a2) => a2);
-            lock (this)
-            {
-                _waitTask = _waitTask ?? new TaskCompletionSource<int>();
-            }
+            countdownEvent.AddCount();
             return key;
 
         }
 
         public ICodeCache CodeCache = DictionaryCodeCache.Current;
 
-        internal ConcurrentDictionary<long, JSPromise> PendingPromises
-            = new ConcurrentDictionary<long, JSPromise>();
+        //internal ConcurrentDictionary<long, JSPromise> PendingPromises
+        //    = new ConcurrentDictionary<long, JSPromise>();
 
         /// <summary>
         /// Quickly evaluates the code, does not wait for promises and timeouts/intervals.

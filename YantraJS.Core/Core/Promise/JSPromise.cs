@@ -61,7 +61,7 @@ namespace YantraJS.Core
         static long nextPromiseID = 1;
 
         long promiseID;
-        ConcurrentDictionary<long, JSPromise> pending;
+        // ConcurrentDictionary<long, JSPromise> pending;
 
         private JSPromise(): base(JSContext.CurrentContext.Promise_Prototype)
         {
@@ -138,15 +138,18 @@ namespace YantraJS.Core
 
         private void InitPromise()
         {
+            var current = JSContext.Current;
             // to improve speed of promise, we will add then/catch here...
-            sc = JSContext.Current.synchronizationContext;
+            sc = current.synchronizationContext;
             if (sc == null)
-                throw JSContext.Current.NewTypeError($"Cannot use promise without Synchronization Context");
+                throw current.NewTypeError($"Cannot use promise without Synchronization Context");
 
             promiseID = Interlocked.Increment(ref nextPromiseID);
 
-            pending = JSContext.Current.PendingPromises;
-            pending.TryAdd(promiseID, this);
+            current.CountdownEvent.AddCount();
+
+            //pending = JSContext.Current.PendingPromises;
+            //pending.TryAdd(promiseID, this);
 
 
             resolveFunction = new JSFunction((in Arguments a) =>
@@ -183,13 +186,15 @@ namespace YantraJS.Core
             if (state != PromiseState.Pending)
                 return;
 
+            JSContext.Current.CountdownEvent.Signal();
+
             if (value == this)
             {
                 Reject(JSContext.Current.NewTypeError("A promise cannot be resolved with itself").Error);
                 return;
             }
 
-            pending.TryRemove(promiseID, out var __);
+            // pending.TryRemove(promiseID, out var __);
 
             // get then...
             if (value.IsObject)
@@ -237,7 +242,9 @@ namespace YantraJS.Core
             this.state = PromiseState.Rejected;
             this.result = value;
 
-            pending.TryRemove(promiseID, out var __);
+            JSContext.Current.CountdownEvent.Signal();
+
+            // pending.TryRemove(promiseID, out var __);
 
             var rejectList = this.rejectList;
             if (rejectList != null)
