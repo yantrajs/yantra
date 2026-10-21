@@ -89,7 +89,7 @@ namespace YantraJS.Core.Core.Generator
             {
                 if(!gen.MoveNext(lastResult, out var r))
                 {
-                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
+                    return new JSPromise(lastResult, JSPromise.PromiseState.Resolved);
                 }
                 if(!r.IsObject)
                 {
