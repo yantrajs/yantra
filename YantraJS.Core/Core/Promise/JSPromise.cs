@@ -74,6 +74,10 @@ namespace YantraJS.Core
         {
             this.state = state;
             this.result = value;
+            if(this.state != PromiseState.Pending)
+            {
+                current.ReduceWaitCount();
+            }
         }
 
         /// <summary>
