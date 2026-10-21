@@ -12,9 +12,12 @@ namespace YantraJS.Core.Core.Generator
     {
         public readonly JSValue Value;
 
-        public JSAsyncValue(JSValue value)
+        public readonly bool Yield;
+
+        public JSAsyncValue(JSValue value, bool yield = false)
         {
             this.Value = value;
+            this.Yield = yield;
         }
     }
 
@@ -49,6 +52,11 @@ namespace YantraJS.Core.Core.Generator
             {
                 if (!gen.MoveNext(value, out var r))
                 {
+                    if(r != null)
+                    {
+                        resolve(r);
+                        return;
+                    }
                     resolve(value);
                     return;
                 }
@@ -81,39 +89,6 @@ namespace YantraJS.Core.Core.Generator
             }
 
             return new JSFunction(ToAsync, gf.name, gf.Length);
-        }
-
-        private static JSValue ToPromise(JSGenerator gen, JSValue lastResult)
-        {
-            try
-            {
-                if(!gen.MoveNext(lastResult, out var r))
-                {
-                    return new JSPromise(lastResult, JSPromise.PromiseState.Resolved);
-                }
-                if(!r.IsObject)
-                {
-                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
-                }
-                var then = r[KeyString.then];
-                if (then.IsUndefined)
-                {
-                    return new JSPromise(r, JSPromise.PromiseState.Resolved);
-                }
-
-                r = r.InvokeMethod(KeyString.then, new JSFunction((in Arguments a) =>
-                {
-                    return ToPromise(gen, a.Get1());
-                }), new JSFunction((in Arguments a) =>
-                {
-                    gen.Throw(a.Get1());
-                    return a.Get1();
-                }));
-                return r;
-            } catch (Exception ex)
-            {
-                return new JSPromise(JSError.From(ex), JSPromise.PromiseState.Rejected);
-            }
         }
     }
 }

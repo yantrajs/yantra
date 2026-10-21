@@ -24,6 +24,17 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
         throw new System.NotImplementedException();
     }
 
+    /*
+     * yield 1 => yield 1
+     * await 2 => yield av 2, false
+     * yield 3 => yield 3
+     * yield await 4 => yield av 4, true
+     * 
+     * 
+     * 
+     * **/
+
+
     public bool MoveNext(out JSValue value)
     {
         // value = ToPromise(generator, JSUndefined.Value);
@@ -42,7 +53,7 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
         }
 
         value = new JSPromise((resolve, reject) => {
-                ToPromise(av.Value, resolve, new JSFunction((in a) => {
+                ToPromise(v, resolve, new JSFunction((in a) => {
                     reject(a[0] ?? JSUndefined.Value);
                     return JSUndefined.Value;
                 }));
@@ -52,34 +63,32 @@ public class JSAsyncGenerator: JSObject, IElementEnumerator
     }
     private void ToPromise(JSValue pendingPromise, Action<JSValue> resolve, JSFunction reject)
     {
-        // nest all promises till you find a non promise value...
-        if (!pendingPromise.IsObject)
+        if(pendingPromise is JSAsyncValue av)
         {
-            resolve(pendingPromise);
-            return;
-        }
-        if (pendingPromise is not JSAsyncValue av)
-        {
-            resolve(pendingPromise);
-            return;
-        }
-        pendingPromise = av.Value;
-        var then = pendingPromise[KeyString.then];
-        if (then.IsUndefined)
-        {
-            resolve(pendingPromise);
-            return;
-        }
-        then.Call(pendingPromise,
-            new JSFunction((in a) => {
 
-                generator.MoveNext(JSUndefined.Value, out var v);
+            if(av.Yield)
+            {
+                resolve(av.Value);
+                return;
+            }
 
-                ToPromise(v, resolve, reject);
+            var v = av.Value.InvokeMethod(KeyString.then, new JSFunction((in a) => {
+
+                if (generator.MoveNext(JSUndefined.Value, out var v))
+                {
+                    ToPromise(v, resolve, reject);
+                }
+                else
+                {
+                    resolve(v);
+                }
                 return JSUndefined.Value;
-            }),
-            reject
-        );
+            }), reject);
+            return;
+        }
+
+        resolve(pendingPromise);
+
     }
 
     //private void ToPromise(JSValue pendingPromise, JSFunction resolve, JSFunction reject)

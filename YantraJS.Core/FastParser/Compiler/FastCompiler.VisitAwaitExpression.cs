@@ -19,8 +19,8 @@ namespace YantraJS.Core.FastParser.Compiler
             if (this.scope.Top.Function.Generator)
             {
                 var c = TypeQuery
-                    .QueryConstructor<JSAsyncValue>(() => () => new JSAsyncValue((JSValue)null));
-                return YExpression.Yield(YExpression.New(c, target));
+                    .QueryConstructor<JSAsyncValue>(() => () => new JSAsyncValue((JSValue)null, false));
+                return YExpression.Yield(YExpression.New(c, target, YExpression.Constant(false)));
             }
             return YExpression.Yield(target);
         }

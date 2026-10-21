@@ -8,8 +8,9 @@ async function* g1() {
     console.log("start");
     yield await delay(1);
     console.log("sent 1");
-    yield delay(2);
+    yield await delay(2);
     console.log("sent 2");
+    await delay(10);
     yield delay(3);
     console.log("sent 3");
 }

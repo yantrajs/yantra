@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using YantraJS.Core.CodeGen;
+using YantraJS.Core.Core.Generator;
 using YantraJS.Core.LambdaGen;
 using YantraJS.Core.LinqExpressions;
 using YantraJS.Core.LinqExpressions.GeneratorsV2;
+using YantraJS.Core.Types;
 using YantraJS.Emit;
 using YantraJS.ExpHelper;
 using YantraJS.Expressions;
@@ -241,7 +243,17 @@ namespace YantraJS.Core.FastParser.Compiler
 
         protected override Expression VisitYieldExpression(AstYieldExpression yieldExpression)
         {
-            var target = VisitExpression(yieldExpression.Argument);
+            var arg = yieldExpression.Argument;
+
+            if(arg is AstAwaitExpression awaitExp)
+            {
+                var t = this.VisitExpression(awaitExp.Argument);
+                var c = TypeQuery
+                    .QueryConstructor<JSAsyncValue>(() => () => new JSAsyncValue((JSValue)null, false));
+                return YExpression.Yield(YExpression.New(c, t, YExpression.Constant(true)));
+            }
+
+            var target = VisitExpression(arg);
             return YExpression.Yield(target, yieldExpression.Delegate);
 
         }
