@@ -179,12 +179,12 @@ namespace YantraJS.Core.Objects
             while(een.MoveNext(out var hasValue, out var value, out var index))
             {
                 if (hasValue)
-                    r.Add(JSNumber.From(index));
+                    r.Add(new JSString(index.ToString()));
             }
             var en = @object.GetOwnProperties(false).GetPropertyEnumerator();
             while (en.MoveNext(out var property))
             {
-                r.Add(property.ToJSValue());
+                r.Add(new JSString(((KeyString)property.key).ToStringSpan()));
             }
             ref var symbols = ref @object.GetSymbols();
             foreach(var e in symbols.AllValues())
