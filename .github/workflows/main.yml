@@ -29,8 +29,15 @@ jobs:
 
     - name: Pack
       run: dotnet pack --no-restore
+
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: neurospeech 
+
     - name: Publish NuGet
-      run: dotnet nuget push **/*.nupkg -k ${NUGET_TOKEN} -s https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate
+      run: dotnet nuget push **/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate
       env:
          NUGET_TOKEN: ${{secrets.PUBLIC_NUGET_TOKEN}}
 
